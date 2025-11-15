@@ -2,6 +2,7 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
+import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.repositories.CourseRepository;
@@ -31,7 +32,13 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupResponse createGroup(Integer courseId, CreateGroupRequest group) {
-        return null;
+        Course course = courseRepository.findById(courseId).orElseThrow();
+
+        Group newGroup = groupMapper.toEntity(group);
+        newGroup.setCourse(course);
+
+        Group saved = groupRepository.save(newGroup);
+        return groupMapper.toResponse(saved);
     }
 
     @Override
