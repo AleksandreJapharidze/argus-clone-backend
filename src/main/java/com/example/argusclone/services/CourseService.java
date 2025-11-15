@@ -11,5 +11,6 @@ public interface CourseService {
     CourseResponse getCourseByCourseCode(String courseCode);
     List<CourseResponse> getAllCourses();
     CourseResponse addCourse(CreateCourseRequest course);
+    CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId);
     void deleteCourseById(Integer id);
 }

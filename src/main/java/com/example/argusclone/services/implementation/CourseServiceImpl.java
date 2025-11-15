@@ -58,6 +58,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
+        Course course = courseRepository.findById(courseId).orElseThrow();
+        course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow());
+        return courseMapper.toResponse(courseRepository.save(course));
+    }
+
+    @Override
     public void deleteCourseById(Integer id) {
         if (!courseRepository.existsById(id)) {
             return;
