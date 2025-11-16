@@ -9,14 +9,26 @@ import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.repositories.SyllabusRepository;
 import com.example.argusclone.services.CourseService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class CourseServiceImpl implements CourseService {
+    @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
     private SyllabusRepository syllabusRepository;
+
+    @Autowired
     private InstructorRepository instructorRepository;
+
+    @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
     private CourseMapper courseMapper;
 
     @Override
@@ -51,10 +63,8 @@ public class CourseServiceImpl implements CourseService {
             throw new IllegalArgumentException("Course with code " + course.getCourseCode() + " already exists");
         });
 
-        Course newCourse = courseMapper.toEntity(course);
-
-        Course saved = courseRepository.save(newCourse);
-        return courseMapper.toResponse(saved);
+        Course newCourse = courseMapper.toEntity(course);;
+        return courseMapper.toResponse(courseRepository.save(newCourse));
     }
 
     @Override
@@ -69,6 +79,7 @@ public class CourseServiceImpl implements CourseService {
         if (!courseRepository.existsById(id)) {
             return;
         }
+
         courseRepository.deleteById(id);
     }
 }
