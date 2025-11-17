@@ -12,7 +12,15 @@ public class GroupResponse {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public List<LectureResponse> getLectures() {
         return lectures;
+    }
+
+    public void setLectures(List<LectureResponse> lectures) {
+        this.lectures = lectures;
     }
 }

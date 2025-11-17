@@ -14,19 +14,39 @@ public class LectureResponse {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public LocalDate getLectureDate() {
         return lectureDate;
+    }
+
+    public void setLectureDate(LocalDate lectureDate) {
+        this.lectureDate = lectureDate;
     }
 
     public LocalTime getLectureStartTime() {
         return lectureStartTime;
     }
 
+    public void setLectureStartTime(LocalTime lectureStartTime) {
+        this.lectureStartTime = lectureStartTime;
+    }
+
     public LocalTime getLectureEndTime() {
         return lectureEndTime;
     }
 
+    public void setLectureEndTime(LocalTime lectureEndTime) {
+        this.lectureEndTime = lectureEndTime;
+    }
+
     public String getRoomNumber() {
         return roomNumber;
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
     }
 }

@@ -18,23 +18,47 @@ public class CourseResponse {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getCourseName() {
         return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
     public String getCourseCode() {
         return courseCode;
     }
 
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
     public SyllabusResponse getSyllabus() {
         return syllabus;
+    }
+
+    public void setSyllabus(SyllabusResponse syllabus) {
+        this.syllabus = syllabus;
     }
 
     public List<InstructorResponse> getInstructors() {
         return instructors;
     }
 
+    public void setInstructors(List<InstructorResponse> instructors) {
+        this.instructors = instructors;
+    }
+
     public List<GroupResponse> getGroups() {
         return groups;
+    }
+
+    public void setGroups(List<GroupResponse> groups) {
+        this.groups = groups;
     }
 }

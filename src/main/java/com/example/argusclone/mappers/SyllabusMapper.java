@@ -10,5 +10,6 @@ import org.mapstruct.Mapping;
 public interface SyllabusMapper {
     @Mapping(target = "id", ignore = true)
     Syllabus toEntity(SyllabusRequest request);
+
     SyllabusResponse toResponse(Syllabus syllabus);
 }

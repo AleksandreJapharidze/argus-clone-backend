@@ -38,8 +38,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse getCourseByName(String name) {
-        Course course = courseRepository.findByName(name).orElseThrow();
+    public CourseResponse getCourseByName(String courseName) {
+        Course course = courseRepository.findByCourseName(courseName).orElseThrow();
         return courseMapper.toResponse(course);
     }
 

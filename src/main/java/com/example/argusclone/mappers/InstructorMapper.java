@@ -12,6 +12,6 @@ public interface InstructorMapper {
     @Mapping(target = "courses", ignore = true)
     Instructor toEntity(CreateInstructorRequest request);
 
-    @Mapping(target = "courses", ignore = true)
+//    @Mapping(target = "courses", ignore = true)
     InstructorResponse toResponse(Instructor instructor);
 }

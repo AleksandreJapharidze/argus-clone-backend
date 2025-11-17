@@ -20,6 +20,7 @@ import java.util.List;
 
 @Service
 public class GroupServiceImpl implements GroupService {
+    private static final int SEMESTER_WEEKS = 15;
 
     @Autowired
     private GroupRepository groupRepository;
@@ -77,7 +78,7 @@ public class GroupServiceImpl implements GroupService {
         validateNoConflicts(lectures);
 
         List<Lecture> newLectures = new ArrayList<>();
-        for (int i=0; i<=14; i++) {
+        for (int i=1; i<=SEMESTER_WEEKS; i++) {
             for (CreateLectureRequest lecture : lectures) {
                 Lecture newLecture = lectureMapper.toEntity(lecture);
                 newLecture.setLectureDate(lecture.getLectureDate().plusWeeks(i));
