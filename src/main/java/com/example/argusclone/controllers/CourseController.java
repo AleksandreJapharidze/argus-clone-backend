@@ -15,8 +15,30 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
-        return ResponseEntity.ok(courseService.getCourseById(id));
+        var course = courseService.getCourseById(id);
+        if (course == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(course);
     }
+
+    @GetMapping("/name/{courseName}")
+    public ResponseEntity<CourseResponse> getCourseByName(@PathVariable String courseName) {
+        return ResponseEntity.ok(courseService.getCourseByName(courseName));
+    }
+
+    @GetMapping("/code/{courseCode}")
+    public ResponseEntity<CourseResponse> getCourseByCourseCode(@PathVariable String courseCode) {
+        return ResponseEntity.ok(courseService.getCourseByCourseCode(courseCode));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Iterable<CourseResponse>> getAllCourses() {
+        return ResponseEntity.ok(courseService.getAllCourses());
+    }
+
+
 }
