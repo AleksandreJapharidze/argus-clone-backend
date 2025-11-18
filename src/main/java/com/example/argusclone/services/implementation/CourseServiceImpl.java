@@ -3,6 +3,8 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.entities.Course;
+import com.example.argusclone.exceptions.DuplicateResourceException;
+import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
@@ -33,19 +35,25 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse getCourseById(Integer id) {
-        Course course = courseRepository.findById(id).orElseThrow();
+        Course course = courseRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
+        );
         return courseMapper.toResponse(course);
     }
 
     @Override
     public CourseResponse getCourseByName(String courseName) {
-        Course course = courseRepository.findByCourseName(courseName).orElseThrow();
+        Course course = courseRepository.findByCourseName(courseName).orElseThrow(
+                () -> new ResourceNotFoundException("Course with a name of " + courseName + " not found")
+        );
         return courseMapper.toResponse(course);
     }
 
     @Override
     public CourseResponse getCourseByCourseCode(String courseCode) {
-        Course course = courseRepository.findByCourseCode(courseCode).orElseThrow();
+        Course course = courseRepository.findByCourseCode(courseCode).orElseThrow(
+                () -> new ResourceNotFoundException("Course with a code of " + courseCode + " not found")
+        );
         return courseMapper.toResponse(course);
     }
 
@@ -60,7 +68,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
-            throw new IllegalArgumentException("Course with code " + course.getCourseCode() + " already exists");
+            throw new DuplicateResourceException("Course with code " + course.getCourseCode() + " already exists");
         });
 
         Course newCourse = courseMapper.toEntity(course);;
@@ -69,7 +77,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
-        Course course = courseRepository.findById(courseId).orElseThrow();
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
         course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow());
         return courseMapper.toResponse(courseRepository.save(course));
     }
@@ -77,7 +87,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourseById(Integer id) {
         if (!courseRepository.existsById(id)) {
-            return;
+            throw new ResourceNotFoundException("Course with an id of " + id + " not found");
         }
 
         courseRepository.deleteById(id);
