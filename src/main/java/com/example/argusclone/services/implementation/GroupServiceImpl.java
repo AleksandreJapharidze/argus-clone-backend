@@ -6,6 +6,8 @@ import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Lecture;
+import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.exceptions.ScheduleConflictException;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.LectureMapper;
 import com.example.argusclone.repositories.CourseRepository;
@@ -47,13 +49,17 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupResponse getGroupById(Integer id) {
-        Group group = groupRepository.findById(id).orElseThrow();
+        Group group = groupRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
+        );
         return groupMapper.toResponse(group);
     }
 
     @Override
     public GroupResponse createGroup(Integer courseId, CreateGroupRequest group) {
-        Course course = courseRepository.findById(courseId).orElseThrow();
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
 
         Group newGroup = groupMapper.toEntity(group);
         newGroup.setCourse(course);
@@ -64,7 +70,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
-        Group group = groupRepository.findById(groupId).orElseThrow();
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
+        );
 
         List<Lecture> newLectures = generateLecturesForTheSemester(lectures);
 
@@ -96,7 +104,7 @@ public class GroupServiceImpl implements GroupService {
             if (lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
                     lecture.getLectureDate(), lecture.getLectureStartTime(), lecture.getLectureEndTime(), lecture.getRoomNumber()
             ).isPresent()) {
-                throw new RuntimeException("Lecture conflicts with some other lecture"); // Exception handling will be implemented later
+                throw new ScheduleConflictException("Lecture conflicts with some other lecture");
             }
         }
     }
@@ -104,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void deleteGroupById(Integer id) {
         if (!groupRepository.existsById(id)) {
-            return;
+            throw new ResourceNotFoundException("Group with an id of " + id + " not found");
         }
 
         groupRepository.deleteById(id);

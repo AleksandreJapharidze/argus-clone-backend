@@ -3,6 +3,8 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.instructor.CreateInstructorRequest;
 import com.example.argusclone.dtos.instructor.InstructorResponse;
 import com.example.argusclone.entities.Instructor;
+import com.example.argusclone.exceptions.DuplicateResourceException;
+import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.InstructorMapper;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.services.InstructorService;
@@ -19,26 +21,32 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public InstructorResponse getInstructorById(Integer id) {
-        Instructor instructor = instructorRepository.findById(id).orElseThrow();
+        Instructor instructor = instructorRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")
+        );
         return instructorMapper.toResponse(instructor);
     }
 
     @Override
     public InstructorResponse getInstructorByName(String name) {
-        Instructor instructor = instructorRepository.findByName(name).orElseThrow();
+        Instructor instructor = instructorRepository.findByName(name).orElseThrow(
+                () -> new ResourceNotFoundException("Instructor with a name of " + name + " not found")
+        );
         return instructorMapper.toResponse(instructor);
     }
 
     @Override
     public InstructorResponse getInstructorByEmail(String email) {
-        Instructor instructor = instructorRepository.findByEmail(email).orElseThrow();
+        Instructor instructor = instructorRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Instructor with an email of " + email + " not found")
+        );
         return instructorMapper.toResponse(instructor);
     }
 
     @Override
     public InstructorResponse addInstructor(CreateInstructorRequest instructor) {
         instructorRepository.findByEmail(instructor.getEmail()).ifPresent(i -> {
-            throw new RuntimeException("Instructor with email " + instructor.getEmail() + " already exists");
+            throw new DuplicateResourceException("Instructor with email " + instructor.getEmail() + " already exists");
         });
 
         Instructor newInstructor = instructorMapper.toEntity(instructor);
@@ -48,7 +56,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void deleteInstructorById(Integer id) {
         if (!instructorRepository.existsById(id)) {
-            return;
+            throw new ResourceNotFoundException("Instructor with an id of " + id + " not found");
         }
 
         instructorRepository.deleteById(id);
