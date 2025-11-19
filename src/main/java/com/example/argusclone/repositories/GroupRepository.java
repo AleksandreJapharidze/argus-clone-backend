@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface GroupRepository extends JpaRepository<Group, Integer> {
     List<Group> findByCourseId(Integer courseId);
-    void deleteByCourseId(Integer courseId);
 }

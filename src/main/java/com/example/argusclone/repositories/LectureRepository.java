@@ -11,6 +11,4 @@ public interface LectureRepository extends JpaRepository<Lecture, Integer> {
     Optional<Lecture> findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
             LocalDate lectureDate, LocalTime lectureStartTime, LocalTime lectureEndTime, String roomNumber
     );
-//    List<Lecture> findByLectureDateAndRoomNumber(LocalDate date, String roomNumber);
-    void deleteLecturesByCourseId(Integer courseId);
 }

@@ -17,12 +17,7 @@ public class CourseController {
 
     @GetMapping("/id/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
-        var course = courseService.getCourseById(id);
-        if (course == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(course);
+        return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     @GetMapping("/name/{courseName}")
