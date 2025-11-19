@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/api/v1/instructors")
 public class InstructorController {
@@ -17,27 +19,30 @@ public class InstructorController {
     @Autowired
     private InstructorMapper instructorMapper;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<InstructorResponse> getInstructorById(@PathVariable Integer id) {
         return ResponseEntity.ok(instructorService.getInstructorById(id));
     }
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<InstructorResponse> getInstructorByName(@PathVariable String name) {
+    @GetMapping(params = "name")
+    public ResponseEntity<InstructorResponse> getInstructorByName(@RequestParam String name) {
         return ResponseEntity.ok(instructorService.getInstructorByName(name));
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<InstructorResponse> getInstructorByEmail(@PathVariable String email) {
+    @GetMapping(params = "email")
+    public ResponseEntity<InstructorResponse> getInstructorByEmail(@RequestParam String email) {
         return ResponseEntity.ok(instructorService.getInstructorByEmail(email));
     }
 
     @PostMapping
     public ResponseEntity<InstructorResponse> addInstructor(@RequestBody CreateInstructorRequest instructor) {
-        return ResponseEntity.ok(instructorService.addInstructor(instructor));
+        InstructorResponse savedInstructor = instructorService.addInstructor(instructor);
+
+        URI location = URI.create("/api/v1/instructors/id/" + savedInstructor.getId());
+        return ResponseEntity.created(location).body(savedInstructor);
     }
 
-    @DeleteMapping("/id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInstructorById(@PathVariable Integer id) {
         instructorService.deleteInstructorById(id);
         return ResponseEntity.noContent().build();

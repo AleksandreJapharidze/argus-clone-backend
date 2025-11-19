@@ -12,18 +12,18 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
-    @GetMapping("/name/{courseName}")
-    public ResponseEntity<CourseResponse> getCourseByName(@PathVariable String courseName) {
+    @GetMapping(params = "name")
+    public ResponseEntity<CourseResponse> getCourseByName(@RequestParam String courseName) {
         return ResponseEntity.ok(courseService.getCourseByName(courseName));
     }
 
-    @GetMapping("/code/{courseCode}")
-    public ResponseEntity<CourseResponse> getCourseByCourseCode(@PathVariable String courseCode) {
+    @GetMapping(params = "code")
+    public ResponseEntity<CourseResponse> getCourseByCourseCode(@RequestParam String courseCode) {
         return ResponseEntity.ok(courseService.getCourseByCourseCode(courseCode));
     }
 
@@ -32,7 +32,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
-    @PatchMapping("/id/{courseId}/assign-instructor/{instructorId}")
+    @PatchMapping("/{courseId}/assign-instructor/{instructorId}")
     public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId, @PathVariable Integer instructorId) {
         return ResponseEntity.ok(courseService.assignInstructorToCourse(courseId, instructorId));
     }
