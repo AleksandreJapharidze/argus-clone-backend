@@ -38,6 +38,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
         );
+
         return courseMapper.toResponse(course);
     }
 
@@ -46,6 +47,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findByCourseName(courseName).orElseThrow(
                 () -> new ResourceNotFoundException("Course with a name of " + courseName + " not found")
         );
+
         return courseMapper.toResponse(course);
     }
 
@@ -54,6 +56,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findByCourseCode(courseCode).orElseThrow(
                 () -> new ResourceNotFoundException("Course with a code of " + courseCode + " not found")
         );
+
         return courseMapper.toResponse(course);
     }
 
@@ -80,7 +83,10 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );
-        course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow());
+        course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow(
+                () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
+        ));
+
         return courseMapper.toResponse(courseRepository.save(course));
     }
 
