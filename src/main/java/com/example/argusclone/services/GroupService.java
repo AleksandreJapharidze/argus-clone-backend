@@ -14,4 +14,6 @@ public interface GroupService {
     GroupResponse createGroup(Integer courseId, CreateGroupRequest group);
     GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures);
     void deleteGroupById(Integer id);
+    void deleteGroupsByCourseId(Integer courseId);
+    void deleteLecturesByCourseId(Integer courseId);
 }

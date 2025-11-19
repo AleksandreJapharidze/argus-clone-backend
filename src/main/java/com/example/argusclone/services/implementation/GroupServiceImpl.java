@@ -117,4 +117,14 @@ public class GroupServiceImpl implements GroupService {
 
         groupRepository.deleteById(id);
     }
+
+    @Override
+    public void deleteGroupsByCourseId(Integer courseId) {
+        groupRepository.findByCourseId(courseId).forEach(groupRepository::delete);
+    }
+
+    @Override
+    public void deleteLecturesByCourseId(Integer courseId) {
+        groupRepository.findByCourseId(courseId).forEach(group -> group.getLectures().forEach(lectureRepository::delete));
+    }
 }
