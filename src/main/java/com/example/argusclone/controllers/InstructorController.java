@@ -1,8 +1,10 @@
 package com.example.argusclone.controllers;
 
+import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.instructor.CreateInstructorRequest;
 import com.example.argusclone.dtos.instructor.InstructorResponse;
 import com.example.argusclone.mappers.InstructorMapper;
+import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,19 @@ public class InstructorController {
     private InstructorService instructorService;
 
     @Autowired
+    private CourseService courseService;
+
+    @Autowired
     private InstructorMapper instructorMapper;
 
     @GetMapping("/{id}")
     public ResponseEntity<InstructorResponse> getInstructorById(@PathVariable Integer id) {
         return ResponseEntity.ok(instructorService.getInstructorById(id));
+    }
+
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<Iterable<CourseResponse>> getCoursesByInstructorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(courseService.getCoursesByInstructorId(id));
     }
 
     @GetMapping(params = "name")
@@ -38,7 +48,7 @@ public class InstructorController {
     public ResponseEntity<InstructorResponse> addInstructor(@RequestBody CreateInstructorRequest instructor) {
         InstructorResponse savedInstructor = instructorService.addInstructor(instructor);
 
-        URI location = URI.create("/api/v1/instructors/id/" + savedInstructor.getId());
+        URI location = URI.create("/api/v1/instructors/" + savedInstructor.getId());
         return ResponseEntity.created(location).body(savedInstructor);
     }
 

@@ -3,6 +3,7 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
+import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Lecture;
@@ -41,6 +42,10 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public List<GroupResponse> getGroupsForCourse(Integer courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
+        }
+
         return groupRepository.findByCourseId(courseId)
                 .stream()
                 .map(groupMapper::toResponse)
@@ -52,7 +57,20 @@ public class GroupServiceImpl implements GroupService {
         Group group = groupRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
         );
+
         return groupMapper.toResponse(group);
+    }
+
+    @Override
+    public List<LectureResponse> getLecturesForGroup(Integer groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
+        );
+
+        return group.getLectures()
+                .stream()
+                .map(lectureMapper::toResponse)
+                .toList();
     }
 
     @Override
@@ -76,6 +94,8 @@ public class GroupServiceImpl implements GroupService {
 
         List<Lecture> newLectures = generateLecturesForTheSemester(lectures);
 
+        newLectures.forEach(lecture -> lecture.setGroup(group));
+
         lectureRepository.saveAll(newLectures);
         group.setLectures(newLectures);
 
@@ -83,30 +103,32 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
-        validateNoConflicts(lectures);
-
         List<Lecture> newLectures = new ArrayList<>();
-        for (int i=1; i<=SEMESTER_WEEKS; i++) {
+        for (int i=0; i<=SEMESTER_WEEKS-1; i++) {
             for (CreateLectureRequest lecture : lectures) {
                 Lecture newLecture = lectureMapper.toEntity(lecture);
                 newLecture.setLectureDate(lecture.getLectureDate().plusWeeks(i));
                 newLecture.setLectureStartTime(lecture.getLectureStartTime());
                 newLecture.setLectureEndTime(lecture.getLectureEndTime());
                 newLecture.setRoomNumber(lecture.getRoomNumber());
+
+                validateNoConflicts(newLecture);
+
                 newLectures.add(newLecture);
             }
         }
         return newLectures;
     }
 
-    private void validateNoConflicts(List<CreateLectureRequest> lectures) {
-        for (CreateLectureRequest lecture : lectures) {
-            if (lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
-                    lecture.getLectureDate(), lecture.getLectureStartTime(), lecture.getLectureEndTime(), lecture.getRoomNumber()
-            ).isPresent()) {
-                throw new ScheduleConflictException("Lecture conflicts with some other lecture");
-            }
-        }
+    private void validateNoConflicts(Lecture lecture) {
+        lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
+                        lecture.getLectureDate(),
+                        lecture.getLectureStartTime(),
+                        lecture.getLectureEndTime(),
+                        lecture.getRoomNumber()
+                ).ifPresent(l -> {
+                    throw new ScheduleConflictException("Lecture conflicts with an existing scheduled lecture");
+                });
     }
 
     @Override
@@ -120,11 +142,19 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void deleteGroupsByCourseId(Integer courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
+        }
+
         groupRepository.findByCourseId(courseId).forEach(groupRepository::delete);
     }
 
     @Override
     public void deleteLecturesByCourseId(Integer courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
+        }
+
         groupRepository.findByCourseId(courseId).forEach(group -> group.getLectures().forEach(lectureRepository::delete));
     }
 }
