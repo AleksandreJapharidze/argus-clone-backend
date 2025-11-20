@@ -32,6 +32,11 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
+    @GetMapping("/instructor/{id}")
+    public ResponseEntity<Iterable<CourseResponse>> getCoursesByInstructorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(courseService.getCoursesByInstructorId(id));
+    }
+
     @PatchMapping("/{courseId}/assign-instructor/{instructorId}")
     public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId, @PathVariable Integer instructorId) {
         return ResponseEntity.ok(courseService.assignInstructorToCourse(courseId, instructorId));

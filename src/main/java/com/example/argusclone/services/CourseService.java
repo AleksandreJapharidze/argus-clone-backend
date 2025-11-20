@@ -10,6 +10,7 @@ public interface CourseService {
     CourseResponse getCourseByName(String name);
     CourseResponse getCourseByCourseCode(String courseCode);
     List<CourseResponse> getAllCourses();
+    List<CourseResponse> getCoursesByInstructorId(Integer instructorId);
     CourseResponse addCourse(CreateCourseRequest course);
     CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId);
     void deleteCourseById(Integer id);

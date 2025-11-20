@@ -69,6 +69,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<CourseResponse> getCoursesByInstructorId(Integer instructorId) {
+        List<Course> instructorCourses = instructorRepository.findById(instructorId).orElseThrow(
+                () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
+        ).getCourses();
+
+        return instructorCourses.stream()
+                .map(courseMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
             throw new DuplicateResourceException("Course with code " + course.getCourseCode() + " already exists");
