@@ -1,5 +1,6 @@
 package com.example.argusclone.entities;
 
+import com.example.argusclone.entities.embeddable.CourseScheduleCycle;
 import com.example.argusclone.entities.embeddable.GradingWeight;
 import jakarta.persistence.*;
 
@@ -38,9 +39,8 @@ public class Syllabus {
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @MapKeyColumn(name = "week")
-    @Column(name = "description")
-    private Map<String, String> courseSchedule = new LinkedHashMap<>();
+    @OrderColumn(name = "position")
+    private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -90,11 +90,11 @@ public class Syllabus {
         this.gradingWeights = gradingWeights;
     }
 
-    public Map<String, String> getCourseSchedule() {
+    public List<CourseScheduleCycle> getCourseSchedule() {
         return courseSchedule;
     }
 
-    public void setCourseSchedule(Map<String, String> courseSchedule) {
+    public void setCourseSchedule(List<CourseScheduleCycle> courseSchedule) {
         this.courseSchedule = courseSchedule;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.argusclone.dtos.syllabus;
 
+import com.example.argusclone.entities.embeddable.CourseScheduleCycle;
 import com.example.argusclone.entities.embeddable.GradingWeight;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class SyllabusResponse {
     private List<String> teachingMethods;
     private List<String> topics;
     private List<GradingWeight> gradingWeights = new ArrayList<>();
-    private Map<String, String> courseSchedule;
+    private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -63,11 +64,11 @@ public class SyllabusResponse {
         this.gradingWeights = gradingWeights;
     }
 
-    public Map<String, String> getCourseSchedule() {
+    public List<CourseScheduleCycle> getCourseSchedule() {
         return courseSchedule;
     }
 
-    public void setCourseSchedule(Map<String, String> courseSchedule) {
+    public void setCourseSchedule(List<CourseScheduleCycle> courseSchedule) {
         this.courseSchedule = courseSchedule;
     }
 }
