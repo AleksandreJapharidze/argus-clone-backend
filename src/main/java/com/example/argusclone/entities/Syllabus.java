@@ -2,6 +2,7 @@ package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +33,15 @@ public class Syllabus {
     @CollectionTable(name = "syllabus_grading_weights", joinColumns = @JoinColumn(name = "syllabus_id"))
     @MapKeyColumn(name = "component")
     @Column(name = "weight")
-    private Map<String, Integer> gradingWeights;
+    @OrderColumn(name = "position")
+    private Map<String, Integer> gradingWeights = new LinkedHashMap<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
     @MapKeyColumn(name = "week")
     @Column(name = "description")
-    private Map<String, String> courseSchedule;
+    @OrderColumn(name = "position")
+    private Map<String, String> courseSchedule = new LinkedHashMap<>();
 
     public Integer getId() {
         return id;

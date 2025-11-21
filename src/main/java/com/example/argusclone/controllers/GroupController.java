@@ -33,7 +33,7 @@ public class GroupController {
         GroupResponse savedLectures = groupService.addLecturesToGroup(groupId, lectures);
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/v1/groups/{id}/lectures")
+                .path("/api/v1/groups/" + groupId + "/lectures")
                 .buildAndExpand(groupId)
                 .toUri();
         return ResponseEntity.created(location).body(savedLectures);

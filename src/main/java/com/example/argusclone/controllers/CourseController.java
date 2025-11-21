@@ -1,6 +1,7 @@
 package com.example.argusclone.controllers;
 
 import com.example.argusclone.dtos.course.CourseResponse;
+import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
@@ -52,6 +53,14 @@ public class CourseController {
         return ResponseEntity.ok(groupService.getGroupsForCourse(courseId));
     }
 
+    @PostMapping
+    public ResponseEntity<CourseResponse> addCourse(@RequestBody CreateCourseRequest course) {
+        CourseResponse savedCourse = courseService.addCourse(course);
+
+        URI location = URI.create("/api/v1/courses/" + savedCourse.getId());
+        return ResponseEntity.created(location).body(savedCourse);
+    }
+
     @PostMapping("/{courseId}/groups")
     public ResponseEntity<GroupResponse> createGroup(@PathVariable Integer courseId, CreateGroupRequest group) {
         GroupResponse savedGroup = groupService.createGroup(courseId, group);
@@ -75,8 +84,8 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
-        groupService.deleteGroupsByCourseId(id);
         groupService.deleteLecturesByCourseId(id);
+        groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);
         return ResponseEntity.noContent().build();
