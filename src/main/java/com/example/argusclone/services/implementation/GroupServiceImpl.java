@@ -18,6 +18,7 @@ import com.example.argusclone.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,10 +105,21 @@ public class GroupServiceImpl implements GroupService {
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
         List<Lecture> newLectures = new ArrayList<>();
-        for (int i=0; i<=SEMESTER_WEEKS-1; i++) {
+        int weeksAdded = 0;
+        int i = 0;
+
+        while (weeksAdded < SEMESTER_WEEKS) {
             for (CreateLectureRequest lecture : lectures) {
+
                 Lecture newLecture = lectureMapper.toEntity(lecture);
-                newLecture.setLectureDate(lecture.getLectureDate().plusWeeks(i));
+                LocalDate date = lecture.getLectureDate().plusWeeks(i);
+
+                if (date.isAfter(LocalDate.of(2025, 12, 25)) &&
+                        date.isBefore(LocalDate.of(2026, 1, 7))) {
+                    continue;
+                }
+
+                newLecture.setLectureDate(date);
                 newLecture.setLectureStartTime(lecture.getLectureStartTime());
                 newLecture.setLectureEndTime(lecture.getLectureEndTime());
                 newLecture.setRoomNumber(lecture.getRoomNumber());
@@ -116,7 +128,11 @@ public class GroupServiceImpl implements GroupService {
 
                 newLectures.add(newLecture);
             }
+
+            weeksAdded++;
+            i++;
         }
+
         return newLectures;
     }
 
@@ -158,3 +174,23 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.findByCourseId(courseId).forEach(group -> group.getLectures().forEach(lectureRepository::delete));
     }
 }
+
+
+
+//private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
+//    List<Lecture> newLectures = new ArrayList<>();
+//    for (int i=0; i<=SEMESTER_WEEKS-1; i++) {
+//        for (CreateLectureRequest lecture : lectures) {
+//            Lecture newLecture = lectureMapper.toEntity(lecture);
+//            newLecture.setLectureDate(lecture.getLectureDate().plusWeeks(i));
+//            newLecture.setLectureStartTime(lecture.getLectureStartTime());
+//            newLecture.setLectureEndTime(lecture.getLectureEndTime());
+//            newLecture.setRoomNumber(lecture.getRoomNumber());
+//
+//            validateNoConflicts(newLecture);
+//
+//            newLectures.add(newLecture);
+//        }
+//    }
+//    return newLectures;
+//}

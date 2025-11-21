@@ -5,8 +5,6 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public interface GroupService {
