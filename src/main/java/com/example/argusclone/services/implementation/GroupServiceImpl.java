@@ -105,6 +105,7 @@ public class GroupServiceImpl implements GroupService {
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
         List<Lecture> newLectures = new ArrayList<>();
+
         int weeksAdded = 0;
         int i = 0;
 
@@ -114,8 +115,8 @@ public class GroupServiceImpl implements GroupService {
                 Lecture newLecture = lectureMapper.toEntity(lecture);
                 LocalDate date = lecture.getLectureDate().plusWeeks(i);
 
-                if (date.isAfter(LocalDate.of(2025, 12, 25)) &&
-                        date.isBefore(LocalDate.of(2026, 1, 7))) {
+                if (date.isAfter(LocalDate.of(2025, 12, 24)) &&
+                        date.isBefore(LocalDate.of(2026, 1, 8))) {
                     continue;
                 }
 
@@ -143,7 +144,7 @@ public class GroupServiceImpl implements GroupService {
                         lecture.getLectureEndTime(),
                         lecture.getRoomNumber()
                 ).ifPresent(l -> {
-                    throw new ScheduleConflictException("Lecture conflicts with an existing scheduled lecture");
+                    throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
                 });
     }
 

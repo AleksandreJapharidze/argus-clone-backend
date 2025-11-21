@@ -1,7 +1,9 @@
 package com.example.argusclone.entities;
 
+import com.example.argusclone.entities.embeddable.GradingWeight;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,20 +33,21 @@ public class Syllabus {
 
     @ElementCollection
     @CollectionTable(name = "syllabus_grading_weights", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @MapKeyColumn(name = "component")
-    @Column(name = "weight")
     @OrderColumn(name = "position")
-    private Map<String, Integer> gradingWeights = new LinkedHashMap<>();
+    private List<GradingWeight> gradingWeights = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
     @MapKeyColumn(name = "week")
     @Column(name = "description")
-    @OrderColumn(name = "position")
     private Map<String, String> courseSchedule = new LinkedHashMap<>();
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public List<String> getPrerequisites() {
@@ -79,11 +82,11 @@ public class Syllabus {
         this.topics = topics;
     }
 
-    public Map<String, Integer> getGradingWeights() {
+    public List<GradingWeight> getGradingWeights() {
         return gradingWeights;
     }
 
-    public void setGradingWeights(Map<String, Integer> gradingWeights) {
+    public void setGradingWeights(List<GradingWeight> gradingWeights) {
         this.gradingWeights = gradingWeights;
     }
 

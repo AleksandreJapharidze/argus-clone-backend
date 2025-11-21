@@ -90,4 +90,10 @@ public class CourseController {
         courseService.deleteCourseById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{courseId}/syllabus")
+    public ResponseEntity<Void> deleteCourseSyllabus(@PathVariable Integer courseId) {
+        courseService.deleteCourseSyllabus(courseId);
+        return ResponseEntity.noContent().build();
+    }
 }

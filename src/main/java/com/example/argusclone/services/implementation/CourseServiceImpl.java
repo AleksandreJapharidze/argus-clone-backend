@@ -130,11 +130,16 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourseSyllabus(Integer courseId) {
-        Syllabus syllabus = courseRepository.findById(courseId).orElseThrow(
+        Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        ).getSyllabus();
+        );
 
-        syllabusRepository.delete(syllabus);
+        Syllabus syllabus = course.getSyllabus();
+        if (syllabus != null) {
+            course.setSyllabus(null);
+            courseRepository.save(course);
+            syllabusRepository.delete(syllabus);
+        }
     }
 
     @Override
