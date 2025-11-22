@@ -10,10 +10,7 @@ import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.mappers.SyllabusMapper;
-import com.example.argusclone.repositories.CourseRepository;
-import com.example.argusclone.repositories.GroupRepository;
-import com.example.argusclone.repositories.InstructorRepository;
-import com.example.argusclone.repositories.SyllabusRepository;
+import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,10 +26,13 @@ public class CourseServiceImpl implements CourseService {
     private SyllabusRepository syllabusRepository;
 
     @Autowired
-    private InstructorRepository instructorRepository;
+    private GroupRepository groupRepository;
 
     @Autowired
-    private GroupRepository groupRepository;
+    private LectureRepository lectureRepository;
+
+    @Autowired
+    private InstructorRepository instructorRepository;
 
     @Autowired
     private CourseMapper courseMapper;
@@ -129,6 +129,15 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public void deleteCourseById(Integer id) {
+        if (!courseRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Course with an id of " + id + " not found");
+        }
+
+        courseRepository.deleteById(id);
+    }
+
+    @Override
     public void deleteCourseSyllabus(Integer courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -143,11 +152,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void deleteCourseById(Integer id) {
-        if (!courseRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Course with an id of " + id + " not found");
+    public void deleteLecturesByCourseId(Integer courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
         }
 
-        courseRepository.deleteById(id);
+        groupRepository.findByCourseId(courseId).forEach(group -> group.getLectures().forEach(lectureRepository::delete));
     }
 }

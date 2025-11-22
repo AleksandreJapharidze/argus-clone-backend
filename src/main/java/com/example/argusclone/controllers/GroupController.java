@@ -38,4 +38,11 @@ public class GroupController {
                 .toUri();
         return ResponseEntity.created(location).body(savedLectures);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGroupById(@PathVariable Integer id) {
+        groupService.deleteLecturesByGroupId(id);
+        groupService.deleteGroupById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

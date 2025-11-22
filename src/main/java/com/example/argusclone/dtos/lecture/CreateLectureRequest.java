@@ -2,6 +2,7 @@ package com.example.argusclone.dtos.lecture;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class CreateLectureRequest {
     private LocalDate lectureDate;
@@ -39,5 +40,20 @@ public class CreateLectureRequest {
 
     public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CreateLectureRequest that = (CreateLectureRequest) o;
+        return Objects.equals(lectureDate, that.lectureDate) &&
+                Objects.equals(lectureStartTime, that.lectureStartTime) &&
+                Objects.equals(lectureEndTime, that.lectureEndTime) &&
+                Objects.equals(roomNumber, that.roomNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lectureDate, lectureStartTime, lectureEndTime, roomNumber);
     }
 }

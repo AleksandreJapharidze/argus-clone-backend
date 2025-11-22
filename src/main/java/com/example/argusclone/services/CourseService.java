@@ -17,6 +17,7 @@ public interface CourseService {
     CourseResponse addCourse(CreateCourseRequest course);
     SyllabusResponse addCourseSyllabus(Integer courseId, SyllabusRequest syllabus);
     CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId);
-    void deleteCourseSyllabus(Integer courseId);
     void deleteCourseById(Integer id);
+    void deleteCourseSyllabus(Integer courseId);
+    void deleteLecturesByCourseId(Integer courseId);
 }

@@ -70,7 +70,8 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/syllabus")
-    public ResponseEntity<SyllabusResponse> addCourseSyllabus(@PathVariable Integer courseId, @RequestBody SyllabusRequest syllabus) {
+    public ResponseEntity<SyllabusResponse> addCourseSyllabus(@PathVariable Integer courseId,
+                                                              @RequestBody SyllabusRequest syllabus) {
         SyllabusResponse savedSyllabus = courseService.addCourseSyllabus(courseId, syllabus);
 
         URI location = URI.create("/api/v1/courses/" + courseId + "/syllabus");
@@ -78,13 +79,14 @@ public class CourseController {
     }
 
     @PatchMapping("/{courseId}/instructors/{instructorId}")
-    public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId, @PathVariable Integer instructorId) {
+    public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId,
+                                                                   @PathVariable Integer instructorId) {
         return ResponseEntity.ok(courseService.assignInstructorToCourse(courseId, instructorId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
-        groupService.deleteLecturesByCourseId(id);
+        courseService.deleteLecturesByCourseId(id);
         groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);
