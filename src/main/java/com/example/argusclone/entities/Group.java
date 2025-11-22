@@ -18,6 +18,14 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<Lecture> lectures;
 
+    @ManyToMany
+    @JoinTable(
+            name = "group_student",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
+
     public Integer getId() {
         return id;
     }
@@ -36,5 +44,13 @@ public class Group {
 
     public void setLectures(List<Lecture> lectures) {
         this.lectures = lectures;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
     }
 }

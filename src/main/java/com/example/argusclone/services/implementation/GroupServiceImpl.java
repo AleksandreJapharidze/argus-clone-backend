@@ -95,7 +95,6 @@ public class GroupServiceImpl implements GroupService {
         );
 
         List<Lecture> newLectures = generateLecturesForTheSemester(lectures);
-
         newLectures.forEach(lecture -> lecture.setGroup(group));
 
         lectureRepository.saveAll(newLectures);

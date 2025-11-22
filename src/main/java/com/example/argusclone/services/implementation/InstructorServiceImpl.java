@@ -6,7 +6,6 @@ import com.example.argusclone.entities.Instructor;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.InstructorMapper;
-import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.services.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
