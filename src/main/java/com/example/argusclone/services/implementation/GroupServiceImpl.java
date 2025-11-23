@@ -7,6 +7,7 @@ import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Lecture;
+import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.ScheduleConflictException;
@@ -163,9 +164,15 @@ public class GroupServiceImpl implements GroupService {
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
         );
 
-        group.getStudents().add(studentRepository.findById(studentId).orElseThrow(
+        Student student = studentRepository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        ));
+        );
+
+        if (group.getCourse().getGroups().stream().anyMatch(g -> g.getStudents().contains(student))) {
+            throw new DuplicateResourceException("Student is already assigned to a group in this course");
+        }
+
+        group.getStudents().add(student);
 
         return groupMapper.toResponse(groupRepository.save(group));
     }
