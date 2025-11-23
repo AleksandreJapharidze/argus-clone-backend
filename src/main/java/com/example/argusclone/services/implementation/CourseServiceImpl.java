@@ -5,6 +5,7 @@ import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Course;
+import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
@@ -15,7 +16,9 @@ import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -33,6 +36,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private InstructorRepository instructorRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Autowired
     private CourseMapper courseMapper;
@@ -87,6 +93,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
+        List<Course> studentCourses = studentRepository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
+        ).getGroups().stream()
+                .map(Group::getCourse)
+                .toList();
+
+        Set<Course> studentCoursesSet = new HashSet<>(studentCourses);
+        return studentCoursesSet.stream()
+                .map(courseMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public SyllabusResponse getSyllabusByCourseId(Integer courseId) {
         Syllabus syllabus = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -121,6 +141,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );
+
         course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
         ));

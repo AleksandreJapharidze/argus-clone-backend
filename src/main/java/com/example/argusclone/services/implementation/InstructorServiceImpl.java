@@ -24,6 +24,7 @@ public class InstructorServiceImpl implements InstructorService {
         Instructor instructor = instructorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")
         );
+
         return instructorMapper.toResponse(instructor);
     }
 
@@ -32,6 +33,7 @@ public class InstructorServiceImpl implements InstructorService {
         Instructor instructor = instructorRepository.findByName(name).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with a name of " + name + " not found")
         );
+
         return instructorMapper.toResponse(instructor);
     }
 
@@ -40,6 +42,7 @@ public class InstructorServiceImpl implements InstructorService {
         Instructor instructor = instructorRepository.findByEmail(email).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an email of " + email + " not found")
         );
+
         return instructorMapper.toResponse(instructor);
     }
 

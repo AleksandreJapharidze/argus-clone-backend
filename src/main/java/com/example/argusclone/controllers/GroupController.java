@@ -29,7 +29,8 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/lectures")
-    public ResponseEntity<GroupResponse> assignLecturesToGroup(@PathVariable Integer groupId, @RequestBody List<CreateLectureRequest> lectures) {
+    public ResponseEntity<GroupResponse> assignLecturesToGroup(@PathVariable Integer groupId,
+                                                               @RequestBody List<CreateLectureRequest> lectures) {
         GroupResponse savedLectures = groupService.addLecturesToGroup(groupId, lectures);
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -37,6 +38,12 @@ public class GroupController {
                 .buildAndExpand(groupId)
                 .toUri();
         return ResponseEntity.created(location).body(savedLectures);
+    }
+
+    @PatchMapping("/{groupId}/students/{studentId}")
+    public ResponseEntity<GroupResponse> assignStudentToGroup(@PathVariable Integer groupId,
+                                                              @PathVariable Integer studentId) {
+        return ResponseEntity.ok(groupService.assignStudentToGroup(groupId, studentId));
     }
 
     @DeleteMapping("/{id}")

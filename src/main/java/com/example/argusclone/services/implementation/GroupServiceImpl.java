@@ -15,6 +15,7 @@ import com.example.argusclone.mappers.LectureMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
+import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Autowired
     private LectureRepository lectureRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Autowired
     private GroupMapper groupMapper;
@@ -151,6 +155,19 @@ public class GroupServiceImpl implements GroupService {
                 ).ifPresent(l -> {
                     throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
                 });
+    }
+
+    @Override
+    public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
+        );
+
+        group.getStudents().add(studentRepository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
+        ));
+
+        return groupMapper.toResponse(groupRepository.save(group));
     }
 
     @Override
