@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface StudentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "groups", ignore = true)
+    @Mapping(target = "scores", ignore = true)
     Student toEntity(CreateStudentRequest request);
 
     StudentResponse toResponse(Student student);

@@ -28,8 +28,15 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Group> groups;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Score> scores;
+
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getCourseName() {
@@ -70,5 +77,13 @@ public class Course {
 
     public void setGroups(List<Group> groups) {
         this.groups = groups;
+    }
+
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Score> scores) {
+        this.scores = scores;
     }
 }

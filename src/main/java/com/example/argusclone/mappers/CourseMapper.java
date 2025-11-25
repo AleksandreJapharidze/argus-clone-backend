@@ -14,6 +14,7 @@ public interface CourseMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "groups", ignore = true)
     @Mapping(target = "instructors", ignore = true)
+    @Mapping(target = "scores", ignore = true)
     Course toEntity(CreateCourseRequest request);
 
     CourseResponse toResponse(Course course);

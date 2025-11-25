@@ -1,6 +1,8 @@
 package com.example.argusclone.controllers;
 
 import com.example.argusclone.dtos.course.CourseResponse;
+import com.example.argusclone.dtos.score.CreateScoreRequest;
+import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.mappers.StudentMapper;
@@ -54,6 +56,16 @@ public class StudentController {
 
         URI location = URI.create("/api/v1/students/" + savedStudent.getId());
         return ResponseEntity.created(location).body(savedStudent);
+    }
+
+    @PostMapping("/{studentId}/scores")
+    public ResponseEntity<ScoreResponse> addScoreToStudent(@PathVariable Integer studentId,
+                                                           @RequestParam Integer courseId,
+                                                           @RequestBody CreateScoreRequest score) {
+        ScoreResponse savedScore = studentService.addScoreToStudent(studentId, courseId, score);
+
+        URI location = URI.create("/api/v1/students/" + studentId + "/scores/" + savedScore.getId());
+        return ResponseEntity.created(location).body(savedScore);
     }
 
     @DeleteMapping("/{id}")

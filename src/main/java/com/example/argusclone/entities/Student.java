@@ -17,6 +17,9 @@ public class Student {
     @ManyToMany(mappedBy = "students")
     private List<Group> groups;
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Score> scores;
+
     public Integer getId() {
         return id;
     }
@@ -55,5 +58,13 @@ public class Student {
 
     public void setGroups(List<Group> groups) {
         this.groups = groups;
+    }
+
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Score> scores) {
+        this.scores = scores;
     }
 }
