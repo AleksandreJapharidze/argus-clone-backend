@@ -10,6 +10,7 @@ public class Score {
 
     private String component;
     private Integer score;
+    private String courseName;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -41,6 +42,14 @@ public class Score {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
     public Course getCourse() {

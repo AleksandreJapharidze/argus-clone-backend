@@ -18,6 +18,8 @@ import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StudentServiceImpl implements StudentService {
     @Autowired
@@ -60,6 +62,20 @@ public class StudentServiceImpl implements StudentService {
         );
 
         return studentMapper.toResponse(student);
+    }
+
+    @Override
+    public List<ScoreResponse> getStudentScoreByCourseId(Integer courseId, Integer studentId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        Student student = studentRepository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
+        );
+
+        List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
+        return scores.stream().map(scoreMapper::toResponse).toList();
     }
 
     @Override

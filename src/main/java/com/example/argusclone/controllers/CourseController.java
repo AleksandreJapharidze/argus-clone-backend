@@ -4,10 +4,12 @@ import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
+import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.GroupService;
+import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,9 @@ public class CourseController {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private StudentService studentService;
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
@@ -51,6 +56,12 @@ public class CourseController {
     @GetMapping("/{courseId}/groups")
     public ResponseEntity<Iterable<GroupResponse>> getGroupsForCourse(@PathVariable Integer courseId) {
         return ResponseEntity.ok(groupService.getGroupsForCourse(courseId));
+    }
+
+    @GetMapping("/{courseId}/students/{studentId}/scores")
+    public ResponseEntity<Iterable<ScoreResponse>> getStudentScoresByStudentId(@PathVariable Integer courseId,
+                                                                               @PathVariable Integer studentId) {
+        return ResponseEntity.ok(studentService.getStudentScoreByCourseId(courseId, studentId));
     }
 
     @PostMapping

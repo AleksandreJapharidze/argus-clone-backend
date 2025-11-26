@@ -4,6 +4,7 @@ public class ScoreResponse {
     private Integer id;
     private String component;
     private Integer score;
+    private String courseName;
 
     public Integer getId() {
         return id;
@@ -27,5 +28,13 @@ public class ScoreResponse {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 }
