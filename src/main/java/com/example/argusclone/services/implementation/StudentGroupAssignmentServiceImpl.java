@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignmentService {
     @Autowired
-    GroupRepository groupRepository;
+    private GroupRepository groupRepository;
 
     @Autowired
-    StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 
     @Autowired
-    GroupMapper groupMapper;
+    private GroupMapper groupMapper;
 
     @Override
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {

@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class StudentServiceImpl implements StudentService {
     @Autowired
-    StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 
     @Autowired
-    ScoreRepository scoreRepository;
+    private ScoreRepository scoreRepository;
 
     @Autowired
-    StudentMapper studentMapper;
+    private StudentMapper studentMapper;
 
     @Override
     public StudentResponse getStudentById(Integer id) {

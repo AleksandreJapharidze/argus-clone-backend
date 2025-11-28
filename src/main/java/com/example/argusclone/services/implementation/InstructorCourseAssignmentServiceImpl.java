@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class InstructorCourseAssignmentServiceImpl implements InstructorCourseAssignmentService {
     @Autowired
-    CourseRepository courseRepository;
+    private CourseRepository courseRepository;
 
     @Autowired
-    InstructorRepository instructorRepository;
+    private InstructorRepository instructorRepository;
 
     @Autowired
-    CourseMapper courseMapper;
+    private CourseMapper courseMapper;
 
     @Override
     public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
