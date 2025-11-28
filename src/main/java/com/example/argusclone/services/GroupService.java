@@ -17,4 +17,5 @@ public interface GroupService {
     void deleteGroupById(Integer id);
     void deleteLecturesByGroupId(Integer groupId);
     void deleteGroupsByCourseId(Integer courseId);
+    void deleteLecturesByCourseId(Integer courseId);
 }

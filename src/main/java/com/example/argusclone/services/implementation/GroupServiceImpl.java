@@ -201,4 +201,14 @@ public class GroupServiceImpl implements GroupService {
 
         groupRepository.findByCourseId(courseId).forEach(groupRepository::delete);
     }
+
+    @Override
+    public void deleteLecturesByCourseId(Integer courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
+        }
+
+        groupRepository.findByCourseId(courseId)
+                .forEach(group -> group.getLectures().forEach(lectureRepository::delete));
+    }
 }

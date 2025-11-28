@@ -3,7 +3,6 @@ package com.example.argusclone.controllers;
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.instructor.CreateInstructorRequest;
 import com.example.argusclone.dtos.instructor.InstructorResponse;
-import com.example.argusclone.mappers.InstructorMapper;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,6 @@ public class InstructorController {
 
     @Autowired
     private CourseService courseService;
-
-    @Autowired
-    private InstructorMapper instructorMapper;
 
     @GetMapping("/{id}")
     public ResponseEntity<InstructorResponse> getInstructorById(@PathVariable Integer id) {

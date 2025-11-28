@@ -29,12 +29,6 @@ public class CourseServiceImpl implements CourseService {
     private SyllabusRepository syllabusRepository;
 
     @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
-    private LectureRepository lectureRepository;
-
-    @Autowired
     private InstructorRepository instructorRepository;
 
     @Autowired
@@ -170,14 +164,5 @@ public class CourseServiceImpl implements CourseService {
             courseRepository.save(course);
             syllabusRepository.delete(syllabus);
         }
-    }
-
-    @Override
-    public void deleteLecturesByCourseId(Integer courseId) {
-        if (!courseRepository.existsById(courseId)) {
-            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
-        }
-
-        groupRepository.findByCourseId(courseId).forEach(group -> group.getLectures().forEach(lectureRepository::delete));
     }
 }

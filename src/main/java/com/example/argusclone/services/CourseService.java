@@ -20,5 +20,4 @@ public interface CourseService {
     CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId);
     void deleteCourseById(Integer id);
     void deleteCourseSyllabus(Integer courseId);
-    void deleteLecturesByCourseId(Integer courseId);
 }

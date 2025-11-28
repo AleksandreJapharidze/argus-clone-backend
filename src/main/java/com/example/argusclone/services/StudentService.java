@@ -11,9 +11,6 @@ public interface StudentService {
     StudentResponse getStudentById(Integer id);
     StudentResponse getStudentByName(String name);
     StudentResponse getStudentByEmail(String email);
-    List<ScoreResponse> getStudentScoreByCourseId(Integer courseId, Integer studentId);
     StudentResponse addStudent(CreateStudentRequest student);
-    List<ScoreResponse> generateEmptyListOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores);
-    ScoreResponse addScoreToStudent(Integer studentId, Integer courseId, CreateScoreRequest score);
     void deleteStudentById(Integer id);
 }

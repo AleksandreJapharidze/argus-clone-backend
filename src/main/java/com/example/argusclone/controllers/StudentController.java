@@ -1,13 +1,9 @@
 package com.example.argusclone.controllers;
 
 import com.example.argusclone.dtos.course.CourseResponse;
-import com.example.argusclone.dtos.score.CreateScoreRequest;
-import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
-import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.services.CourseService;
-import com.example.argusclone.services.GroupService;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +19,6 @@ public class StudentController {
 
     @Autowired
     private CourseService courseService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private StudentMapper studentMapper;
 
     @GetMapping("/{id}")
     public ResponseEntity<StudentResponse> getStudentById(@PathVariable Integer id) {
@@ -56,16 +46,6 @@ public class StudentController {
 
         URI location = URI.create("/api/v1/students/" + savedStudent.getId());
         return ResponseEntity.created(location).body(savedStudent);
-    }
-
-    @PostMapping("/{studentId}/scores")
-    public ResponseEntity<ScoreResponse> addScoreToStudent(@PathVariable Integer studentId,
-                                                           @RequestParam Integer courseId,
-                                                           @RequestBody CreateScoreRequest score) {
-        ScoreResponse savedScore = studentService.addScoreToStudent(studentId, courseId, score);
-
-        URI location = URI.create("/api/v1/students/" + studentId + "/scores/" + savedScore.getId());
-        return ResponseEntity.created(location).body(savedScore);
     }
 
     @DeleteMapping("/{id}")

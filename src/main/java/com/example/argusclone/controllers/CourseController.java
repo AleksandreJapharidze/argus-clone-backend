@@ -10,7 +10,7 @@ import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.GroupService;
-import com.example.argusclone.services.StudentService;
+import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class CourseController {
     private GroupService groupService;
 
     @Autowired
-    private StudentService studentService;
+    private ScoreService scoreService;
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
@@ -61,9 +61,9 @@ public class CourseController {
     }
 
     @GetMapping("/{courseId}/students/{studentId}/scores")
-    public ResponseEntity<Iterable<ScoreResponse>> getStudentScoresByStudentId(@PathVariable Integer courseId,
+    public ResponseEntity<Iterable<ScoreResponse>> getStudentScoresByCourseId(@PathVariable Integer courseId,
                                                                                @PathVariable Integer studentId) {
-        return ResponseEntity.ok(studentService.getStudentScoreByCourseId(courseId, studentId));
+        return ResponseEntity.ok(scoreService.getStudentScoresByCourseId(courseId, studentId));
     }
 
     @PostMapping
@@ -94,7 +94,7 @@ public class CourseController {
     @PostMapping("/{courseId}/scores")
     public ResponseEntity<List<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
                                                                                         @RequestBody List<CreateScoreRequest> scores) {
-        List<ScoreResponse> emptyScoresList = studentService.generateEmptyListOfScoresForStudentsByCourseId(courseId, scores);
+        List<ScoreResponse> emptyScoresList = scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores);
         return ResponseEntity.ok(emptyScoresList);
     }
 
@@ -106,7 +106,7 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
-        courseService.deleteLecturesByCourseId(id);
+        groupService.deleteLecturesByCourseId(id);
         groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);

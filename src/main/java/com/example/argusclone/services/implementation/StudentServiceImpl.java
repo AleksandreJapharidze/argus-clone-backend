@@ -1,24 +1,16 @@
 package com.example.argusclone.services.implementation;
 
-import com.example.argusclone.dtos.score.CreateScoreRequest;
-import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
-import com.example.argusclone.entities.Course;
-import com.example.argusclone.entities.Score;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
-import com.example.argusclone.mappers.ScoreMapper;
 import com.example.argusclone.mappers.StudentMapper;
-import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -26,16 +18,10 @@ public class StudentServiceImpl implements StudentService {
     StudentRepository studentRepository;
 
     @Autowired
-    CourseRepository courseRepository;
-
-    @Autowired
     ScoreRepository scoreRepository;
 
     @Autowired
     StudentMapper studentMapper;
-
-    @Autowired
-    ScoreMapper scoreMapper;
 
     @Override
     public StudentResponse getStudentById(Integer id) {
@@ -64,19 +50,7 @@ public class StudentServiceImpl implements StudentService {
         return studentMapper.toResponse(student);
     }
 
-    @Override
-    public List<ScoreResponse> getStudentScoreByCourseId(Integer courseId, Integer studentId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
 
-        Student student = studentRepository.findById(studentId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        );
-
-        List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
-        return scores.stream().map(scoreMapper::toResponse).toList();
-    }
 
     @Override
     public StudentResponse addStudent(CreateStudentRequest student) {
@@ -89,59 +63,15 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<ScoreResponse> generateEmptyListOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        List<Score> scoresSaved = course.getGroups().stream()
-                .flatMap(group -> group.getStudents().stream())
-                .flatMap(student -> scores.stream().map(scoreRequest -> {
-                    Score score = scoreMapper.toEntity(scoreRequest);
-                    score.setStudent(student);
-                    score.setCourse(course);
-                    score.setCourseName(course.getCourseName());
-                    score.setStudentName(student.getName());
-                    return score;
-                })).toList();
-
-        course.setScores(scoresSaved);
-        course.getGroups()
-                .forEach(group -> group.getStudents()
-                .forEach(student -> student.setScores(scoresSaved)));
-
-        return scoreRepository.saveAll(scoresSaved)
-                .stream()
-                .map(scoreMapper::toResponse)
-                .toList();
-    }
-
-    @Override
-    public ScoreResponse addScoreToStudent(Integer studentId, Integer courseId, CreateScoreRequest score) {
-        Student student = studentRepository.findById(studentId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        );
-
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Score newScore = scoreMapper.toEntity(score);
-        newScore.setCourse(course);
-        newScore.setStudent(student);
-
-        student.getScores().add(newScore);
-        course.getScores().add(newScore);
-        return scoreMapper.toResponse(scoreRepository.save(newScore));
-    }
-
-    @Override
     public void deleteStudentById(Integer id) {
         Student student = studentRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + id + " not found")
         );
 
         student.getGroups().forEach(group -> group.getStudents().remove(student));
+        student.getScores().forEach(score -> score.setStudent(null));
+
+        scoreRepository.deleteAll(student.getScores());
         studentRepository.deleteById(id);
     }
 }
