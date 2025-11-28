@@ -8,5 +8,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface LectureMapper {
     Lecture toEntity(CreateLectureRequest request);
+
     LectureResponse toResponse(Lecture lecture);
 }

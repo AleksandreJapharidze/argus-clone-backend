@@ -89,6 +89,34 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public List<ScoreResponse> generateEmptyListOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        List<Score> scoresSaved = course.getGroups().stream()
+                .flatMap(group -> group.getStudents().stream())
+                .flatMap(student -> scores.stream().map(scoreRequest -> {
+                    Score score = scoreMapper.toEntity(scoreRequest);
+                    score.setStudent(student);
+                    score.setCourse(course);
+                    score.setCourseName(course.getCourseName());
+                    score.setStudentName(student.getName());
+                    return score;
+                })).toList();
+
+        course.setScores(scoresSaved);
+        course.getGroups()
+                .forEach(group -> group.getStudents()
+                .forEach(student -> student.setScores(scoresSaved)));
+
+        return scoreRepository.saveAll(scoresSaved)
+                .stream()
+                .map(scoreMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public ScoreResponse addScoreToStudent(Integer studentId, Integer courseId, CreateScoreRequest score) {
         Student student = studentRepository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")

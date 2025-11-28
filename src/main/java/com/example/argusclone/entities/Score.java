@@ -11,6 +11,7 @@ public class Score {
     private String component;
     private Integer score;
     private String courseName;
+    private String studentName;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -66,5 +67,13 @@ public class Score {
 
     public void setStudent(Student student) {
         this.student = student;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 }

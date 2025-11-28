@@ -13,6 +13,7 @@ public interface StudentService {
     StudentResponse getStudentByEmail(String email);
     List<ScoreResponse> getStudentScoreByCourseId(Integer courseId, Integer studentId);
     StudentResponse addStudent(CreateStudentRequest student);
+    List<ScoreResponse> generateEmptyListOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores);
     ScoreResponse addScoreToStudent(Integer studentId, Integer courseId, CreateScoreRequest score);
     void deleteStudentById(Integer id);
 }

@@ -4,6 +4,7 @@ import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
+import com.example.argusclone.dtos.score.CreateScoreRequest;
 import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/courses")
@@ -87,6 +89,13 @@ public class CourseController {
 
         URI location = URI.create("/api/v1/courses/" + courseId + "/syllabus");
         return ResponseEntity.created(location).body(savedSyllabus);
+    }
+
+    @PostMapping("/{courseId}/scores")
+    public ResponseEntity<List<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
+                                                                                        @RequestBody List<CreateScoreRequest> scores) {
+        List<ScoreResponse> emptyScoresList = studentService.generateEmptyListOfScoresForStudentsByCourseId(courseId, scores);
+        return ResponseEntity.ok(emptyScoresList);
     }
 
     @PatchMapping("/{courseId}/instructors/{instructorId}")

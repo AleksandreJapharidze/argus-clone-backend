@@ -11,6 +11,8 @@ public interface ScoreMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "student", ignore = true)
+    @Mapping(target = "courseName", ignore = true)
+    @Mapping(target = "studentName", ignore = true)
     Score toEntity(CreateScoreRequest request);
 
     ScoreResponse toResponse(Score score);
