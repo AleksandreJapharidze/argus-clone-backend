@@ -131,19 +131,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow(
-                () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
-        ));
-
-        return courseMapper.toResponse(courseRepository.save(course));
-    }
-
-    @Override
     public void deleteCourseById(Integer id) {
         if (!courseRepository.existsById(id)) {
             throw new ResourceNotFoundException("Course with an id of " + id + " not found");

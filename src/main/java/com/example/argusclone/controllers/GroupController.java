@@ -4,6 +4,7 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.services.GroupService;
+import com.example.argusclone.services.StudentGroupAssignmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ import java.util.List;
 public class GroupController {
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private StudentGroupAssignmentService studentGroupAssignmentService;
 
     @GetMapping("/{id}")
     public ResponseEntity<GroupResponse> getGroupById(@PathVariable  Integer id) {
@@ -43,7 +47,7 @@ public class GroupController {
     @PatchMapping("/{groupId}/students/{studentId}")
     public ResponseEntity<GroupResponse> assignStudentToGroup(@PathVariable Integer groupId,
                                                               @PathVariable Integer studentId) {
-        return ResponseEntity.ok(groupService.assignStudentToGroup(groupId, studentId));
+        return ResponseEntity.ok(studentGroupAssignmentService.assignStudentToGroup(groupId, studentId));
     }
 
     @DeleteMapping("/{id}")

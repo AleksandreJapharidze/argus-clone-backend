@@ -1,11 +1,7 @@
 package com.example.argusclone.services;
 
-import com.example.argusclone.dtos.score.CreateScoreRequest;
-import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
-
-import java.util.List;
 
 public interface StudentService {
     StudentResponse getStudentById(Integer id);

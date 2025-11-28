@@ -10,6 +10,7 @@ import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.GroupService;
+import com.example.argusclone.services.InstructorCourseAssignmentService;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,9 @@ public class CourseController {
 
     @Autowired
     private ScoreService scoreService;
+
+    @Autowired
+    private InstructorCourseAssignmentService instructorCourseAssignmentService;
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {
@@ -93,7 +97,7 @@ public class CourseController {
 
     @PostMapping("/{courseId}/scores")
     public ResponseEntity<List<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
-                                                                                        @RequestBody List<CreateScoreRequest> scores) {
+                                                                                              @RequestBody List<CreateScoreRequest> scores) {
         List<ScoreResponse> emptyScoresList = scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores);
         return ResponseEntity.ok(emptyScoresList);
     }
@@ -101,12 +105,13 @@ public class CourseController {
     @PatchMapping("/{courseId}/instructors/{instructorId}")
     public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId,
                                                                    @PathVariable Integer instructorId) {
-        return ResponseEntity.ok(courseService.assignInstructorToCourse(courseId, instructorId));
+        return ResponseEntity.ok(instructorCourseAssignmentService.assignInstructorToCourse(courseId, instructorId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
         groupService.deleteLecturesByCourseId(id);
+        scoreService.deleteScoresByCourseId(id);
         groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);

@@ -81,4 +81,14 @@ public class ScoreServiceImpl implements ScoreService {
         scoreToUpdate.setScore(score);
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
     }
+
+    @Override
+    public void deleteScoresByCourseId(Integer courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        course.getScores().forEach(score -> score.setCourse(null));
+        scoreRepository.deleteAll(course.getScores());
+    }
 }
