@@ -21,20 +21,24 @@ import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+    private final InstructorRepository instructorRepository;
+    private final StudentRepository studentRepository;
+    private final CourseMapper courseMapper;
+    private final SyllabusService syllabusService;
 
     @Autowired
-    private InstructorRepository instructorRepository;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private CourseMapper courseMapper;
-
-    @Autowired
-    private SyllabusService syllabusService;
+    public CourseServiceImpl(CourseRepository courseRepository,
+                             InstructorRepository instructorRepository,
+                             StudentRepository studentRepository,
+                             CourseMapper courseMapper,
+                             SyllabusService syllabusService) {
+        this.courseRepository = courseRepository;
+        this.instructorRepository = instructorRepository;
+        this.studentRepository = studentRepository;
+        this.courseMapper = courseMapper;
+        this.syllabusService = syllabusService;
+    }
 
     @Override
     public CourseResponse getCourseById(Integer id) {

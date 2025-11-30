@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
+    private final ScoreRepository scoreRepository;
+    private final StudentMapper studentMapper;
 
     @Autowired
-    private ScoreRepository scoreRepository;
-
-    @Autowired
-    private StudentMapper studentMapper;
+    public StudentServiceImpl(StudentRepository studentRepository,
+                              ScoreRepository scoreRepository,
+                              StudentMapper studentMapper) {
+        this.studentRepository = studentRepository;
+        this.scoreRepository = scoreRepository;
+        this.studentMapper = studentMapper;
+    }
 
     @Override
     public StudentResponse getStudentById(Integer id) {

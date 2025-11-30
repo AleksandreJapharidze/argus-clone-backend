@@ -13,11 +13,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
-    @Autowired
-    private InstructorRepository instructorRepository;
+    private final InstructorRepository instructorRepository;
+    private final InstructorMapper instructorMapper;
 
     @Autowired
-    private InstructorMapper instructorMapper;
+    public InstructorServiceImpl(InstructorRepository instructorRepository,
+                                 InstructorMapper instructorMapper) {
+        this.instructorRepository = instructorRepository;
+        this.instructorMapper = instructorMapper;
+    }
 
     @Override
     public InstructorResponse getInstructorById(Integer id) {

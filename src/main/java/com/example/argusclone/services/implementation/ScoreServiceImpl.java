@@ -18,17 +18,19 @@ import java.util.List;
 
 @Service
 public class ScoreServiceImpl implements ScoreService {
-    @Autowired
-    private ScoreRepository scoreRepository;
+    private final ScoreRepository scoreRepository;
+    private final CourseRepository courseRepository;
+    private final StudentRepository studentRepository;
+    private final ScoreMapper scoreMapper;
 
     @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private ScoreMapper scoreMapper;
+    public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
+                            StudentRepository studentRepository, ScoreMapper scoreMapper) {
+        this.scoreRepository = scoreRepository;
+        this.courseRepository = courseRepository;
+        this.studentRepository = studentRepository;
+        this.scoreMapper = scoreMapper;
+    }
 
     @Override
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {

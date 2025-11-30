@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignmentService {
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final StudentRepository studentRepository;
+    private final GroupMapper groupMapper;
 
     @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private GroupMapper groupMapper;
+    public StudentGroupAssignmentServiceImpl(GroupRepository groupRepository,
+                                             StudentRepository studentRepository,
+                                             GroupMapper groupMapper) {
+        this.groupRepository = groupRepository;
+        this.studentRepository = studentRepository;
+        this.groupMapper = groupMapper;
+    }
 
     @Override
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {

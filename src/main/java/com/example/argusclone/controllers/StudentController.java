@@ -14,11 +14,14 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/students")
 public class StudentController {
-    @Autowired
-    private StudentService studentService;
+    private final StudentService studentService;
+    private final CourseService courseService;
 
     @Autowired
-    private CourseService courseService;
+    public StudentController(StudentService studentService, CourseService courseService) {
+        this.studentService = studentService;
+        this.courseService = courseService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<StudentResponse> getStudentById(@PathVariable Integer id) {

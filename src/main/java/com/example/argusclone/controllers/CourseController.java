@@ -22,17 +22,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/courses")
 public class CourseController {
-    @Autowired
-    private CourseService courseService;
+    private final CourseService courseService;
+    private final GroupService groupService;
+    private final ScoreService scoreService;
+    private final InstructorCourseAssignmentService instructorCourseAssignmentService;
 
     @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ScoreService scoreService;
-
-    @Autowired
-    private InstructorCourseAssignmentService instructorCourseAssignmentService;
+    public CourseController(CourseService courseService, GroupService groupService, ScoreService scoreService,
+                            InstructorCourseAssignmentService instructorCourseAssignmentService) {
+        this.courseService = courseService;
+        this.groupService = groupService;
+        this.scoreService = scoreService;
+        this.instructorCourseAssignmentService = instructorCourseAssignmentService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Integer id) {

@@ -9,16 +9,22 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.SyllabusRepository;
 import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class SyllabusServiceImpl implements SyllabusService {
-    @Autowired
-    private SyllabusRepository syllabusRepository;
+    private final SyllabusRepository syllabusRepository;
+    private final CourseRepository courseRepository;
+    private final SyllabusMapper syllabusMapper;
 
     @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private SyllabusMapper syllabusMapper;
+    public SyllabusServiceImpl(SyllabusRepository syllabusRepository,
+                               CourseRepository courseRepository,
+                               SyllabusMapper syllabusMapper) {
+        this.syllabusRepository = syllabusRepository;
+        this.courseRepository = courseRepository;
+        this.syllabusMapper = syllabusMapper;
+    }
 
     @Override
     public SyllabusResponse getSyllabusByCourseId(Integer courseId) {

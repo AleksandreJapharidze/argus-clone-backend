@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/scores")
 public class ScoreController {
+    private final ScoreService scoreService;
+
     @Autowired
-    private ScoreService scoreService;
+    public ScoreController(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ScoreResponse> updateScoreById(@PathVariable Integer id, @RequestParam Integer score) {

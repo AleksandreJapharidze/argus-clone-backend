@@ -27,20 +27,24 @@ import java.util.List;
 public class GroupServiceImpl implements GroupService {
     private static final int SEMESTER_WEEKS = 15;
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final CourseRepository courseRepository;
+    private final LectureRepository lectureRepository;
+    private final GroupMapper groupMapper;
+    private final LectureMapper lectureMapper;
 
     @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private LectureRepository lectureRepository;
-
-    @Autowired
-    private GroupMapper groupMapper;
-
-    @Autowired
-    private LectureMapper lectureMapper;
+    public GroupServiceImpl(GroupRepository groupRepository,
+                            CourseRepository courseRepository,
+                            LectureRepository lectureRepository,
+                            GroupMapper groupMapper,
+                            LectureMapper lectureMapper) {
+        this.groupRepository = groupRepository;
+        this.courseRepository = courseRepository;
+        this.lectureRepository = lectureRepository;
+        this.groupMapper = groupMapper;
+        this.lectureMapper = lectureMapper;
+    }
 
     @Override
     public List<GroupResponse> getGroupsForCourse(Integer courseId) {

@@ -16,11 +16,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/groups")
 public class GroupController {
-    @Autowired
-    private GroupService groupService;
+    private final GroupService groupService;
+    private final StudentGroupAssignmentService studentGroupAssignmentService;
 
     @Autowired
-    private StudentGroupAssignmentService studentGroupAssignmentService;
+    public GroupController(GroupService groupService, StudentGroupAssignmentService studentGroupAssignmentService) {
+        this.groupService = groupService;
+        this.studentGroupAssignmentService = studentGroupAssignmentService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<GroupResponse> getGroupById(@PathVariable  Integer id) {
