@@ -56,7 +56,7 @@ public class CourseController {
 
     @GetMapping("/{courseId}/syllabus")
     public ResponseEntity<SyllabusResponse> getCourseSyllabus(@PathVariable Integer courseId) {
-        return ResponseEntity.ok(courseService.getSyllabusByCourseId(courseId));
+        return ResponseEntity.ok(courseService.getCourseSyllabus(courseId));
     }
 
     @GetMapping("/{courseId}/groups")

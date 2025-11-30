@@ -14,7 +14,7 @@ public interface CourseService {
     List<CourseResponse> getAllCourses();
     List<CourseResponse> getCoursesByInstructorId(Integer instructorId);
     List<CourseResponse> getCoursesByStudentId(Integer studentId);
-    SyllabusResponse getSyllabusByCourseId(Integer courseId);
+    SyllabusResponse getCourseSyllabus(Integer courseId);
     CourseResponse addCourse(CreateCourseRequest course);
     SyllabusResponse addCourseSyllabus(Integer courseId, SyllabusRequest syllabus);
     void deleteCourseById(Integer id);

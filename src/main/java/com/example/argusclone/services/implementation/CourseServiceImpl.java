@@ -6,13 +6,12 @@ import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
-import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
-import com.example.argusclone.mappers.SyllabusMapper;
 import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
+import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +25,6 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
 
     @Autowired
-    private SyllabusRepository syllabusRepository;
-
-    @Autowired
     private InstructorRepository instructorRepository;
 
     @Autowired
@@ -38,7 +34,7 @@ public class CourseServiceImpl implements CourseService {
     private CourseMapper courseMapper;
 
     @Autowired
-    private SyllabusMapper syllabusMapper;
+    private SyllabusService syllabusService;
 
     @Override
     public CourseResponse getCourseById(Integer id) {
@@ -101,12 +97,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public SyllabusResponse getSyllabusByCourseId(Integer courseId) {
-        Syllabus syllabus = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        ).getSyllabus();
-
-        return syllabusMapper.toResponse(syllabus);
+    public SyllabusResponse getCourseSyllabus(Integer courseId) {
+        return syllabusService.getSyllabusByCourseId(courseId);
     }
 
     @Override
@@ -121,13 +113,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public SyllabusResponse addCourseSyllabus(Integer courseId, SyllabusRequest syllabus) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
-        course.setSyllabus(newSyllabus);
-        return syllabusMapper.toResponse(syllabusRepository.save(newSyllabus));
+        return syllabusService.addSyllabusToCourse(courseId, syllabus);
     }
 
     @Override
@@ -141,15 +127,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourseSyllabus(Integer courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Syllabus syllabus = course.getSyllabus();
-        if (syllabus != null) {
-            course.setSyllabus(null);
-            courseRepository.save(course);
-            syllabusRepository.delete(syllabus);
-        }
+        syllabusService.deleteSyllabusByCourseId(courseId);
     }
 }

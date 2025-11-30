@@ -1,0 +1,56 @@
+package com.example.argusclone.services.implementation;
+
+import com.example.argusclone.dtos.syllabus.SyllabusRequest;
+import com.example.argusclone.dtos.syllabus.SyllabusResponse;
+import com.example.argusclone.entities.Course;
+import com.example.argusclone.entities.Syllabus;
+import com.example.argusclone.mappers.SyllabusMapper;
+import com.example.argusclone.repositories.CourseRepository;
+import com.example.argusclone.repositories.SyllabusRepository;
+import com.example.argusclone.services.SyllabusService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class SyllabusServiceImpl implements SyllabusService {
+    @Autowired
+    private SyllabusRepository syllabusRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private SyllabusMapper syllabusMapper;
+
+    @Override
+    public SyllabusResponse getSyllabusByCourseId(Integer courseId) {
+        Syllabus syllabus = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        ).getSyllabus();
+
+        return syllabusMapper.toResponse(syllabus);
+    }
+
+    @Override
+    public SyllabusResponse addSyllabusToCourse(Integer courseId, SyllabusRequest syllabus) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
+        course.setSyllabus(newSyllabus);
+        return syllabusMapper.toResponse(syllabusRepository.save(newSyllabus));
+    }
+
+    @Override
+    public void deleteSyllabusByCourseId(Integer courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        Syllabus syllabus = course.getSyllabus();
+        if (syllabus != null) {
+            course.setSyllabus(null);
+            courseRepository.save(course);
+            syllabusRepository.delete(syllabus);
+        }
+    }
+}
