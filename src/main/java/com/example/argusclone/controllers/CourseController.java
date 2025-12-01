@@ -104,6 +104,12 @@ public class CourseController {
         return ResponseEntity.ok(emptyScoresList);
     }
 
+    @PatchMapping("/{courseId}/syllabus")
+    public ResponseEntity<SyllabusResponse> updateSyllabusPrerequisites(@PathVariable Integer courseId,
+                                                                        @RequestBody List<String> prerequisites) {
+        return ResponseEntity.ok(courseService.updateSyllabusPrerequisites(courseId, prerequisites));
+    }
+
     @PatchMapping("/{courseId}/instructors/{instructorId}")
     public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId,
                                                                    @PathVariable Integer instructorId) {

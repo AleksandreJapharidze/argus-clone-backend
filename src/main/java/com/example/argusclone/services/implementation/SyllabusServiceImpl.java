@@ -4,12 +4,15 @@ import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Syllabus;
+import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.SyllabusMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.SyllabusRepository;
 import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SyllabusServiceImpl implements SyllabusService {
@@ -44,6 +47,20 @@ public class SyllabusServiceImpl implements SyllabusService {
         Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
         course.setSyllabus(newSyllabus);
         return syllabusMapper.toResponse(syllabusRepository.save(newSyllabus));
+    }
+
+    @Override
+    public SyllabusResponse updatePrerequisitesByCourseId(Integer courseId, List<String> prerequisites) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (course.getSyllabus() == null) {
+            throw new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found");
+        }
+
+        course.getSyllabus().setPrerequisites(prerequisites);
+        return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
     }
 
     @Override

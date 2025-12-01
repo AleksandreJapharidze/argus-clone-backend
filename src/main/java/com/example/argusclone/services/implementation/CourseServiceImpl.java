@@ -121,6 +121,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public SyllabusResponse updateSyllabusPrerequisites(Integer courseId, List<String> prerequisites) {
+        return syllabusService.updatePrerequisitesByCourseId(courseId, prerequisites);
+    }
+
+    @Override
     public void deleteCourseById(Integer id) {
         if (!courseRepository.existsById(id)) {
             throw new ResourceNotFoundException("Course with an id of " + id + " not found");
