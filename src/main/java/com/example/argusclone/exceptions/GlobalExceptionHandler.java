@@ -46,4 +46,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(409).body(errorDetails);
     }
+
+    @ExceptionHandler(TooManyResourcesException.class)
+    public ResponseEntity<?> handleTooManyResourcesException(
+            TooManyResourcesException exception, WebRequest request
+    ) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", new Date());
+        errorDetails.put("message", exception.getMessage());
+        errorDetails.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(403).body(errorDetails);
+    }
 }
