@@ -2,8 +2,6 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.course.CreateCourseRequest;
-import com.example.argusclone.dtos.syllabus.SyllabusRequest;
-import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.exceptions.DuplicateResourceException;
@@ -101,11 +99,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public SyllabusResponse getCourseSyllabus(Integer courseId) {
-        return syllabusService.getSyllabusByCourseId(courseId);
-    }
-
-    @Override
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
             throw new DuplicateResourceException("Course with code " + course.getCourseCode() + " already exists");
@@ -113,16 +106,6 @@ public class CourseServiceImpl implements CourseService {
 
         Course newCourse = courseMapper.toEntity(course);
         return courseMapper.toResponse(courseRepository.save(newCourse));
-    }
-
-    @Override
-    public SyllabusResponse addCourseSyllabus(Integer courseId, SyllabusRequest syllabus) {
-        return syllabusService.addSyllabusToCourse(courseId, syllabus);
-    }
-
-    @Override
-    public SyllabusResponse updateSyllabusPrerequisites(Integer courseId, List<String> prerequisites) {
-        return syllabusService.updatePrerequisitesByCourseId(courseId, prerequisites);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Syllabus;
+import com.example.argusclone.entities.embeddable.GradingWeight;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.SyllabusMapper;
 import com.example.argusclone.repositories.CourseRepository;
@@ -60,6 +61,62 @@ public class SyllabusServiceImpl implements SyllabusService {
         }
 
         course.getSyllabus().setPrerequisites(prerequisites);
+        return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
+    }
+
+    @Override
+    public SyllabusResponse updateCourseMissionByCourseId(Integer courseId, String courseMission) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (course.getSyllabus() == null) {
+            throw new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found");
+        }
+
+        course.getSyllabus().setCourseMission(courseMission);
+        return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
+    }
+
+    @Override
+    public SyllabusResponse updateTeachingMethodsByCourseId(Integer courseId, List<String> teachingMethods) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (course.getSyllabus() == null) {
+            throw new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found");
+        }
+
+        course.getSyllabus().setTeachingMethods(teachingMethods);
+        return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
+    }
+
+    @Override
+    public SyllabusResponse updateTopicsByCourseId(Integer courseId, List<String> topics) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (course.getSyllabus() == null) {
+            throw new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found");
+        }
+
+        course.getSyllabus().setTopics(topics);
+        return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
+    }
+
+    @Override
+    public SyllabusResponse updateGradingWeightsByCourseId(Integer courseId, List<GradingWeight> gradingWeights) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (course.getSyllabus() == null) {
+            throw new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found");
+        }
+
+        course.getSyllabus().setGradingWeights(gradingWeights);
         return syllabusMapper.toResponse(syllabusRepository.save(course.getSyllabus()));
     }
 

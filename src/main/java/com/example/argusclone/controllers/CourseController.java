@@ -6,8 +6,6 @@ import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.score.CreateScoreRequest;
 import com.example.argusclone.dtos.score.ScoreResponse;
-import com.example.argusclone.dtos.syllabus.SyllabusRequest;
-import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.GroupService;
 import com.example.argusclone.services.InstructorCourseAssignmentService;
@@ -56,11 +54,6 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
-    @GetMapping("/{courseId}/syllabus")
-    public ResponseEntity<SyllabusResponse> getCourseSyllabus(@PathVariable Integer courseId) {
-        return ResponseEntity.ok(courseService.getCourseSyllabus(courseId));
-    }
-
     @GetMapping("/{courseId}/groups")
     public ResponseEntity<Iterable<GroupResponse>> getGroupsForCourse(@PathVariable Integer courseId) {
         return ResponseEntity.ok(groupService.getGroupsForCourse(courseId));
@@ -88,26 +81,11 @@ public class CourseController {
         return ResponseEntity.created(location).body(savedGroup);
     }
 
-    @PostMapping("/{courseId}/syllabus")
-    public ResponseEntity<SyllabusResponse> addCourseSyllabus(@PathVariable Integer courseId,
-                                                              @RequestBody SyllabusRequest syllabus) {
-        SyllabusResponse savedSyllabus = courseService.addCourseSyllabus(courseId, syllabus);
-
-        URI location = URI.create("/api/v1/courses/" + courseId + "/syllabus");
-        return ResponseEntity.created(location).body(savedSyllabus);
-    }
-
     @PostMapping("/{courseId}/scores")
     public ResponseEntity<List<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
                                                                                               @RequestBody List<CreateScoreRequest> scores) {
         List<ScoreResponse> emptyScoresList = scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores);
         return ResponseEntity.ok(emptyScoresList);
-    }
-
-    @PatchMapping("/{courseId}/syllabus")
-    public ResponseEntity<SyllabusResponse> updateSyllabusPrerequisites(@PathVariable Integer courseId,
-                                                                        @RequestBody List<String> prerequisites) {
-        return ResponseEntity.ok(courseService.updateSyllabusPrerequisites(courseId, prerequisites));
     }
 
     @PatchMapping("/{courseId}/instructors/{instructorId}")
@@ -123,12 +101,6 @@ public class CourseController {
         groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{courseId}/syllabus")
-    public ResponseEntity<Void> deleteCourseSyllabus(@PathVariable Integer courseId) {
-        courseService.deleteCourseSyllabus(courseId);
         return ResponseEntity.noContent().build();
     }
 }
