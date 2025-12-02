@@ -5,6 +5,7 @@ import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.exceptions.TooManyResourcesException;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
@@ -39,6 +40,8 @@ public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignment
 
         if (group.getCourse().getGroups().stream().anyMatch(g -> g.getStudents().contains(student))) {
             throw new DuplicateResourceException("Student is already assigned to a group in this course");
+        } else if (student.getGroups().size() >= 5) {
+            throw new TooManyResourcesException("Student can't be assigned to more than 5 courses' groups");
         }
 
         group.getStudents().add(student);
