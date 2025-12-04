@@ -1,6 +1,7 @@
 package com.example.argusclone.controllers;
 
 import com.example.argusclone.dtos.course.CourseResponse;
+import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.services.CourseService;
@@ -41,6 +42,11 @@ public class StudentController {
     @GetMapping(params = "email")
     public ResponseEntity<StudentResponse> getStudentByEmail(@PathVariable String email) {
         return ResponseEntity.ok(studentService.getStudentByEmail(email));
+    }
+
+    @GetMapping("/{studentId}/coursesResults")
+    public ResponseEntity<Iterable<StudentCourseResultResponse>> getStudentCourseResults(@PathVariable Integer studentId) {
+        return ResponseEntity.ok(studentService.getStudentCoursesResultsByStudentId(studentId));
     }
 
     @PostMapping

@@ -20,6 +20,9 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Score> scores;
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<StudentCourseResult> studentCourseResults;
+
     public Integer getId() {
         return id;
     }
@@ -66,5 +69,13 @@ public class Student {
 
     public void setScores(List<Score> scores) {
         this.scores = scores;
+    }
+
+    public List<StudentCourseResult> getStudentCourseResults() {
+        return studentCourseResults;
+    }
+
+    public void setStudentCourseResults(List<StudentCourseResult> studentCourseResults) {
+        this.studentCourseResults = studentCourseResults;
     }
 }

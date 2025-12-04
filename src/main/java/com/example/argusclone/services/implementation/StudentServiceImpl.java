@@ -1,30 +1,41 @@
 package com.example.argusclone.services.implementation;
 
+import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.repositories.ScoreRepository;
+import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final ScoreRepository scoreRepository;
+    private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
+    private final StudentCourseResultMapper studentCourseResultMapper;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
                               ScoreRepository scoreRepository,
-                              StudentMapper studentMapper) {
+                              StudentCourseResultRepository studentCourseResultRepository,
+                              StudentMapper studentMapper,
+                              StudentCourseResultMapper studentCourseResultMapper) {
         this.studentRepository = studentRepository;
         this.scoreRepository = scoreRepository;
+        this.studentCourseResultRepository = studentCourseResultRepository;
         this.studentMapper = studentMapper;
+        this.studentCourseResultMapper = studentCourseResultMapper;
     }
 
     @Override
@@ -54,7 +65,17 @@ public class StudentServiceImpl implements StudentService {
         return studentMapper.toResponse(student);
     }
 
+    @Override
+    public List<StudentCourseResultResponse> getStudentCoursesResultsByStudentId(Integer studentId) {
+        if (!studentRepository.existsById(studentId)) {
+            throw new ResourceNotFoundException("Student with an id of " + studentId + " not found");
+        }
 
+        return studentCourseResultRepository.findByStudentId(studentId)
+                .stream()
+                .map(studentCourseResultMapper::toResponse)
+                .toList();
+    }
 
     @Override
     public StudentResponse addStudent(CreateStudentRequest student) {
