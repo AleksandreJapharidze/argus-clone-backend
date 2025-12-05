@@ -5,10 +5,12 @@ import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Score;
 import com.example.argusclone.entities.Student;
+import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.ScoreMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.ScoreRepository;
+import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,17 @@ public class ScoreServiceImpl implements ScoreService {
     private final ScoreRepository scoreRepository;
     private final CourseRepository courseRepository;
     private final StudentRepository studentRepository;
+    private final StudentCourseResultRepository studentCourseResultRepository;
     private final ScoreMapper scoreMapper;
 
     @Autowired
     public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
+                            StudentCourseResultRepository studentCourseResultRepository,
                             StudentRepository studentRepository, ScoreMapper scoreMapper) {
         this.scoreRepository = scoreRepository;
         this.courseRepository = courseRepository;
         this.studentRepository = studentRepository;
+        this.studentCourseResultRepository = studentCourseResultRepository;
         this.scoreMapper = scoreMapper;
     }
 
@@ -80,7 +85,39 @@ public class ScoreServiceImpl implements ScoreService {
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
         );
 
+        if (scoreToUpdate.getThreshold() != null) {
+            if (score >= scoreToUpdate.getThreshold()) {
+                scoreToUpdate.setScore(score);
+            } else {
+                scoreToUpdate.setScore(0);
+            }
+        }
+
         scoreToUpdate.setScore(score);
+        if (scoreToUpdate.getComponent().equalsIgnoreCase("Final exam")) {
+            StudentCourseResult studentCourseResult = new StudentCourseResult();
+            studentCourseResult.setStudent(scoreToUpdate.getStudent());
+            studentCourseResult.setCourse(scoreToUpdate.getCourse());
+            studentCourseResult.setCourseName(scoreToUpdate.getCourseName());
+            studentCourseResult.setStudentName(scoreToUpdate.getStudentName());
+
+            if (score >= scoreToUpdate.getThreshold()) {
+                int sumOfStudentScoresInCourse = scoreToUpdate.getStudent().getScores()
+                        .stream().filter(s -> s.getCourse().equals(scoreToUpdate.getCourse()))
+                        .mapToInt(Score::getScore).sum();
+                if (sumOfStudentScoresInCourse >= 51) {
+                    studentCourseResult.setHasPassed(true);
+                    studentCourseResult.setFinalGrade(sumOfStudentScoresInCourse);
+                } else {
+                    studentCourseResult.setHasPassed(false);
+                }
+            } else {
+                studentCourseResult.setHasPassed(false);
+            }
+            scoreToUpdate.getStudent().getStudentCourseResults().add(studentCourseResult);
+            studentCourseResultRepository.save(studentCourseResult);
+        }
+
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
     }
 

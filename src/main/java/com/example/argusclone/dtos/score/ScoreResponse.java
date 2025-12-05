@@ -4,6 +4,7 @@ public class ScoreResponse {
     private Integer id;
     private String component;
     private Integer score;
+    private Integer threshold;
     private String courseName;
     private String studentName;
 
@@ -29,6 +30,14 @@ public class ScoreResponse {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public Integer getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(Integer threshold) {
+        this.threshold = threshold;
     }
 
     public String getCourseName() {

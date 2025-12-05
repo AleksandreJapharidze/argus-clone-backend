@@ -3,13 +3,11 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
-import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.TooManyResourcesException;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.repositories.GroupRepository;
-import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentGroupAssignmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +17,15 @@ import org.springframework.stereotype.Service;
 public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignmentService {
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
-    private final StudentCourseResultRepository studentCourseResultRepository;
     private final GroupMapper groupMapper;
 
     @Autowired
     public StudentGroupAssignmentServiceImpl(GroupRepository groupRepository,
                                              StudentRepository studentRepository,
-                                             GroupMapper groupMapper,
-                                             StudentCourseResultRepository studentCourseResultRepository) {
+                                             GroupMapper groupMapper) {
         this.groupRepository = groupRepository;
         this.studentRepository = studentRepository;
         this.groupMapper = groupMapper;
-        this.studentCourseResultRepository = studentCourseResultRepository;
     }
 
     @Override
@@ -50,15 +45,6 @@ public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignment
         }
 
         group.getStudents().add(student);
-
-        StudentCourseResult studentCourseResult = new StudentCourseResult();
-        studentCourseResult.setStudent(student);
-        studentCourseResult.setCourse(group.getCourse());
-        studentCourseResult.setStudentName(student.getName());
-        studentCourseResult.setCourseName(group.getCourse().getCourseName());
-
-        studentCourseResultRepository.save(studentCourseResult);
-        student.getStudentCourseResults().add(studentCourseResult);
 
         return groupMapper.toResponse(groupRepository.save(group));
     }
