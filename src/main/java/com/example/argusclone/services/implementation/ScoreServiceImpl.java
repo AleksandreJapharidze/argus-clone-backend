@@ -15,6 +15,7 @@ import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -80,6 +81,7 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     @Override
+    @Transactional
     public ScoreResponse updateScoreById(Integer scoreId, Integer score) {
         Score scoreToUpdate = scoreRepository.findById(scoreId).orElseThrow(
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
@@ -114,6 +116,12 @@ public class ScoreServiceImpl implements ScoreService {
             } else {
                 studentCourseResult.setHasPassed(false);
             }
+
+            if (studentCourseResultRepository.existsByStudentIdAndCourseId(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId())) {
+                scoreToUpdate.getStudent().getStudentCourseResults().removeIf(s -> s.getCourse().equals(scoreToUpdate.getCourse()));
+                studentCourseResultRepository.deleteByStudentIdAndCourseId(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
+            }
+
             scoreToUpdate.getStudent().getStudentCourseResults().add(studentCourseResult);
             studentCourseResultRepository.save(studentCourseResult);
         }

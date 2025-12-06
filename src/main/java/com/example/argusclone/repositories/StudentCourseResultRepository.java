@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface StudentCourseResultRepository extends JpaRepository<StudentCourseResult, Integer> {
     List<StudentCourseResult> findByStudentId(Integer studentId);
+    boolean existsByStudentIdAndCourseId(Integer studentId, Integer courseId);
+    void deleteByStudentIdAndCourseId(Integer studentId, Integer courseId);
 }
