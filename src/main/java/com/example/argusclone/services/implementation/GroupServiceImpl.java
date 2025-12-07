@@ -108,10 +108,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
-        long distinctCount = lectures.stream().distinct().count();
-        if (distinctCount != lectures.size()) {
-            throw new DuplicateResourceException("Two or more lectures collide with each other.");
-        }
+        validateNoLectureCollisions(lectures);
 
         List<Lecture> newLectures = new ArrayList<>();
 
@@ -155,6 +152,13 @@ public class GroupServiceImpl implements GroupService {
                 ).ifPresent(l -> {
                     throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
                 });
+    }
+
+    private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
+        long distinctCount = lectures.stream().distinct().count();
+        if (distinctCount != lectures.size()) {
+            throw new DuplicateResourceException("Two or more lectures collide with each other.");
+        }
     }
 
     @Override

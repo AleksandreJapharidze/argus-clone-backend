@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ScoreServiceImpl implements ScoreService {
@@ -87,46 +88,79 @@ public class ScoreServiceImpl implements ScoreService {
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
         );
 
-        if (scoreToUpdate.getThreshold() != null) {
-            if (score >= scoreToUpdate.getThreshold()) {
-                scoreToUpdate.setScore(score);
-            } else {
-                scoreToUpdate.setScore(0);
-            }
-        }
+        updateScoreValue(scoreToUpdate, score);
 
-        scoreToUpdate.setScore(score);
         if (scoreToUpdate.getComponent().equalsIgnoreCase("Final exam")) {
-            StudentCourseResult studentCourseResult = new StudentCourseResult();
-            studentCourseResult.setStudent(scoreToUpdate.getStudent());
-            studentCourseResult.setCourse(scoreToUpdate.getCourse());
-            studentCourseResult.setCourseName(scoreToUpdate.getCourseName());
-            studentCourseResult.setStudentName(scoreToUpdate.getStudentName());
-
-            if (score >= scoreToUpdate.getThreshold()) {
-                int sumOfStudentScoresInCourse = scoreToUpdate.getStudent().getScores()
-                        .stream().filter(s -> s.getCourse().equals(scoreToUpdate.getCourse()))
-                        .mapToInt(Score::getScore).sum();
-                if (sumOfStudentScoresInCourse >= 51) {
-                    studentCourseResult.setHasPassed(true);
-                    studentCourseResult.setFinalGrade(sumOfStudentScoresInCourse);
-                } else {
-                    studentCourseResult.setHasPassed(false);
-                }
-            } else {
-                studentCourseResult.setHasPassed(false);
-            }
-
-            if (studentCourseResultRepository.existsByStudentIdAndCourseId(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId())) {
-                scoreToUpdate.getStudent().getStudentCourseResults().removeIf(s -> s.getCourse().equals(scoreToUpdate.getCourse()));
-                studentCourseResultRepository.deleteByStudentIdAndCourseId(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
-            }
-
-            scoreToUpdate.getStudent().getStudentCourseResults().add(studentCourseResult);
-            studentCourseResultRepository.save(studentCourseResult);
+            StudentCourseResult result = calculateStudentCourseResult(scoreToUpdate, score);
+            saveOrUpdateCourseResult(scoreToUpdate, result);
         }
 
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
+    }
+
+    private void updateScoreValue(Score scoreToUpdate, Integer score) {
+        Integer threshold = scoreToUpdate.getThreshold();
+
+        if (threshold != null && score < threshold) {
+            scoreToUpdate.setScore(0);
+        } else {
+            scoreToUpdate.setScore(score);
+        }
+    }
+
+    private StudentCourseResult calculateStudentCourseResult(Score scoreToUpdate, Integer score) {
+        StudentCourseResult result = new StudentCourseResult();
+        result.setStudent(scoreToUpdate.getStudent());
+        result.setCourse(scoreToUpdate.getCourse());
+        result.setCourseName(scoreToUpdate.getCourseName());
+        result.setStudentName(scoreToUpdate.getStudentName());
+
+        if (!meetsThreshold(scoreToUpdate, score)) {
+            result.setHasPassed(false);
+            return result;
+        }
+
+        int totalCourseScoreForStudent = calculateTotalCourseScoreForStudent(scoreToUpdate);
+        if (totalCourseScoreForStudent >= 51) {
+            result.setHasPassed(true);
+            result.setFinalGrade(totalCourseScoreForStudent);
+        } else {
+            result.setHasPassed(false);
+        }
+
+        return result;
+    }
+
+    private int calculateTotalCourseScoreForStudent(Score score) {
+        return score.getStudent().getScores().stream()
+                .filter(s -> s.getCourse().equals(score.getCourse()))
+                .mapToInt(Score::getScore)
+                .sum();
+    }
+
+    private void saveOrUpdateCourseResult(Score scoreToUpdate, StudentCourseResult updateResult) {
+        Integer studentId = scoreToUpdate.getStudent().getId();
+        Integer courseId = scoreToUpdate.getCourse().getId();
+
+        Optional<StudentCourseResult> existingResult = studentCourseResultRepository.findByStudentIdAndCourseId(studentId, courseId);
+
+        if (existingResult.isPresent()) {
+            StudentCourseResult existingResultToUpdate = existingResult.get();
+
+            existingResultToUpdate.setHasPassed(updateResult.getHasPassed());
+            existingResultToUpdate.setFinalGrade(updateResult.getFinalGrade());
+            existingResultToUpdate.setStudentName(updateResult.getStudentName());
+            existingResultToUpdate.setCourseName(updateResult.getCourseName());
+
+            studentCourseResultRepository.save(existingResultToUpdate);
+        } else {
+            scoreToUpdate.getStudent().getStudentCourseResults().add(updateResult);
+            studentCourseResultRepository.save(updateResult);
+        }
+    }
+
+    private boolean meetsThreshold(Score scoreToUpdate, int score) {
+        return scoreToUpdate.getThreshold() == null || score >= scoreToUpdate.getThreshold();
     }
 
     @Override
