@@ -1,6 +1,9 @@
 package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ public class Group {
     private Course course;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.SUBSELECT)
     private List<Lecture> lectures;
 
     @ManyToMany
@@ -24,6 +28,7 @@ public class Group {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
+    @Fetch(FetchMode.SUBSELECT)
     private List<Student> students;
 
     public Integer getId() {

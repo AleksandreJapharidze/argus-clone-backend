@@ -3,6 +3,7 @@ package com.example.argusclone.entities;
 import com.example.argusclone.entities.embeddable.CourseScheduleCycle;
 import com.example.argusclone.entities.embeddable.GradingWeight;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Syllabus {
     @ElementCollection
     @CollectionTable(name = "syllabus_prerequisites", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "prerequisites")
+    @BatchSize(size = 20)
     private List<String> prerequisites;
 
     private String courseMission;
@@ -23,21 +25,25 @@ public class Syllabus {
     @ElementCollection
     @CollectionTable(name = "syllabus_teaching_methods", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "method")
+    @BatchSize(size = 20)
     private List<String> teachingMethods;
 
     @ElementCollection
     @CollectionTable(name = "syllabus_topics", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "topic")
+    @BatchSize(size = 20)
     private List<String> topics;
 
     @ElementCollection
     @CollectionTable(name = "syllabus_grading_weights", joinColumns = @JoinColumn(name = "syllabus_id"))
     @OrderColumn(name = "position")
+    @BatchSize(size = 20)
     private List<GradingWeight> gradingWeights = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
     @OrderColumn(name = "position")
+    @BatchSize(size = 20)
     private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
     public Integer getId() {
