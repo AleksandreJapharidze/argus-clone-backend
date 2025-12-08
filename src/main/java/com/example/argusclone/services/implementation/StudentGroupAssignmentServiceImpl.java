@@ -30,22 +30,25 @@ public class StudentGroupAssignmentServiceImpl implements StudentGroupAssignment
 
     @Override
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        );
 
-        Student student = studentRepository.findById(studentId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        );
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group " + groupId + " not found"));
 
-        if (group.getCourse().getGroups().stream().anyMatch(g -> g.getStudents().contains(student))) {
-            throw new DuplicateResourceException("Student is already assigned to a group in this course");
-        } else if (student.getGroups().size() >= 5) {
-            throw new TooManyResourcesException("Student can't be assigned to more than 5 courses' groups");
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student " + studentId + " not found"));
+
+        // 1. Check duplicate within this course
+        if (groupRepository.countGroupsForStudentInCourse(group.getCourse().getId(), studentId) > 0) {
+            throw new DuplicateResourceException("Student already in a group for this course");
         }
 
-        group.getStudents().add(student);
+        // 2. Check 5 course limit
+        if (studentRepository.countStudentGroups(studentId) >= 5) {
+            throw new TooManyResourcesException("Student cannot join more than 5 groups");
+        }
 
+        // 3. Assign student
+        group.getStudents().add(student);
         return groupMapper.toResponse(groupRepository.save(group));
     }
 }

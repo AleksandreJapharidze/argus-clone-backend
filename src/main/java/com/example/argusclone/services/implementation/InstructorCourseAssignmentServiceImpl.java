@@ -2,6 +2,8 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.entities.Course;
+import com.example.argusclone.entities.Instructor;
+import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.CourseRepository;
@@ -31,9 +33,15 @@ public class InstructorCourseAssignmentServiceImpl implements InstructorCourseAs
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );
 
-        course.getInstructors().add(instructorRepository.findById(instructorId).orElseThrow(
+        Instructor instructor = instructorRepository.findById(instructorId).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
-        ));
+        );
+
+        if (!course.getInstructors().contains(instructor)) {
+            course.getInstructors().add(instructor);
+        } else {
+            throw new DuplicateResourceException("Instructor already assigned to course");
+        }
 
         return courseMapper.toResponse(courseRepository.save(course));
     }

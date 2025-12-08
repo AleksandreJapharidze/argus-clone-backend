@@ -1,7 +1,6 @@
 package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 

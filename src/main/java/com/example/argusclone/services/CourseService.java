@@ -15,4 +15,5 @@ public interface CourseService {
     CourseResponse addCourse(CreateCourseRequest course);
     void deleteCourseById(Integer id);
     void deleteCourseSyllabus(Integer courseId);
+    void deleteCourseResultsByCourseId(Integer courseId);
 }

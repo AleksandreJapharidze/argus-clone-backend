@@ -98,6 +98,7 @@ public class CourseController {
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
         groupService.deleteLecturesByCourseId(id);
         scoreService.deleteScoresByCourseId(id);
+        courseService.deleteCourseResultsByCourseId(id);
         groupService.deleteGroupsByCourseId(id);
         courseService.deleteCourseSyllabus(id);
         courseService.deleteCourseById(id);

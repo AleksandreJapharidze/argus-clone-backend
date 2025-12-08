@@ -10,6 +10,7 @@ import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.SyllabusService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final InstructorRepository instructorRepository;
     private final StudentRepository studentRepository;
+    private final StudentCourseResultRepository studentCourseResultRepository;
     private final CourseMapper courseMapper;
     private final SyllabusService syllabusService;
 
@@ -29,11 +31,13 @@ public class CourseServiceImpl implements CourseService {
     public CourseServiceImpl(CourseRepository courseRepository,
                              InstructorRepository instructorRepository,
                              StudentRepository studentRepository,
+                             StudentCourseResultRepository studentCourseResultRepository,
                              CourseMapper courseMapper,
                              SyllabusService syllabusService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.studentRepository = studentRepository;
+        this.studentCourseResultRepository = studentCourseResultRepository;
         this.courseMapper = courseMapper;
         this.syllabusService = syllabusService;
     }
@@ -120,5 +124,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourseSyllabus(Integer courseId) {
         syllabusService.deleteSyllabusByCourseId(courseId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCourseResultsByCourseId(Integer courseId) {
+        studentCourseResultRepository.deleteByCourseId(courseId);
     }
 }
