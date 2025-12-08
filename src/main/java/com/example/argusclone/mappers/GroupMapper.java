@@ -13,6 +13,9 @@ import org.mapstruct.Mapping;
 public interface GroupMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "course", ignore = true)
+    @Mapping(target = "lectures", ignore = true)
+    @Mapping(target = "students", ignore = true)
+
     Group toEntity(CreateGroupRequest request);
 
     GroupResponse toResponse(Group group);

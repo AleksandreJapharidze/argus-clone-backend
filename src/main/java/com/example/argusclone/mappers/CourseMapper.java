@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 )
 public interface CourseMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "syllabus", ignore = true)
     @Mapping(target = "groups", ignore = true)
     @Mapping(target = "instructors", ignore = true)
     @Mapping(target = "scores", ignore = true)

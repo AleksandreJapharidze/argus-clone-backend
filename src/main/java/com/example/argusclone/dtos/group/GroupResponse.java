@@ -7,6 +7,7 @@ import java.util.List;
 
 public class GroupResponse {
     private Integer id;
+    private String groupName;
     private List<LectureResponse> lectures;
     private List<StudentResponse> students;
 
@@ -16,6 +17,14 @@ public class GroupResponse {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public List<LectureResponse> getLectures() {
