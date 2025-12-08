@@ -93,15 +93,4 @@ public class CourseController {
                                                                    @PathVariable Integer instructorId) {
         return ResponseEntity.ok(instructorCourseAssignmentService.assignInstructorToCourse(courseId, instructorId));
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
-        groupService.deleteLecturesByCourseId(id);
-        scoreService.deleteScoresByCourseId(id);
-        courseService.deleteCourseResultsByCourseId(id);
-        groupService.deleteGroupsByCourseId(id);
-        courseService.deleteCourseSyllabus(id);
-        courseService.deleteCourseById(id);
-        return ResponseEntity.noContent().build();
-    }
 }
