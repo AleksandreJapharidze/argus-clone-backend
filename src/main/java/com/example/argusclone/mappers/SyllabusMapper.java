@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SyllabusMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "course", ignore = true)
     Syllabus toEntity(SyllabusRequest request);
 
     SyllabusResponse toResponse(Syllabus syllabus);

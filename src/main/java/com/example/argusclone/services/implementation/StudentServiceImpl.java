@@ -94,9 +94,9 @@ public class StudentServiceImpl implements StudentService {
         );
 
         student.getGroups().forEach(group -> group.getStudents().remove(student));
-        student.getScores().forEach(score -> score.setStudent(null));
-        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setStudent(null));
-        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setCourse(null));
+//        student.getScores().forEach(score -> score.setStudent(null));
+//        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setStudent(null));
+//        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setCourse(null));
 
         scoreRepository.deleteAll(student.getScores());
         studentCourseResultRepository.deleteAll(student.getStudentCourseResults());

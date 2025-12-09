@@ -15,7 +15,7 @@ public interface GroupMapper {
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "lectures", ignore = true)
     @Mapping(target = "students", ignore = true)
-
+    @Mapping(source = "groupName", target = "groupName")
     Group toEntity(CreateGroupRequest request);
 
     GroupResponse toResponse(Group group);

@@ -46,6 +46,10 @@ public class Syllabus {
     @BatchSize(size = 20)
     private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
+    @OneToOne(mappedBy = "syllabus", cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     public Integer getId() {
         return id;
     }
@@ -100,5 +104,13 @@ public class Syllabus {
 
     public void setCourseSchedule(List<CourseScheduleCycle> courseSchedule) {
         this.courseSchedule = courseSchedule;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 }

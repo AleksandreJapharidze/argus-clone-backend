@@ -13,6 +13,7 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "group_name")
     private String groupName;
 
     @ManyToOne

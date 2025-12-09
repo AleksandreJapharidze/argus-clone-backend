@@ -74,7 +74,8 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/groups")
-    public ResponseEntity<GroupResponse> createGroup(@PathVariable Integer courseId, CreateGroupRequest group) {
+    public ResponseEntity<GroupResponse> createGroup(@PathVariable Integer courseId,
+                                                     @RequestBody CreateGroupRequest group) {
         GroupResponse savedGroup = groupService.createGroup(courseId, group);
 
         URI location = URI.create("/api/v1/groups/" + savedGroup.getId());

@@ -9,16 +9,16 @@ import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     @Override
-    @EntityGraph(attributePaths = {"syllabus", "instructors"})
+    @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findById(Integer id);
 
     @Override
-    @EntityGraph(attributePaths = {"syllabus", "instructors"})
+    @EntityGraph(attributePaths = {"instructors"})
     List<Course> findAll();
 
-    @EntityGraph(attributePaths = {"syllabus", "instructors"})
+    @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseName(String courseName);
 
-    @EntityGraph(attributePaths = {"syllabus", "instructors"})
+    @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseCode(String courseCode);
 }
