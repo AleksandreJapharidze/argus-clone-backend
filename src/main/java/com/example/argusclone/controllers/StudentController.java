@@ -35,12 +35,12 @@ public class StudentController {
     }
 
     @GetMapping(params = "name")
-    public ResponseEntity<StudentResponse> getStudentByName(@PathVariable String name) {
+    public ResponseEntity<StudentResponse> getStudentByName(@RequestParam String name) {
         return ResponseEntity.ok(studentService.getStudentByName(name));
     }
 
     @GetMapping(params = "email")
-    public ResponseEntity<StudentResponse> getStudentByEmail(@PathVariable String email) {
+    public ResponseEntity<StudentResponse> getStudentByEmail(@RequestParam String email) {
         return ResponseEntity.ok(studentService.getStudentByEmail(email));
     }
 
