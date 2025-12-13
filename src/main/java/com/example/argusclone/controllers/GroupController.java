@@ -4,7 +4,7 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.services.GroupService;
-import com.example.argusclone.services.StudentGroupAssignmentService;
+import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +17,13 @@ import java.util.List;
 @RequestMapping("/api/v1/groups")
 public class GroupController {
     private final GroupService groupService;
-    private final StudentGroupAssignmentService studentGroupAssignmentService;
+    private final GroupStudentsService groupStudentsService;
 
     @Autowired
-    public GroupController(GroupService groupService, StudentGroupAssignmentService studentGroupAssignmentService) {
+    public GroupController(GroupService groupService,
+                           GroupStudentsService groupStudentsService) {
         this.groupService = groupService;
-        this.studentGroupAssignmentService = studentGroupAssignmentService;
+        this.groupStudentsService = groupStudentsService;
     }
 
     @GetMapping("/{id}")
@@ -50,7 +51,7 @@ public class GroupController {
     @PatchMapping("/{groupId}/students/{studentId}")
     public ResponseEntity<GroupResponse> assignStudentToGroup(@PathVariable Integer groupId,
                                                               @PathVariable Integer studentId) {
-        return ResponseEntity.ok(studentGroupAssignmentService.assignStudentToGroup(groupId, studentId));
+        return ResponseEntity.ok(groupStudentsService.assignStudentToGroup(groupId, studentId));
     }
 
     @DeleteMapping("/{id}")
