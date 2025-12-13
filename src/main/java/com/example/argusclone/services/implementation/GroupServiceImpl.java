@@ -16,7 +16,9 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import com.example.argusclone.services.GroupService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -93,6 +95,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional
     public GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
@@ -101,10 +104,13 @@ public class GroupServiceImpl implements GroupService {
         List<Lecture> newLectures = generateLecturesForTheSemester(lectures);
         newLectures.forEach(lecture -> lecture.setGroup(group));
 
-        lectureRepository.saveAll(newLectures);
-        group.setLectures(newLectures);
-
-        return groupMapper.toResponse(groupRepository.save(group));
+        try {
+            lectureRepository.saveAll(newLectures);
+            lectureRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
+        }
+        return groupMapper.toResponse(group);
     }
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
@@ -131,7 +137,7 @@ public class GroupServiceImpl implements GroupService {
                 newLecture.setLectureEndTime(lecture.getLectureEndTime());
                 newLecture.setRoomNumber(lecture.getRoomNumber());
 
-                validateNoConflicts(newLecture);
+//                validateNoConflicts(newLecture);
 
                 newLectures.add(newLecture);
             }
@@ -143,16 +149,16 @@ public class GroupServiceImpl implements GroupService {
         return newLectures;
     }
 
-    private void validateNoConflicts(Lecture lecture) {
-        lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
-                        lecture.getLectureDate(),
-                        lecture.getLectureStartTime(),
-                        lecture.getLectureEndTime(),
-                        lecture.getRoomNumber()
-                ).ifPresent(l -> {
-                    throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
-                });
-    }
+//    private void validateNoConflicts(Lecture lecture) {
+//        lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
+//                        lecture.getLectureDate(),
+//                        lecture.getLectureStartTime(),
+//                        lecture.getLectureEndTime(),
+//                        lecture.getRoomNumber()
+//                ).ifPresent(l -> {
+//                    throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
+//                });
+//    }
 
     private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
         long distinctCount = lectures.stream().distinct().count();
