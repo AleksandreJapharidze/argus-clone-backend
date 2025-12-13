@@ -110,6 +110,7 @@ public class GroupServiceImpl implements GroupService {
         } catch (DataIntegrityViolationException e) {
             throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
         }
+
         return groupMapper.toResponse(group);
     }
 
@@ -127,8 +128,7 @@ public class GroupServiceImpl implements GroupService {
                 Lecture newLecture = lectureMapper.toEntity(lecture);
                 LocalDate date = lecture.getLectureDate().plusWeeks(i);
 
-                if (date.isAfter(LocalDate.of(2025, 12, 24)) &&
-                        date.isBefore(LocalDate.of(2026, 1, 8))) {
+                if (isHoliday(date)) {
                     continue;
                 }
 
@@ -136,8 +136,6 @@ public class GroupServiceImpl implements GroupService {
                 newLecture.setLectureStartTime(lecture.getLectureStartTime());
                 newLecture.setLectureEndTime(lecture.getLectureEndTime());
                 newLecture.setRoomNumber(lecture.getRoomNumber());
-
-//                validateNoConflicts(newLecture);
 
                 newLectures.add(newLecture);
             }
@@ -149,22 +147,15 @@ public class GroupServiceImpl implements GroupService {
         return newLectures;
     }
 
-//    private void validateNoConflicts(Lecture lecture) {
-//        lectureRepository.findByLectureDateAndLectureStartTimeAndLectureEndTimeAndRoomNumber(
-//                        lecture.getLectureDate(),
-//                        lecture.getLectureStartTime(),
-//                        lecture.getLectureEndTime(),
-//                        lecture.getRoomNumber()
-//                ).ifPresent(l -> {
-//                    throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
-//                });
-//    }
-
     private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
         long distinctCount = lectures.stream().distinct().count();
         if (distinctCount != lectures.size()) {
             throw new DuplicateResourceException("Two or more lectures collide with each other.");
         }
+    }
+
+    private boolean isHoliday(LocalDate date) {
+        return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
     }
 
     @Override
