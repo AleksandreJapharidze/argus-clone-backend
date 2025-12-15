@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 @Entity
 public class Score {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "score_seq")
+    @SequenceGenerator(name = "score_seq", sequenceName = "score_seq", allocationSize = 50)
     private Integer id;
 
     private String component;

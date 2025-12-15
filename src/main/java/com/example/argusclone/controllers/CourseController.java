@@ -83,7 +83,7 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/scores")
-    public ResponseEntity<List<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
+    public ResponseEntity<Iterable<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
                                                                                               @RequestBody List<CreateScoreRequest> scores) {
         List<ScoreResponse> emptyScoresList = scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores);
         return ResponseEntity.ok(emptyScoresList);
