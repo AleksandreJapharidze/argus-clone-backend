@@ -15,7 +15,8 @@ import java.time.LocalTime;
 )
 public class Lecture {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_seq")
+    @SequenceGenerator(name = "lecture_seq", sequenceName = "lecture_seq", allocationSize = 50)
     private Integer id;
 
     @Column(name = "lecture_date")

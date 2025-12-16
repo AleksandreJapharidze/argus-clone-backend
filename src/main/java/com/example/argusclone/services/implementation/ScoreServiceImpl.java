@@ -4,14 +4,12 @@ import com.example.argusclone.dtos.score.CreateScoreRequest;
 import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Score;
-import com.example.argusclone.entities.Student;
 import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.ScoreMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
-import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,31 +22,20 @@ import java.util.Optional;
 public class ScoreServiceImpl implements ScoreService {
     private final ScoreRepository scoreRepository;
     private final CourseRepository courseRepository;
-    private final StudentRepository studentRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final ScoreMapper scoreMapper;
 
     @Autowired
     public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
-                            StudentCourseResultRepository studentCourseResultRepository,
-                            StudentRepository studentRepository, ScoreMapper scoreMapper) {
+                            StudentCourseResultRepository studentCourseResultRepository, ScoreMapper scoreMapper) {
         this.scoreRepository = scoreRepository;
         this.courseRepository = courseRepository;
-        this.studentRepository = studentRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.scoreMapper = scoreMapper;
     }
 
     @Override
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Student student = studentRepository.findById(studentId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        );
-
         List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
         return scores.stream().map(scoreMapper::toResponse).toList();
     }
