@@ -6,6 +6,7 @@ import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Score;
 import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.exceptions.ValueExceedsMaximumException;
 import com.example.argusclone.mappers.ScoreMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.ScoreRepository;
@@ -74,6 +75,10 @@ public class ScoreServiceImpl implements ScoreService {
         Score scoreToUpdate = scoreRepository.findById(scoreId).orElseThrow(
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
         );
+
+        if (!isNotMoreThanMaxScore(scoreToUpdate, score)) {
+            throw new ValueExceedsMaximumException("Score can not be more than maximum score");
+        }
 
         updateScoreValue(scoreToUpdate, score);
 
@@ -148,6 +153,10 @@ public class ScoreServiceImpl implements ScoreService {
 
     private boolean meetsThreshold(Score scoreToUpdate, int score) {
         return scoreToUpdate.getThreshold() == null || score >= scoreToUpdate.getThreshold();
+    }
+
+    private boolean isNotMoreThanMaxScore(Score scoreToUpdate, int score) {
+        return score <= scoreToUpdate.getMaxScore();
     }
 
     @Override

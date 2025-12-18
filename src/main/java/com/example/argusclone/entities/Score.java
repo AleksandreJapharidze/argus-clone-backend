@@ -11,6 +11,7 @@ public class Score {
 
     private String component;
     private Integer score;
+    private Integer maxScore;
     private Integer threshold;
     private String courseName;
     private String studentName;
@@ -45,6 +46,14 @@ public class Score {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public Integer getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(Integer maxScore) {
+        this.maxScore = maxScore;
     }
 
     public Integer getThreshold() {

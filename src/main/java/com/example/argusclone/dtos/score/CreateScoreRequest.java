@@ -2,6 +2,7 @@ package com.example.argusclone.dtos.score;
 
 public class CreateScoreRequest {
     private String component;
+    private Integer maxScore;
     private Integer threshold;
 
     public String getComponent() {
@@ -12,11 +13,19 @@ public class CreateScoreRequest {
         this.component = component;
     }
 
+    public Integer getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(Integer maxScore) {
+        this.maxScore = maxScore;
+    }
+
     public Integer getThreshold() {
         return threshold;
     }
 
-    public void setScore(Integer threshold) {
+    public void setThreshold(Integer threshold) {
         this.threshold = threshold;
     }
 }

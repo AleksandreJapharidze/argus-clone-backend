@@ -56,6 +56,18 @@ public class GlobalExceptionHandler {
         errorDetails.put("message", exception.getMessage());
         errorDetails.put("path", request.getDescription(false));
 
-        return ResponseEntity.status(403).body(errorDetails);
+        return ResponseEntity.status(422).body(errorDetails);
+    }
+
+    @ExceptionHandler(ValueExceedsMaximumException.class)
+    public ResponseEntity<?> handleValueExceedsMaximumException(
+            ValueExceedsMaximumException exception, WebRequest request
+    ) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", new Date());
+        errorDetails.put("message", exception.getMessage());
+        errorDetails.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(422).body(errorDetails);
     }
 }
