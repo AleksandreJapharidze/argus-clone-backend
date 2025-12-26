@@ -70,4 +70,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(422).body(errorDetails);
     }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<?> handleHttpClientErrorException(
+            HttpClientErrorException exception, WebRequest request
+    ) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", new Date());
+        errorDetails.put("message", exception.getMessage());
+        errorDetails.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(400).body(errorDetails);
+    }
 }

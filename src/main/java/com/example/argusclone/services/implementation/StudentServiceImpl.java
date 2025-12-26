@@ -1,10 +1,12 @@
 package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.result.StudentCourseResultResponse;
+import com.example.argusclone.dtos.resumeservice.StudentRequestForResumeService;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
+import com.example.argusclone.exceptions.HttpClientErrorException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
@@ -13,7 +15,9 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -24,6 +28,9 @@ public class StudentServiceImpl implements StudentService {
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
     private final StudentCourseResultMapper studentCourseResultMapper;
+
+    @Value("${resume.service.url}")
+    private String resumeServiceUrl;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
@@ -83,8 +90,23 @@ public class StudentServiceImpl implements StudentService {
             throw new DuplicateResourceException("Student with email " + student.getEmail() + " already exists");
         });
 
+        addStudentForResumeService(student);
+
         Student newStudent = studentMapper.toEntity(student);
         return studentMapper.toResponse(studentRepository.save(newStudent));
+    }
+
+    private void addStudentForResumeService(CreateStudentRequest student) {
+        StudentRequestForResumeService requestForResumeService = new StudentRequestForResumeService(
+                student.getName(), student.getEmail()
+        );
+
+        final RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.postForObject(resumeServiceUrl + "/students", requestForResumeService, StudentRequestForResumeService.class);
+        } catch (Exception e) {
+            throw new HttpClientErrorException("Failed to add student to resume service");
+        }
     }
 
     @Override
