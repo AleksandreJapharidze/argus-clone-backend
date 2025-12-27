@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: MoolyFTW12.
-      MYSQL_DATABASE: argus-clone
+      MYSQL_DATABASE: argus_clone
       MYSQL_USER: nacho_verde
       MYSQL_PASSWORD: MoolyFTW12.
     ports:
