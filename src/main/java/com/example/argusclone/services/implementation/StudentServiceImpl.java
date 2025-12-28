@@ -1,12 +1,12 @@
 package com.example.argusclone.services.implementation;
 
+import com.example.argusclone.config.RabbitMqConfig;
 import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.resumeservice.StudentRequestForResumeService;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.DuplicateResourceException;
-import com.example.argusclone.exceptions.HttpClientErrorException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
@@ -14,10 +14,9 @@ import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -28,21 +27,21 @@ public class StudentServiceImpl implements StudentService {
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
     private final StudentCourseResultMapper studentCourseResultMapper;
-
-    @Value("${resume.service.url}")
-    private String resumeServiceUrl;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
                               ScoreRepository scoreRepository,
                               StudentCourseResultRepository studentCourseResultRepository,
                               StudentMapper studentMapper,
-                              StudentCourseResultMapper studentCourseResultMapper) {
+                              StudentCourseResultMapper studentCourseResultMapper,
+                              RabbitTemplate rabbitTemplate) {
         this.studentRepository = studentRepository;
         this.scoreRepository = scoreRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.studentMapper = studentMapper;
         this.studentCourseResultMapper = studentCourseResultMapper;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -101,12 +100,8 @@ public class StudentServiceImpl implements StudentService {
                 student.getName(), student.getEmail()
         );
 
-        final RestTemplate restTemplate = new RestTemplate();
-        try {
-            restTemplate.postForObject(resumeServiceUrl + "/students", requestForResumeService, StudentRequestForResumeService.class);
-        } catch (Exception e) {
-            throw new HttpClientErrorException("Failed to add student to resume service");
-        }
+        rabbitTemplate.convertAndSend(RabbitMqConfig.QUEUE, requestForResumeService);
+        System.out.println("Adding student to resumes microservice: " + requestForResumeService);
     }
 
     @Override
