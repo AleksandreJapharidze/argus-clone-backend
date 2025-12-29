@@ -21,7 +21,9 @@ public class StudentController {
     private final CourseService courseService;
 
     @Autowired
-    public StudentController(StudentService studentService, StudentAdditionService studentAdditionService, CourseService courseService) {
+    public StudentController(StudentService studentService,
+                             StudentAdditionService studentAdditionService,
+                             CourseService courseService) {
         this.studentService = studentService;
         this.studentAdditionService = studentAdditionService;
         this.courseService = courseService;

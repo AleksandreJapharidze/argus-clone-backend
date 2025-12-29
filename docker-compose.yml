@@ -18,15 +18,15 @@ services:
   rabbitmq:
     image: rabbitmq:4.2.2-management
     container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
       - "5672:5672"     # AMQP
       - "15672:15672"   # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    restart: unless-stopped
 
 volumes:
   db-data:
