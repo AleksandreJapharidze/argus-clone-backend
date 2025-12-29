@@ -5,6 +5,7 @@ import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.services.CourseService;
+import com.example.argusclone.services.StudentAdditionService;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,13 @@ import java.net.URI;
 @RequestMapping("/api/v1/students")
 public class StudentController {
     private final StudentService studentService;
+    private final StudentAdditionService studentAdditionService;
     private final CourseService courseService;
 
     @Autowired
-    public StudentController(StudentService studentService, CourseService courseService) {
+    public StudentController(StudentService studentService, StudentAdditionService studentAdditionService, CourseService courseService) {
         this.studentService = studentService;
+        this.studentAdditionService = studentAdditionService;
         this.courseService = courseService;
     }
 
@@ -51,7 +54,7 @@ public class StudentController {
 
     @PostMapping
     public ResponseEntity<StudentResponse> addStudent(@RequestBody CreateStudentRequest student) {
-        StudentResponse savedStudent = studentService.addStudent(student);
+        StudentResponse savedStudent = studentAdditionService.createStudent(student);
 
         URI location = URI.create("/api/v1/students/" + savedStudent.getId());
         return ResponseEntity.created(location).body(savedStudent);

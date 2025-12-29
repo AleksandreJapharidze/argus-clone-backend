@@ -1,12 +1,8 @@
 package com.example.argusclone.services.implementation;
 
-import com.example.argusclone.config.RabbitMqConfig;
 import com.example.argusclone.dtos.result.StudentCourseResultResponse;
-import com.example.argusclone.dtos.resumeservice.StudentRequestForResumeService;
-import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.entities.Student;
-import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
@@ -14,37 +10,30 @@ import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-    private static final Logger log = Logger.getLogger(StudentServiceImpl.class.getName());
-
     private final StudentRepository studentRepository;
     private final ScoreRepository scoreRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
     private final StudentCourseResultMapper studentCourseResultMapper;
-    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
                               ScoreRepository scoreRepository,
                               StudentCourseResultRepository studentCourseResultRepository,
                               StudentMapper studentMapper,
-                              StudentCourseResultMapper studentCourseResultMapper,
-                              RabbitTemplate rabbitTemplate) {
+                              StudentCourseResultMapper studentCourseResultMapper) {
         this.studentRepository = studentRepository;
         this.scoreRepository = scoreRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.studentMapper = studentMapper;
         this.studentCourseResultMapper = studentCourseResultMapper;
-        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -84,27 +73,6 @@ public class StudentServiceImpl implements StudentService {
                 .stream()
                 .map(studentCourseResultMapper::toResponse)
                 .toList();
-    }
-
-    @Override
-    public StudentResponse addStudent(CreateStudentRequest student) {
-        studentRepository.findByEmail(student.getEmail()).ifPresent(s -> {
-            throw new DuplicateResourceException("Student with email " + student.getEmail() + " already exists");
-        });
-
-        addStudentForResumeService(student);
-
-        Student newStudent = studentMapper.toEntity(student);
-        return studentMapper.toResponse(studentRepository.save(newStudent));
-    }
-
-    private void addStudentForResumeService(CreateStudentRequest student) {
-        StudentRequestForResumeService requestForResumeService = new StudentRequestForResumeService(
-                student.getName(), student.getEmail()
-        );
-
-        rabbitTemplate.convertAndSend(RabbitMqConfig.POST_EXCHANGE, RabbitMqConfig.POST_ROUTING_KEY, requestForResumeService);
-        log.info("Adding student to resumes microservice: {}");
     }
 
     @Override

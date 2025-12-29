@@ -11,6 +11,5 @@ public interface StudentService {
     StudentResponse getStudentByName(String name);
     StudentResponse getStudentByEmail(String email);
     List<StudentCourseResultResponse> getStudentCoursesResultsByStudentId(Integer studentId);
-    StudentResponse addStudent(CreateStudentRequest student);
     void deleteStudentById(Integer id);
 }
