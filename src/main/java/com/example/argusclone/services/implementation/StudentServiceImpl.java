@@ -19,9 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+    private static final Logger log = Logger.getLogger(StudentServiceImpl.class.getName());
+
     private final StudentRepository studentRepository;
     private final ScoreRepository scoreRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
@@ -100,8 +103,8 @@ public class StudentServiceImpl implements StudentService {
                 student.getName(), student.getEmail()
         );
 
-        rabbitTemplate.convertAndSend(RabbitMqConfig.QUEUE, requestForResumeService);
-        System.out.println("Adding student to resumes microservice: " + requestForResumeService);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.POST_EXCHANGE, RabbitMqConfig.POST_ROUTING_KEY, requestForResumeService);
+        log.info("Adding student to resumes microservice: {}");
     }
 
     @Override
