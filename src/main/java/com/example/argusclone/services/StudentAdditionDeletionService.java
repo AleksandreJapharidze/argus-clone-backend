@@ -3,6 +3,7 @@ package com.example.argusclone.services;
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
 
-public interface StudentAdditionService {
+public interface StudentAdditionDeletionService {
     StudentResponse createStudent(CreateStudentRequest student);
+    void deleteStudentById(Integer id);
 }

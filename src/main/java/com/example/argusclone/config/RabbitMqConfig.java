@@ -10,23 +10,43 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfig {
-    public static final String QUEUE = "post_queue";
-    public static final String POST_EXCHANGE = "post_exchange";
-    public static final String POST_ROUTING_KEY = "post_routing_key";
+    public static final String EXCHANGE = "post_exchange";
 
-    @Bean
-    public Queue queue() {
-        return QueueBuilder.durable(QUEUE).build();
-    }
+    public static final String POST_QUEUE = "post_queue";
+    public static final String DELETE_QUEUE = "delete_queue";
+
+    public static final String POST_ROUTING_KEY = "post_routing_key";
+    public static final String DELETE_ROUTING_KEY = "delete_routing_key";
 
     @Bean
     public DirectExchange directExchange() {
-        return new DirectExchange(POST_EXCHANGE);
+        return new DirectExchange(EXCHANGE);
     }
 
     @Bean
-    public Binding binding(Queue queue, DirectExchange directExchange) {
-        return BindingBuilder.bind(queue).to(directExchange).with(POST_ROUTING_KEY);
+    public Queue postQueue() {
+        return QueueBuilder.durable(POST_QUEUE).build();
+    }
+
+    @Bean
+    public Queue deleteQueue() {
+        return QueueBuilder.durable(DELETE_QUEUE).build();
+    }
+
+    @Bean
+    public Binding postBinding() {
+        return BindingBuilder
+                .bind(postQueue())
+                .to(directExchange())
+                .with(POST_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding deleteBinding() {
+        return BindingBuilder
+                .bind(deleteQueue())
+                .to(directExchange())
+                .with(DELETE_ROUTING_KEY);
     }
 
     @Bean

@@ -6,7 +6,6 @@ import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
-import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
@@ -18,19 +17,16 @@ import java.util.List;
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
-    private final ScoreRepository scoreRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
     private final StudentCourseResultMapper studentCourseResultMapper;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
-                              ScoreRepository scoreRepository,
                               StudentCourseResultRepository studentCourseResultRepository,
                               StudentMapper studentMapper,
                               StudentCourseResultMapper studentCourseResultMapper) {
         this.studentRepository = studentRepository;
-        this.scoreRepository = scoreRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.studentMapper = studentMapper;
         this.studentCourseResultMapper = studentCourseResultMapper;
@@ -73,21 +69,5 @@ public class StudentServiceImpl implements StudentService {
                 .stream()
                 .map(studentCourseResultMapper::toResponse)
                 .toList();
-    }
-
-    @Override
-    public void deleteStudentById(Integer id) {
-        Student student = studentRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + id + " not found")
-        );
-
-        student.getGroups().forEach(group -> group.getStudents().remove(student));
-//        student.getScores().forEach(score -> score.setStudent(null));
-//        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setStudent(null));
-//        student.getStudentCourseResults().forEach(studentCourseResult -> studentCourseResult.setCourse(null));
-
-        scoreRepository.deleteAll(student.getScores());
-        studentCourseResultRepository.deleteAll(student.getStudentCourseResults());
-        studentRepository.deleteById(id);
     }
 }
