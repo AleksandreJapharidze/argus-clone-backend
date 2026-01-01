@@ -169,9 +169,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void deleteLecturesByGroupId(Integer groupId) {
-        groupRepository.findById(groupId).orElseThrow(
+        lectureRepository.deleteAll(groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        ).getLectures().forEach(lectureRepository::delete);
+        ).getLectures());
     }
 
     @Override
@@ -180,7 +180,7 @@ public class GroupServiceImpl implements GroupService {
             throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
         }
 
-        groupRepository.findByCourseId(courseId).forEach(groupRepository::delete);
+        groupRepository.deleteAll(groupRepository.findByCourseId(courseId));
     }
 
     @Override
@@ -189,7 +189,6 @@ public class GroupServiceImpl implements GroupService {
             throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
         }
 
-        groupRepository.findByCourseId(courseId)
-                .forEach(group -> group.getLectures().forEach(lectureRepository::delete));
+        groupRepository.findByCourseId(courseId).forEach(group -> lectureRepository.deleteAll(group.getLectures()));
     }
 }
