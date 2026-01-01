@@ -3,6 +3,8 @@ package com.example.argusclone.repositories;
 import com.example.argusclone.entities.Course;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +23,13 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseCode(String courseCode);
+
+    // The JOIN clauses are just navigations to reach Course from Student via Group.
+    @EntityGraph(attributePaths = "instructors")
+    @Query("SELECT DISTINCT c FROM Student s JOIN s.groups g JOIN g.course c WHERE s.id = :studentId")
+    List<Course> findCoursesByStudentId(@Param("studentId") Integer studentId);
+
+    @EntityGraph(attributePaths = "instructors")
+    @Query("SELECT DISTINCT c FROM Course c JOIN c.instructors i WHERE i.id = :instructorId")
+    List<Course> findAllByInstructorId(@Param("instructorId") Integer instructorId);
 }

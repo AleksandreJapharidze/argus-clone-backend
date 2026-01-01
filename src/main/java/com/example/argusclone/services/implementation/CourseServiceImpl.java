@@ -3,7 +3,6 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.entities.Course;
-import com.example.argusclone.entities.Group;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
@@ -13,15 +12,12 @@ import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final InstructorRepository instructorRepository;
-    private final StudentRepository studentRepository;
     private final CourseMapper courseMapper;
     private final SyllabusService syllabusService;
 
@@ -33,7 +29,6 @@ public class CourseServiceImpl implements CourseService {
                              SyllabusService syllabusService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
-        this.studentRepository = studentRepository;
         this.courseMapper = courseMapper;
         this.syllabusService = syllabusService;
     }
@@ -75,9 +70,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponse> getCoursesByInstructorId(Integer instructorId) {
-        List<Course> instructorCourses = instructorRepository.findById(instructorId).orElseThrow(
-                () -> new ResourceNotFoundException("Instructor with an id of " + instructorId + " not found")
-        ).getCourses();
+        List<Course> instructorCourses = courseRepository.findAllByInstructorId(instructorId);
 
         return instructorCourses.stream()
                 .map(courseMapper::toResponse)
@@ -86,14 +79,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
-        List<Course> studentCourses = studentRepository.findById(studentId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with an id of " + studentId + " not found")
-        ).getGroups().stream()
-                .map(Group::getCourse)
-                .toList();
+        List<Course> courses =
+                courseRepository.findCoursesByStudentId(studentId);
 
-        Set<Course> studentCoursesSet = new HashSet<>(studentCourses);
-        return studentCoursesSet.stream()
+        return courses.stream()
                 .map(courseMapper::toResponse)
                 .toList();
     }

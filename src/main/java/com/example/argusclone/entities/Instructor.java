@@ -3,6 +3,7 @@ package com.example.argusclone.entities;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Instructor {
@@ -15,7 +16,7 @@ public class Instructor {
     private String academicRank;
 
     @ManyToMany(mappedBy = "instructors")
-    private List<Course> courses;
+    private Set<Course> courses;
 
     public Integer getId() {
         return id;
@@ -45,11 +46,24 @@ public class Instructor {
         this.academicRank = academicRank;
     }
 
-    public List<Course> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
     }
 
-    public void setCourses(List<Course> courses) {
+    public void setCourses(Set<Course> courses) {
         this.courses = courses;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Instructor instructor = (Instructor) o;
+        return id != null && id.equals(instructor.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

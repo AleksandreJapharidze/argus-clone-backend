@@ -3,6 +3,7 @@ package com.example.argusclone.entities;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Course {
@@ -19,7 +20,7 @@ public class Course {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "instructor_id")
     )
-    private List<Instructor> instructors;
+    private Set<Instructor> instructors;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "syllabus_id")
@@ -55,11 +56,11 @@ public class Course {
         this.courseCode = courseCode;
     }
 
-    public List<Instructor> getInstructors() {
+    public Set<Instructor> getInstructors() {
         return instructors;
     }
 
-    public void setInstructors(List<Instructor> instructors) {
+    public void setInstructors(Set<Instructor> instructors) {
         this.instructors = instructors;
     }
 
@@ -85,5 +86,18 @@ public class Course {
 
     public void setScores(List<Score> scores) {
         this.scores = scores;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return id != null && id.equals(course.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
