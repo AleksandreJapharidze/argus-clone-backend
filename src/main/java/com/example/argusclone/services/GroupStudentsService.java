@@ -8,4 +8,5 @@ import java.util.List;
 public interface GroupStudentsService {
     List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId);
     GroupResponse assignStudentToGroup(Integer groupId, Integer studentId);
+    void removeStudentFromGroup(Integer groupId, Integer studentId);
 }

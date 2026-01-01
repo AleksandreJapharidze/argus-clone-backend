@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/groups/{groupId}/students")
-public class GroupStudentsController {
+public class GroupStudentsGetterController {
     private final GroupStudentsService groupStudentsService;
 
     @Autowired
-    public GroupStudentsController(GroupStudentsService groupStudentsService) {
+    public GroupStudentsGetterController(GroupStudentsService groupStudentsService) {
         this.groupStudentsService = groupStudentsService;
     }
 

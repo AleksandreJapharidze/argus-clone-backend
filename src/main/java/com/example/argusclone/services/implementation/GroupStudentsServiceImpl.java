@@ -66,4 +66,22 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
         group.getStudents().add(student);
         return groupMapper.toResponse(groupRepository.save(group));
     }
+
+    @Override
+    public void removeStudentFromGroup(Integer groupId, Integer studentId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new ResourceNotFoundException("Group " + groupId + " not found")
+        );
+
+        Student student = studentRepository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student " + studentId + " not found")
+        );
+
+        if (!group.getStudents().contains(student)) {
+            throw new ResourceNotFoundException("Student not in group");
+        }
+
+        group.getStudents().remove(student);
+        groupRepository.save(group);
+    }
 }
