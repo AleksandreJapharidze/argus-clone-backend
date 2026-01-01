@@ -5,8 +5,6 @@ import com.example.argusclone.dtos.course.CreateCourseRequest;
 import com.example.argusclone.dtos.score.CreateScoreRequest;
 import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.services.CourseService;
-import com.example.argusclone.services.GroupService;
-import com.example.argusclone.services.CourseInstructorService;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
