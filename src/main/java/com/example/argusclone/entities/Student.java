@@ -2,7 +2,9 @@ package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Student {
@@ -15,7 +17,7 @@ public class Student {
     private String academicStatus;
 
     @ManyToMany(mappedBy = "students")
-    private List<Group> groups;
+    private Set<Group> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Score> scores;
@@ -55,11 +57,11 @@ public class Student {
         this.academicStatus = academicStatus;
     }
 
-    public List<Group> getGroups() {
+    public Set<Group> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    public void setGroups(Set<Group> groups) {
         this.groups = groups;
     }
 
@@ -77,5 +79,18 @@ public class Student {
 
     public void setStudentCourseResults(List<StudentCourseResult> studentCourseResults) {
         this.studentCourseResults = studentCourseResults;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return id != null && id.equals(student.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

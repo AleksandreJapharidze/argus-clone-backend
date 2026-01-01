@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "course_group")
@@ -31,7 +33,7 @@ public class Group {
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
     @Fetch(FetchMode.SUBSELECT)
-    private List<Student> students;
+    private Set<Student> students = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -65,11 +67,24 @@ public class Group {
         this.lectures = lectures;
     }
 
-    public List<Student> getStudents() {
+    public Set<Student> getStudents() {
         return students;
     }
 
-    public void setStudents(List<Student> students) {
+    public void setStudents(Set<Student> students) {
         this.students = students;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Group group = (Group) o;
+        return id != null && id.equals(group.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

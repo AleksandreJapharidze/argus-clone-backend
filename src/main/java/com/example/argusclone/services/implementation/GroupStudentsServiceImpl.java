@@ -14,6 +14,7 @@ import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
+    @Transactional
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group " + groupId + " not found"));
