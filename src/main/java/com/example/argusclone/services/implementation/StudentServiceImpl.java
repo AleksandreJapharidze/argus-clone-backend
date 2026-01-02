@@ -2,7 +2,6 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.student.StudentResponse;
-import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentCourseResultMapper;
 import com.example.argusclone.mappers.StudentMapper;
@@ -34,29 +33,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse getStudentById(Integer id) {
-        Student student = studentRepository.findById(id).orElseThrow(
+        return studentMapper.toResponse(studentRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + id + " not found")
-        );
-
-        return studentMapper.toResponse(student);
+        ));
     }
 
     @Override
     public StudentResponse getStudentByName(String name) {
-        Student student = studentRepository.findByName(name).orElseThrow(
+        return studentMapper.toResponse(studentRepository.findByName(name).orElseThrow(
                 () -> new ResourceNotFoundException("Student with a name of " + name + " not found")
-        );
-
-        return studentMapper.toResponse(student);
+        ));
     }
 
     @Override
     public StudentResponse getStudentByEmail(String email) {
-        Student student = studentRepository.findByEmail(email).orElseThrow(
+        return studentMapper.toResponse(studentRepository.findByEmail(email).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an email of " + email + " not found")
-        );
-
-        return studentMapper.toResponse(student);
+        ));
     }
 
     @Override

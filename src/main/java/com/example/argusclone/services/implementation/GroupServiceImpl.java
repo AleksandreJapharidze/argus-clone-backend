@@ -62,20 +62,14 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupResponse getGroupById(Integer id) {
-        Group group = groupRepository.findById(id).orElseThrow(
+        return groupMapper.toResponse(groupRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
-        );
-
-        return groupMapper.toResponse(group);
+        ));
     }
 
     @Override
     public List<LectureResponse> getLecturesForGroup(Integer groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        );
-
-        return group.getLectures()
+        return lectureRepository.findByGroupId(groupId)
                 .stream()
                 .map(lectureMapper::toResponse)
                 .toList();

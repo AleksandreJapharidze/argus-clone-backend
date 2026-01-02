@@ -25,29 +25,23 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public InstructorResponse getInstructorById(Integer id) {
-        Instructor instructor = instructorRepository.findById(id).orElseThrow(
+        return instructorMapper.toResponse(instructorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")
-        );
-
-        return instructorMapper.toResponse(instructor);
+        ));
     }
 
     @Override
     public InstructorResponse getInstructorByName(String name) {
-        Instructor instructor = instructorRepository.findByName(name).orElseThrow(
+        return instructorMapper.toResponse(instructorRepository.findByName(name).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with a name of " + name + " not found")
-        );
-
-        return instructorMapper.toResponse(instructor);
+        ));
     }
 
     @Override
     public InstructorResponse getInstructorByEmail(String email) {
-        Instructor instructor = instructorRepository.findByEmail(email).orElseThrow(
+        return instructorMapper.toResponse(instructorRepository.findByEmail(email).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an email of " + email + " not found")
-        );
-
-        return instructorMapper.toResponse(instructor);
+        ));
     }
 
     @Override

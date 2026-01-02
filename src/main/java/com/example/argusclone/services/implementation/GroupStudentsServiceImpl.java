@@ -38,11 +38,11 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
     @Override
     public List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        );
+        List<Student> students = studentRepository.findByGroupIdAndCourseId(groupId, courseId);
 
-        return group.getStudents().stream().map(studentMapper::toResponse).toList();
+        return students.stream()
+                .map(studentMapper::toResponse)
+                .toList();
     }
 
     @Override

@@ -17,47 +17,38 @@ import java.util.List;
 @Service
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
-    private final InstructorRepository instructorRepository;
     private final CourseMapper courseMapper;
     private final SyllabusService syllabusService;
 
     @Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
                              InstructorRepository instructorRepository,
-                             StudentRepository studentRepository,
                              CourseMapper courseMapper,
                              SyllabusService syllabusService) {
         this.courseRepository = courseRepository;
-        this.instructorRepository = instructorRepository;
         this.courseMapper = courseMapper;
         this.syllabusService = syllabusService;
     }
 
     @Override
     public CourseResponse getCourseById(Integer id) {
-        Course course = courseRepository.findById(id).orElseThrow(
+        return courseMapper.toResponse(courseRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
-        );
-
-        return courseMapper.toResponse(course);
+        ));
     }
 
     @Override
     public CourseResponse getCourseByName(String courseName) {
-        Course course = courseRepository.findByCourseName(courseName).orElseThrow(
+        return courseMapper.toResponse(courseRepository.findByCourseName(courseName).orElseThrow(
                 () -> new ResourceNotFoundException("Course with a name of " + courseName + " not found")
-        );
-
-        return courseMapper.toResponse(course);
+        ));
     }
 
     @Override
     public CourseResponse getCourseByCourseCode(String courseCode) {
-        Course course = courseRepository.findByCourseCode(courseCode).orElseThrow(
+        return courseMapper.toResponse(courseRepository.findByCourseCode(courseCode).orElseThrow(
                 () -> new ResourceNotFoundException("Course with a code of " + courseCode + " not found")
-        );
-
-        return courseMapper.toResponse(course);
+        ));
     }
 
     @Override
@@ -79,8 +70,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
-        List<Course> courses =
-                courseRepository.findCoursesByStudentId(studentId);
+        List<Course> courses = courseRepository.findCoursesByStudentId(studentId);
 
         return courses.stream()
                 .map(courseMapper::toResponse)
