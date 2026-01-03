@@ -41,13 +41,13 @@ public class SyllabusController {
         return ResponseEntity.ok(syllabusService.updatePrerequisitesByCourseId(courseId, prerequisites));
     }
 
-    @PatchMapping("/courseMission")
+    @PatchMapping("/course-mission")
     public ResponseEntity<SyllabusResponse> updateSyllabusCourseMission(@PathVariable Integer courseId,
                                                                         @RequestParam String courseMission) {
         return ResponseEntity.ok(syllabusService.updateCourseMissionByCourseId(courseId, courseMission));
     }
 
-    @PatchMapping("/teachingMethods")
+    @PatchMapping("/teaching-methods")
     public ResponseEntity<SyllabusResponse> updateSyllabusTeachingMethods(@PathVariable Integer courseId,
                                                                           @RequestBody List<String> teachingMethods) {
         return ResponseEntity.ok(syllabusService.updateTeachingMethodsByCourseId(courseId, teachingMethods));
@@ -59,7 +59,7 @@ public class SyllabusController {
         return ResponseEntity.ok(syllabusService.updateTopicsByCourseId(courseId, topics));
     }
 
-    @PatchMapping("/gradingWeights")
+    @PatchMapping("/grading-weights")
     public ResponseEntity<SyllabusResponse> updateCourseSyllabusGradingWeights(@PathVariable Integer courseId,
                                                                                @RequestBody List<GradingWeight> gradingWeights) {
         return ResponseEntity.ok(syllabusService.updateGradingWeightsByCourseId(courseId, gradingWeights));

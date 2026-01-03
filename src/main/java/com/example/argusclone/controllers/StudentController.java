@@ -49,7 +49,7 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentByEmail(email));
     }
 
-    @GetMapping("/{studentId}/coursesResults")
+    @GetMapping("/{studentId}/courses-results")
     public ResponseEntity<Iterable<StudentCourseResultResponse>> getStudentCourseResults(@PathVariable Integer studentId) {
         return ResponseEntity.ok(studentService.getStudentCoursesResultsByStudentId(studentId));
     }
