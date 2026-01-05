@@ -1,10 +1,10 @@
-package com.example.argusclone.dtos.resumeservice;
+package com.example.argusclone.events.eventclasses;
 
-public class StudentRequestForResumeService {
+public class StudentCreationEvent {
     private String name;
     private String email;
 
-    public StudentRequestForResumeService(String name, String email) {
+    public StudentCreationEvent(String name, String email) {
         this.name = name;
         this.email = email;
     }

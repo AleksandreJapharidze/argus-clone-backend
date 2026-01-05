@@ -12,4 +12,5 @@ public interface StudentCourseResultRepository extends JpaRepository<StudentCour
     List<StudentCourseResult> findByStudentId(Integer studentId);
     Optional<StudentCourseResult> findByStudentIdAndCourseId(Integer studentId, Integer courseId);
     void deleteByCourseId(Integer courseId);
+    void deleteByStudentId(Integer studentId);
 }
