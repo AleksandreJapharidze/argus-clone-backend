@@ -8,8 +8,8 @@ import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
-import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,16 +18,12 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
-    private final SyllabusService syllabusService;
 
     @Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
-                             InstructorRepository instructorRepository,
-                             CourseMapper courseMapper,
-                             SyllabusService syllabusService) {
+                             CourseMapper courseMapper) {
         this.courseRepository = courseRepository;
         this.courseMapper = courseMapper;
-        this.syllabusService = syllabusService;
     }
 
     @Override
@@ -89,15 +85,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourseById(Integer id) {
-        if (!courseRepository.existsById(id)) {
+        try {
+            courseRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("Course with an id of " + id + " not found");
         }
-
-        courseRepository.deleteById(id);
-    }
-
-    @Override
-    public void deleteCourseSyllabus(Integer courseId) {
-        syllabusService.deleteSyllabusByCourseId(courseId);
     }
 }

@@ -14,5 +14,4 @@ public interface SyllabusService {
     SyllabusResponse updateTeachingMethodsByCourseId(Integer courseId, List<String> teachingMethods);
     SyllabusResponse updateTopicsByCourseId(Integer courseId, List<String> topics);
     SyllabusResponse updateGradingWeightsByCourseId(Integer courseId, List<GradingWeight> gradingWeights);
-    void deleteSyllabusByCourseId(Integer courseId);
 }

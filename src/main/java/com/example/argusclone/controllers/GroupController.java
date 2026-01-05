@@ -63,8 +63,13 @@ public class GroupController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroupById(@PathVariable Integer id) {
-        groupService.deleteLecturesByGroupId(id);
         groupService.deleteGroupById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{groupId}/lectures")
+    public ResponseEntity<Void> deleteLecturesByGroupId(@PathVariable Integer groupId) {
+        groupService.deleteLecturesByGroupId(groupId);
         return ResponseEntity.noContent().build();
     }
 }

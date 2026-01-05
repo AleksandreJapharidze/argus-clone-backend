@@ -64,10 +64,4 @@ public class SyllabusController {
                                                                                @RequestBody List<GradingWeight> gradingWeights) {
         return ResponseEntity.ok(syllabusService.updateGradingWeightsByCourseId(courseId, gradingWeights));
     }
-
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCourseSyllabus(@PathVariable Integer courseId) {
-        syllabusService.deleteSyllabusByCourseId(courseId);
-        return ResponseEntity.noContent().build();
-    }
 }

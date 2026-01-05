@@ -162,27 +162,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional
     public void deleteLecturesByGroupId(Integer groupId) {
-        lectureRepository.deleteAll(groupRepository.findById(groupId).orElseThrow(
-                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        ).getLectures());
-    }
-
-    @Override
-    public void deleteGroupsByCourseId(Integer courseId) {
-        if (!courseRepository.existsById(courseId)) {
-            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
-        }
-
-        groupRepository.deleteAll(groupRepository.findByCourseId(courseId));
-    }
-
-    @Override
-    public void deleteLecturesByCourseId(Integer courseId) {
-        if (!courseRepository.existsById(courseId)) {
-            throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
-        }
-
-        groupRepository.findByCourseId(courseId).forEach(group -> lectureRepository.deleteAll(group.getLectures()));
+        lectureRepository.deleteByGroupId(groupId);
     }
 }

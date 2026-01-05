@@ -99,18 +99,4 @@ public class SyllabusServiceImpl implements SyllabusService {
         syllabus.setGradingWeights(gradingWeights);
         return syllabusMapper.toResponse(syllabusRepository.save(syllabus));
     }
-
-    @Override
-    public void deleteSyllabusByCourseId(Integer courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new RuntimeException("Course with an id of " + courseId + " not found")
-        );
-
-        Syllabus syllabus = course.getSyllabus();
-        if (syllabus != null) {
-            course.setSyllabus(null);
-            courseRepository.save(course);
-            syllabusRepository.delete(syllabus);
-        }
-    }
 }
