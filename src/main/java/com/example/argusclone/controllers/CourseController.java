@@ -7,6 +7,7 @@ import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +41,15 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCourseByCourseCode(courseCode));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Iterable<CourseResponse>> getAllCourses() {
-        return ResponseEntity.ok(courseService.getAllCourses());
+    @GetMapping
+    public ResponseEntity<Iterable<CourseResponse>> getAllCourses(@RequestParam int pageNumber,
+                                                                  @RequestParam int pageSize) {
+        return ResponseEntity.ok(courseService.getAllCourses(PageRequest.of(pageNumber-1, pageSize)));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Iterable<CourseResponse>> searchCourses(@RequestParam String keyword) {
+        return ResponseEntity.ok(courseService.searchCourses(keyword));
     }
 
     @GetMapping("/{courseId}/students/{studentId}/scores")

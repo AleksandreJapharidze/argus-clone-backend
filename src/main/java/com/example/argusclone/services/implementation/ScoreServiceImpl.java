@@ -5,6 +5,7 @@ import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Score;
 import com.example.argusclone.entities.StudentCourseResult;
+import com.example.argusclone.exceptions.NegativeValueException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.ValueExceedsMaximumException;
 import com.example.argusclone.mappers.ScoreMapper;
@@ -51,6 +52,7 @@ public class ScoreServiceImpl implements ScoreService {
                 .flatMap(group -> group.getStudents().stream())
                 .flatMap(student -> scores.stream().map(scoreRequest -> {
                     Score score = scoreMapper.toEntity(scoreRequest);
+                    score.setScore(0);
                     score.setStudent(student);
                     score.setCourse(course);
                     score.setCourseName(course.getCourseName());
@@ -58,10 +60,10 @@ public class ScoreServiceImpl implements ScoreService {
                     return score;
                 })).toList();
 
-        course.setScores(scoresSaved);
-        course.getGroups()
-                .forEach(group -> group.getStudents()
-                .forEach(student -> student.setScores(scoresSaved)));
+//        course.setScores(scoresSaved);
+//        course.getGroups()
+//                .forEach(group -> group.getStudents()
+//                .forEach(student -> student.setScores(scoresSaved)));
 
         return scoreRepository.saveAll(scoresSaved)
                 .stream()
@@ -78,6 +80,8 @@ public class ScoreServiceImpl implements ScoreService {
 
         if (!isNotMoreThanMaxScore(scoreToUpdate, score)) {
             throw new ValueExceedsMaximumException("Score can not be more than maximum score");
+        } else if (score < 0) {
+            throw new NegativeValueException("Score can not be negative");
         }
 
         updateScoreValue(scoreToUpdate, score);

@@ -1,6 +1,8 @@
 package com.example.argusclone.repositories;
 
 import com.example.argusclone.entities.Course;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +20,14 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @Override
     @EntityGraph(attributePaths = {"instructors"})
-    List<Course> findAll();
+    Page<Course> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"instructors"})
+    @Query("SELECT DISTINCT c FROM Course c WHERE " +
+            "LOWER(c.courseName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(c.courseCode) LIKE LOWER(CONCAT('%', :keyword, '%'))"
+    )
+    List<Course> searchCourses(String keyword);
 
     @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseName(String courseName);

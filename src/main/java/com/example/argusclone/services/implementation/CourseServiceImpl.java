@@ -10,12 +10,16 @@ import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class CourseServiceImpl implements CourseService {
+    private static final Logger log = Logger.getLogger(CourseServiceImpl.class.getName());
+
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
 
@@ -48,8 +52,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getAllCourses() {
-        return courseRepository.findAll()
+    public List<CourseResponse> getAllCourses(Pageable pageable) {
+        return courseRepository.findAll(pageable)
+                .stream()
+                .map(courseMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<CourseResponse> searchCourses(String keyword) {
+        log.info("Searching for courses with keyword: " + keyword);
+        return courseRepository.searchCourses(keyword)
                 .stream()
                 .map(courseMapper::toResponse)
                 .toList();

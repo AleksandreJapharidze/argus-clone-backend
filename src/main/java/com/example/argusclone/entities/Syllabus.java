@@ -17,7 +17,7 @@ public class Syllabus {
     @ElementCollection
     @CollectionTable(name = "syllabus_prerequisites", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "prerequisites")
-    @BatchSize(size = 20)
+    @BatchSize(size = 50)
     private List<String> prerequisites;
 
     private String courseMission;
@@ -25,28 +25,28 @@ public class Syllabus {
     @ElementCollection
     @CollectionTable(name = "syllabus_teaching_methods", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "method")
-    @BatchSize(size = 20)
+    @BatchSize(size = 50)
     private List<String> teachingMethods;
 
     @ElementCollection
     @CollectionTable(name = "syllabus_topics", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "topic")
-    @BatchSize(size = 20)
+    @BatchSize(size = 50)
     private List<String> topics;
 
     @ElementCollection
     @CollectionTable(name = "syllabus_grading_weights", joinColumns = @JoinColumn(name = "syllabus_id"))
     @OrderColumn(name = "position")
-    @BatchSize(size = 20)
+    @BatchSize(size = 50)
     private List<GradingWeight> gradingWeights = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
     @OrderColumn(name = "position")
-    @BatchSize(size = 20)
+    @BatchSize(size = 50)
     private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
-    @OneToOne(mappedBy = "syllabus", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "syllabus")
     @JoinColumn(name = "course_id")
     private Course course;
 
