@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface CourseService {
     CourseResponse getCourseById(Integer id);
-    CourseResponse getCourseByName(String name);
-    CourseResponse getCourseByCourseCode(String courseCode);
     List<CourseResponse> getAllCourses(Pageable pageable);
     List<CourseResponse> searchCourses(String keyword);
     List<CourseResponse> getCoursesByInstructorId(Integer instructorId);

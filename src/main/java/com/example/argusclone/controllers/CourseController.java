@@ -31,16 +31,6 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
-    @GetMapping(params = "name")
-    public ResponseEntity<CourseResponse> getCourseByName(@RequestParam String courseName) {
-        return ResponseEntity.ok(courseService.getCourseByName(courseName));
-    }
-
-    @GetMapping(params = "code")
-    public ResponseEntity<CourseResponse> getCourseByCourseCode(@RequestParam String courseCode) {
-        return ResponseEntity.ok(courseService.getCourseByCourseCode(courseCode));
-    }
-
     @GetMapping
     public ResponseEntity<Iterable<CourseResponse>> getAllCourses(@RequestParam int pageNumber,
                                                                   @RequestParam int pageSize) {

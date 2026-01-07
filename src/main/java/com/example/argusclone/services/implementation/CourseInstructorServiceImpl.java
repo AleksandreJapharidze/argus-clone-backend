@@ -10,6 +10,7 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.services.CourseInstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,14 +21,15 @@ public class CourseInstructorServiceImpl implements CourseInstructorService {
 
     @Autowired
     public CourseInstructorServiceImpl(CourseRepository courseRepository,
-                                                 InstructorRepository instructorRepository,
-                                                 CourseMapper courseMapper) {
+                                       InstructorRepository instructorRepository,
+                                       CourseMapper courseMapper) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseMapper = courseMapper;
     }
 
     @Override
+    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
     public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -47,6 +49,7 @@ public class CourseInstructorServiceImpl implements CourseInstructorService {
     }
 
     @Override
+    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
     public void removeInstructorFromCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")

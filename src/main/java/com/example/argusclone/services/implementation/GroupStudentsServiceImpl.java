@@ -13,6 +13,7 @@ import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
+    @Cacheable(value = "STUDENT_CACHE", key = "'courseId: ' + #courseId")
     public List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId) {
         List<Student> students = studentRepository.findByGroupIdAndCourseId(groupId, courseId);
 

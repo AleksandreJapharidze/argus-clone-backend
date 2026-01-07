@@ -9,6 +9,7 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Cacheable(value = "STUDENT_CACHE", key = "'id: ' + #id")
     public StudentResponse getStudentById(Integer id) {
         return studentMapper.toResponse(studentRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + id + " not found")

@@ -9,6 +9,9 @@ import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.*;
 import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "COURSE_CACHE", key = "'id: ' + #id")
     public CourseResponse getCourseById(Integer id) {
         return courseMapper.toResponse(courseRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
@@ -38,20 +42,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse getCourseByName(String courseName) {
-        return courseMapper.toResponse(courseRepository.findByCourseName(courseName).orElseThrow(
-                () -> new ResourceNotFoundException("Course with a name of " + courseName + " not found")
-        ));
-    }
-
-    @Override
-    public CourseResponse getCourseByCourseCode(String courseCode) {
-        return courseMapper.toResponse(courseRepository.findByCourseCode(courseCode).orElseThrow(
-                () -> new ResourceNotFoundException("Course with a code of " + courseCode + " not found")
-        ));
-    }
-
-    @Override
+    @Cacheable(value = "COURSE_CACHE", key = "'allCourses: ' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public List<CourseResponse> getAllCourses(Pageable pageable) {
         return courseRepository.findAll(pageable)
                 .stream()
@@ -60,8 +51,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "COURSE_CACHE", key = "'searchKeyword: ' + #keyword")
     public List<CourseResponse> searchCourses(String keyword) {
-        log.info("Searching for courses with keyword: " + keyword);
+        log.info("Searching for courses with keyword:" + keyword);
         return courseRepository.searchCourses(keyword)
                 .stream()
                 .map(courseMapper::toResponse)
@@ -69,6 +61,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "COURSE_CACHE", key = "'instructorId: ' + #instructorId")
     public List<CourseResponse> getCoursesByInstructorId(Integer instructorId) {
         List<Course> instructorCourses = courseRepository.findAllByInstructorId(instructorId);
 
@@ -78,6 +71,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "COURSE_CACHE", key = "'studentId: ' + #studentId")
     public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
         List<Course> courses = courseRepository.findCoursesByStudentId(studentId);
 
@@ -87,6 +81,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
+    @CachePut(value = "COURSE_CACHE", key = "'id: ' + #result.id")
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
             throw new DuplicateResourceException("Course with code " + course.getCourseCode() + " already exists");
@@ -97,6 +93,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
     public void deleteCourseById(Integer id) {
         try {
             courseRepository.deleteById(id);

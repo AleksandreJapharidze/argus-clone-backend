@@ -18,6 +18,12 @@ import com.example.argusclone.repositories.LectureRepository;
 import com.example.argusclone.services.GroupService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -34,21 +40,25 @@ public class GroupServiceImpl implements GroupService {
     private final LectureRepository lectureRepository;
     private final GroupMapper groupMapper;
     private final LectureMapper lectureMapper;
+    private final CacheManager cacheManager;
 
     @Autowired
     public GroupServiceImpl(GroupRepository groupRepository,
                             CourseRepository courseRepository,
                             LectureRepository lectureRepository,
                             GroupMapper groupMapper,
-                            LectureMapper lectureMapper) {
+                            LectureMapper lectureMapper,
+                            CacheManager cacheManager) {
         this.groupRepository = groupRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.groupMapper = groupMapper;
         this.lectureMapper = lectureMapper;
+        this.cacheManager = cacheManager;
     }
 
     @Override
+    @Cacheable(value = "GROUP_CACHE", key = "'courseId: ' + #courseId")
     public List<GroupResponse> getGroupsForCourse(Integer courseId) {
         if (!courseRepository.existsById(courseId)) {
             throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
@@ -61,6 +71,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Cacheable(value = "GROUP_CACHE", key = "'id: ' + #id")
     public GroupResponse getGroupById(Integer id) {
         return groupMapper.toResponse(groupRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
@@ -68,6 +79,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Cacheable(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
     public List<LectureResponse> getLecturesForGroup(Integer groupId) {
         return lectureRepository.findByGroupId(groupId)
                 .stream()
@@ -76,6 +88,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Caching(evict = @CacheEvict(value = "GROUP_CACHE", key = "'courseId: ' + #courseId"),
+            put = {
+            @CachePut(value = "GROUP_CACHE", key = "'id: ' + #result.id"),
+            @CachePut(value = "GROUP_CACHE", key = "'courseId: ' + #courseId")
+    })
     public GroupResponse createGroup(Integer courseId, CreateGroupRequest group) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -90,6 +107,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
+    @CachePut(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
     public GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
@@ -151,18 +170,28 @@ public class GroupServiceImpl implements GroupService {
     private boolean isHoliday(LocalDate date) {
         return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
     }
-
+//
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "GROUP_CACHE", key = "'id: ' + #id"),
+            @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #id"),
+    })
     public void deleteGroupById(Integer id) {
-        if (!groupRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Group with an id of " + id + " not found");
+        Group group = groupRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
+        );
+
+        Cache cache = cacheManager.getCache("GROUP_CACHE");
+        if (cache != null && group.getCourse() != null) {
+            cache.evict("courseId: " + group.getCourse().getId());
         }
 
-        groupRepository.deleteById(id);
+        groupRepository.delete(group);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
     public void deleteLecturesByGroupId(Integer groupId) {
         lectureRepository.deleteByGroupId(groupId);
     }
