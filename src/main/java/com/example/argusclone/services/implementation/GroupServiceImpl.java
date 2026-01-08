@@ -2,21 +2,15 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
-import com.example.argusclone.dtos.lecture.CreateLectureRequest;
-import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
-import com.example.argusclone.entities.Lecture;
-import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
-import com.example.argusclone.exceptions.ScheduleConflictException;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.LectureMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import com.example.argusclone.services.GroupService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -24,11 +18,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,9 +28,7 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final CourseRepository courseRepository;
-    private final LectureRepository lectureRepository;
     private final GroupMapper groupMapper;
-    private final LectureMapper lectureMapper;
     private final CacheManager cacheManager;
 
     @Autowired
@@ -51,9 +40,7 @@ public class GroupServiceImpl implements GroupService {
                             CacheManager cacheManager) {
         this.groupRepository = groupRepository;
         this.courseRepository = courseRepository;
-        this.lectureRepository = lectureRepository;
         this.groupMapper = groupMapper;
-        this.lectureMapper = lectureMapper;
         this.cacheManager = cacheManager;
     }
 
@@ -79,15 +66,6 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Cacheable(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    public List<LectureResponse> getLecturesForGroup(Integer groupId) {
-        return lectureRepository.findByGroupId(groupId)
-                .stream()
-                .map(lectureMapper::toResponse)
-                .toList();
-    }
-
-    @Override
     @Caching(evict = @CacheEvict(value = "GROUP_CACHE", key = "'courseId: ' + #courseId"),
             put = {
             @CachePut(value = "GROUP_CACHE", key = "'id: ' + #result.id"),
@@ -106,72 +84,6 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Transactional
-    @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    @CachePut(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    public GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
-        );
-
-        List<Lecture> newLectures = generateLecturesForTheSemester(lectures);
-        newLectures.forEach(lecture -> lecture.setGroup(group));
-
-        try {
-            lectureRepository.saveAll(newLectures);
-            lectureRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
-        }
-
-        return groupMapper.toResponse(group);
-    }
-
-    private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
-        validateNoLectureCollisions(lectures);
-
-        List<Lecture> newLectures = new ArrayList<>();
-
-        int weeksAdded = 0;
-        int i = 0;
-
-        while (weeksAdded < SEMESTER_WEEKS) {
-            for (CreateLectureRequest lecture : lectures) {
-
-                Lecture newLecture = lectureMapper.toEntity(lecture);
-                LocalDate date = lecture.getLectureDate().plusWeeks(i);
-
-                if (isHoliday(date)) {
-                    continue;
-                }
-
-                newLecture.setLectureDate(date);
-                newLecture.setLectureStartTime(lecture.getLectureStartTime());
-                newLecture.setLectureEndTime(lecture.getLectureEndTime());
-                newLecture.setRoomNumber(lecture.getRoomNumber());
-
-                newLectures.add(newLecture);
-            }
-
-            weeksAdded++;
-            i++;
-        }
-
-        return newLectures;
-    }
-
-    private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
-        long distinctCount = lectures.stream().distinct().count();
-        if (distinctCount != lectures.size()) {
-            throw new DuplicateResourceException("Two or more lectures collide with each other.");
-        }
-    }
-
-    private boolean isHoliday(LocalDate date) {
-        return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
-    }
-//
-    @Override
     @Caching(evict = {
             @CacheEvict(value = "GROUP_CACHE", key = "'id: ' + #id"),
             @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #id"),
@@ -187,12 +99,5 @@ public class GroupServiceImpl implements GroupService {
         }
 
         groupRepository.delete(group);
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    public void deleteLecturesByGroupId(Integer groupId) {
-        lectureRepository.deleteByGroupId(groupId);
     }
 }

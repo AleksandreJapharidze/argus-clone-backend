@@ -5,6 +5,7 @@ import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.services.GroupService;
 import com.example.argusclone.services.GroupStudentsService;
+import com.example.argusclone.services.LectureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,15 @@ import java.util.List;
 public class GroupController {
     private final GroupService groupService;
     private final GroupStudentsService groupStudentsService;
+    private final LectureService lectureService;
 
     @Autowired
     public GroupController(GroupService groupService,
-                           GroupStudentsService groupStudentsService) {
+                           GroupStudentsService groupStudentsService,
+                           LectureService lectureService) {
         this.groupService = groupService;
         this.groupStudentsService = groupStudentsService;
+        this.lectureService = lectureService;
     }
 
     @GetMapping("/{id}")
@@ -33,13 +37,13 @@ public class GroupController {
 
     @GetMapping("/{id}/lectures")
     public ResponseEntity<Iterable<LectureResponse>> getLecturesByGroupId(@PathVariable Integer id) {
-        return ResponseEntity.ok(groupService.getLecturesForGroup(id));
+        return ResponseEntity.ok(lectureService.getLecturesForGroup(id));
     }
 
     @PostMapping("/{groupId}/lectures")
     public ResponseEntity<GroupResponse> assignLecturesToGroup(@PathVariable Integer groupId,
                                                                @RequestBody List<CreateLectureRequest> lectures) {
-        GroupResponse savedLectures = groupService.addLecturesToGroup(groupId, lectures);
+        GroupResponse savedLectures = lectureService.addLecturesToGroup(groupId, lectures);
 
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/v1/groups/" + groupId + "/lectures")
@@ -69,7 +73,7 @@ public class GroupController {
 
     @DeleteMapping("/{groupId}/lectures")
     public ResponseEntity<Void> deleteLecturesByGroupId(@PathVariable Integer groupId) {
-        groupService.deleteLecturesByGroupId(groupId);
+        lectureService.deleteLecturesByGroupId(groupId);
         return ResponseEntity.noContent().build();
     }
 }
