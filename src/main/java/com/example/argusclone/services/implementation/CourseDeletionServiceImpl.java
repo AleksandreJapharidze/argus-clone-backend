@@ -4,6 +4,8 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.services.CourseDeletionService;
 import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,12 @@ public class CourseDeletionServiceImpl implements CourseDeletionService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "STUDENT_COURSE_RESULTS_CACHE", allEntries = true),
+            @CacheEvict(value = "GROUP_CACHE", allEntries = true),
+            @CacheEvict(value = "LECTURE_CACHE", allEntries = true),
+            @CacheEvict(value = "SCORE_CACHE", allEntries = true),
+    })
     public void deleteCourseById(Integer id) {
         studentCourseResultRepository.deleteByCourseId(id);
         courseService.deleteCourseById(id);
