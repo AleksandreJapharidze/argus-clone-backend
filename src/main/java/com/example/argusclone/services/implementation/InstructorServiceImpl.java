@@ -9,6 +9,9 @@ import com.example.argusclone.mappers.InstructorMapper;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.services.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +27,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
+    @Cacheable(value = "INSTRUCTOR_CACHE", key = "'id: ' + #id")
     public InstructorResponse getInstructorById(Integer id) {
         return instructorMapper.toResponse(instructorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")
@@ -31,20 +35,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public InstructorResponse getInstructorByName(String name) {
-        return instructorMapper.toResponse(instructorRepository.findByName(name).orElseThrow(
-                () -> new ResourceNotFoundException("Instructor with a name of " + name + " not found")
-        ));
-    }
-
-    @Override
-    public InstructorResponse getInstructorByEmail(String email) {
-        return instructorMapper.toResponse(instructorRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Instructor with an email of " + email + " not found")
-        ));
-    }
-
-    @Override
+    @CachePut(value = "INSTRUCTOR_CACHE", key = "'id: ' + #result.getId()")
     public InstructorResponse addInstructor(CreateInstructorRequest instructor) {
         instructorRepository.findByEmail(instructor.getEmail()).ifPresent(i -> {
             throw new DuplicateResourceException("Instructor with email " + instructor.getEmail() + " already exists");
@@ -55,6 +46,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
+    @CacheEvict(value = "INSTRUCTOR_CACHE", key = "'id: ' + #id")
     public void deleteInstructorById(Integer id) {
         Instructor instructor = instructorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")

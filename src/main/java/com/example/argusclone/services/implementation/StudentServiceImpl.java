@@ -55,6 +55,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Cacheable(value = "STUDENT_COURSE_RESULTS_CACHE", key = "'studentId: ' + #studentId")
     public List<StudentCourseResultResponse> getStudentCoursesResultsByStudentId(Integer studentId) {
         if (!studentRepository.existsById(studentId)) {
             throw new ResourceNotFoundException("Student with an id of " + studentId + " not found");

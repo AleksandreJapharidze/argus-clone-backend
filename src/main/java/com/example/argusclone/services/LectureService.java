@@ -10,6 +10,6 @@ import java.util.List;
 public interface LectureService {
     List<LectureResponse> getLecturesForGroup(Integer groupId);
     List<LectureResponse> getLecturesByLectureDateForStudent(Integer studentId, LocalDate lectureDate);
-    GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures);
+    List<LectureResponse> addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures);
     void deleteLecturesByGroupId(Integer groupId);
 }

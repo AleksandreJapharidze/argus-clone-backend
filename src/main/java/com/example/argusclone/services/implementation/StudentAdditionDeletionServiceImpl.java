@@ -2,6 +2,7 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
+import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.events.eventclasses.StudentCreationEvent;
 import com.example.argusclone.events.eventclasses.StudentDeletionEvent;
@@ -11,6 +12,11 @@ import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentAdditionDeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,18 +26,22 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final CacheManager cacheManager;
 
     @Autowired
     public StudentAdditionDeletionServiceImpl(StudentRepository studentRepository,
                                               StudentMapper studentMapper,
-                                              ApplicationEventPublisher applicationEventPublisher) {
+                                              ApplicationEventPublisher applicationEventPublisher,
+                                              CacheManager cacheManager) {
         this.studentRepository = studentRepository;
         this.studentMapper = studentMapper;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.cacheManager = cacheManager;
     }
 
     @Override
     @Transactional
+    @CachePut(value = "STUDENT_CACHE", key = "'id: ' + #result.id")
     public StudentResponse createStudent(CreateStudentRequest student) {
         studentRepository.findByEmail(student.getEmail()).ifPresent(s -> {
             throw new DuplicateResourceException("Student with email " + student.getEmail() + " already exists");
@@ -49,6 +59,10 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "STUDENT_CACHE", key = "'id: ' + #id"),
+            @CacheEvict(value = "COURSE_CACHE", key = "'studentId: ' + #id")
+    })
     public void deleteStudentById(Integer id) {
         Student student = studentRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + id + " not found")
@@ -60,5 +74,12 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         applicationEventPublisher.publishEvent(
                 new StudentDeletionEvent(student.getEmail())
         );
+
+        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        for (Group group : student.getGroups()) {
+            if (cache != null) {
+                cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + group.getId());
+            }
+        }
     }
 }

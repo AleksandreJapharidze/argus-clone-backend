@@ -14,6 +14,10 @@ import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.services.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +30,21 @@ public class ScoreServiceImpl implements ScoreService {
     private final CourseRepository courseRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final ScoreMapper scoreMapper;
+    private final CacheManager cacheManager;
 
     @Autowired
     public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
-                            StudentCourseResultRepository studentCourseResultRepository, ScoreMapper scoreMapper) {
+                            StudentCourseResultRepository studentCourseResultRepository, ScoreMapper scoreMapper,
+                            CacheManager cacheManager) {
         this.scoreRepository = scoreRepository;
         this.courseRepository = courseRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.scoreMapper = scoreMapper;
+        this.cacheManager = cacheManager;
     }
 
     @Override
+    @Cacheable(value = "SCORE_CACHE", key = "'studentId: ' + #studentId + ', courseId: ' + #courseId")
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {
         List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
         return scores.stream().map(scoreMapper::toResponse).toList();
@@ -73,6 +81,7 @@ public class ScoreServiceImpl implements ScoreService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "SCORE_CACHE", allEntries = true)
     public ScoreResponse updateScoreById(Integer scoreId, Integer score) {
         Score scoreToUpdate = scoreRepository.findById(scoreId).orElseThrow(
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
@@ -122,6 +131,11 @@ public class ScoreServiceImpl implements ScoreService {
             result.setFinalGrade(totalCourseScoreForStudent);
         } else {
             result.setHasPassed(false);
+        }
+
+        Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
+        if (cache != null) {
+            cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
         }
 
         return result;

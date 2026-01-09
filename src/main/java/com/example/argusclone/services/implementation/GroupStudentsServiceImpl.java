@@ -13,6 +13,8 @@ import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,20 +27,23 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     private final StudentRepository studentRepository;
     private final GroupMapper groupMapper;
     private final StudentMapper studentMapper;
+    private final CacheManager cacheManager;
 
     @Autowired
     public GroupStudentsServiceImpl(GroupRepository groupRepository,
                                     StudentRepository studentRepository,
                                     GroupMapper groupMapper,
-                                    StudentMapper studentMapper) {
+                                    StudentMapper studentMapper,
+                                    CacheManager cacheManager) {
         this.groupRepository = groupRepository;
         this.studentRepository = studentRepository;
         this.groupMapper = groupMapper;
         this.studentMapper = studentMapper;
+        this.cacheManager = cacheManager;
     }
 
     @Override
-    @Cacheable(value = "STUDENT_CACHE", key = "'courseId: ' + #courseId")
+    @Cacheable(value = "STUDENT_CACHE", key = "'courseId: ' + #courseId + ', groupId: ' + #groupId")
     public List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId) {
         List<Student> students = studentRepository.findByGroupIdAndCourseId(groupId, courseId);
 
@@ -68,6 +73,12 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         // 3. Assign student
         group.getStudents().add(student);
+
+        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        if (cache != null) {
+            cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
+        }
+
         return groupMapper.toResponse(groupRepository.save(group));
     }
 
@@ -86,6 +97,12 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
         }
 
         group.getStudents().remove(student);
+
+        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        if (cache != null) {
+            cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
+        }
+
         groupRepository.save(group);
     }
 }

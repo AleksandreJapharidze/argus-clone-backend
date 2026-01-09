@@ -86,7 +86,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "GROUP_CACHE", key = "'id: ' + #id"),
-            @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #id"),
+            @CacheEvict(value = "LECTURE_CACHE", allEntries = true),
     })
     public void deleteGroupById(Integer id) {
         Group group = groupRepository.findById(id).orElseThrow(

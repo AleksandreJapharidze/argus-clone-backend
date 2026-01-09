@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -93,7 +94,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "COURSE_CACHE", allEntries = true),
+            @CacheEvict(value = "SYLLABUS_CACHE", key = "'courseId: ' + #id")
+    })
     public void deleteCourseById(Integer id) {
         try {
             courseRepository.deleteById(id);

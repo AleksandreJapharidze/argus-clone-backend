@@ -33,16 +33,6 @@ public class InstructorController {
         return ResponseEntity.ok(courseService.getCoursesByInstructorId(id));
     }
 
-    @GetMapping(params = "name")
-    public ResponseEntity<InstructorResponse> getInstructorByName(@RequestParam String name) {
-        return ResponseEntity.ok(instructorService.getInstructorByName(name));
-    }
-
-    @GetMapping(params = "email")
-    public ResponseEntity<InstructorResponse> getInstructorByEmail(@RequestParam String email) {
-        return ResponseEntity.ok(instructorService.getInstructorByEmail(email));
-    }
-
     @PostMapping
     public ResponseEntity<InstructorResponse> addInstructor(@RequestBody CreateInstructorRequest instructor) {
         InstructorResponse savedInstructor = instructorService.addInstructor(instructor);

@@ -41,14 +41,11 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/lectures")
-    public ResponseEntity<GroupResponse> assignLecturesToGroup(@PathVariable Integer groupId,
+    public ResponseEntity<Iterable<LectureResponse>> assignLecturesToGroup(@PathVariable Integer groupId,
                                                                @RequestBody List<CreateLectureRequest> lectures) {
-        GroupResponse savedLectures = lectureService.addLecturesToGroup(groupId, lectures);
+        List<LectureResponse> savedLectures = lectureService.addLecturesToGroup(groupId, lectures);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/v1/groups/" + groupId + "/lectures")
-                .buildAndExpand(groupId)
-                .toUri();
+        URI location = URI.create("/api/v1/groups/" + groupId + "/lectures");
         return ResponseEntity.created(location).body(savedLectures);
     }
 

@@ -1,6 +1,5 @@
 package com.example.argusclone.services.implementation;
 
-import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.entities.Group;
@@ -8,7 +7,6 @@ import com.example.argusclone.entities.Lecture;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.ScheduleConflictException;
-import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.LectureMapper;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
@@ -32,17 +30,14 @@ public class LectureServiceImpl implements LectureService {
     private final LectureRepository lectureRepository;
     private final GroupRepository groupRepository;
     private final LectureMapper lectureMapper;
-    private final GroupMapper groupMapper;
 
     @Autowired
     public LectureServiceImpl(LectureRepository lectureRepository,
                               GroupRepository groupRepository,
-                              LectureMapper lectureMapper,
-                              GroupMapper groupMapper) {
+                              LectureMapper lectureMapper) {
         this.lectureRepository = lectureRepository;
         this.lectureMapper = lectureMapper;
         this.groupRepository = groupRepository;
-        this.groupMapper = groupMapper;
     }
 
     @Override
@@ -67,7 +62,7 @@ public class LectureServiceImpl implements LectureService {
     @Transactional
     @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
     @CachePut(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    public GroupResponse addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
+    public List<LectureResponse> addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
         );
@@ -82,7 +77,10 @@ public class LectureServiceImpl implements LectureService {
             throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
         }
 
-        return groupMapper.toResponse(group);
+        return newLectures
+                .stream()
+                .map(lectureMapper::toResponse)
+                .toList();
     }
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
