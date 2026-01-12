@@ -2,12 +2,14 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
+import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Lecture;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.ScheduleConflictException;
 import com.example.argusclone.mappers.LectureMapper;
+import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import com.example.argusclone.services.LectureService;
@@ -29,15 +31,18 @@ public class LectureServiceImpl implements LectureService {
 
     private final LectureRepository lectureRepository;
     private final GroupRepository groupRepository;
+    private final CourseRepository courseRepository;
     private final LectureMapper lectureMapper;
 
     @Autowired
     public LectureServiceImpl(LectureRepository lectureRepository,
                               GroupRepository groupRepository,
+                              CourseRepository courseRepository,
                               LectureMapper lectureMapper) {
         this.lectureRepository = lectureRepository;
-        this.lectureMapper = lectureMapper;
         this.groupRepository = groupRepository;
+        this.courseRepository = courseRepository;
+        this.lectureMapper = lectureMapper;
     }
 
     @Override
@@ -136,5 +141,16 @@ public class LectureServiceImpl implements LectureService {
         }
 
         lectureRepository.deleteByGroupId(groupId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "LECTURE_CACHE", allEntries = true)
+    public void deleteLecturesByCourseId(Integer courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        course.getGroups().forEach(group -> lectureRepository.deleteByGroupId(group.getId()));
     }
 }

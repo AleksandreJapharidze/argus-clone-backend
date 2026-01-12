@@ -176,4 +176,21 @@ public class ScoreServiceImpl implements ScoreService {
     private boolean isNotMoreThanMaxScore(Score scoreToUpdate, int score) {
         return score <= scoreToUpdate.getMaxScore();
     }
+
+    @Override
+    @Transactional
+    public void deleteScoresByCourseId(Integer courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        Cache cache = cacheManager.getCache("SCORE_CACHE");
+        course.getGroups().forEach(group -> group.getStudents().forEach(student -> {
+            if (cache != null) {
+                cache.evict("studentId: " + student.getId() + ", courseId: " + courseId);
+            }
+        }));
+
+        scoreRepository.deleteByCourseId(courseId);
+    }
 }

@@ -61,7 +61,8 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "STUDENT_CACHE", key = "'id: ' + #id"),
-            @CacheEvict(value = "COURSE_CACHE", key = "'studentId: ' + #id")
+            @CacheEvict(value = "COURSE_CACHE", key = "'studentId: ' + #id"),
+            @CacheEvict(value = "STUDENT_COURSE_RESULTS_CACHE", key = "'studentId: ' + #id")
     })
     public void deleteStudentById(Integer id) {
         Student student = studentRepository.findById(id).orElseThrow(

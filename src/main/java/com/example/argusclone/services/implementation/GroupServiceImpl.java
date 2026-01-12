@@ -6,7 +6,6 @@ import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.GroupMapper;
-import com.example.argusclone.mappers.LectureMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
@@ -28,6 +27,7 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final CourseRepository courseRepository;
+    private final LectureRepository lectureRepository;
     private final GroupMapper groupMapper;
     private final CacheManager cacheManager;
 
@@ -36,10 +36,10 @@ public class GroupServiceImpl implements GroupService {
                             CourseRepository courseRepository,
                             LectureRepository lectureRepository,
                             GroupMapper groupMapper,
-                            LectureMapper lectureMapper,
                             CacheManager cacheManager) {
         this.groupRepository = groupRepository;
         this.courseRepository = courseRepository;
+        this.lectureRepository = lectureRepository;
         this.groupMapper = groupMapper;
         this.cacheManager = cacheManager;
     }
@@ -98,6 +98,27 @@ public class GroupServiceImpl implements GroupService {
             cache.evict("courseId: " + group.getCourse().getId());
         }
 
+        lectureRepository.deleteByGroupId(id);
         groupRepository.delete(group);
+    }
+
+    @Override
+    public void deleteGroupsByCourseId(Integer courseId) {
+        Cache cache = cacheManager.getCache("GROUP_CACHE");
+        if (cache != null) {
+            cache.evict("courseId: " + courseId);
+        }
+
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
+        );
+
+        course.getGroups().forEach(group -> {
+            if (cache != null) {
+                cache.evict("id: " + group.getId());
+            }
+        });
+
+        groupRepository.deleteByCourseId(courseId);
     }
 }
