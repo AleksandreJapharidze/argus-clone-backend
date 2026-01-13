@@ -116,7 +116,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void deleteStudentCourseResultsByCourseId(Integer courseId) {
+    public void deleteStudentCourseResultByCourseId(Integer courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );

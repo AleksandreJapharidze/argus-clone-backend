@@ -81,7 +81,6 @@ public class ScoreServiceImpl implements ScoreService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "SCORE_CACHE", allEntries = true)
     public ScoreResponse updateScoreById(Integer scoreId, Integer score) {
         Score scoreToUpdate = scoreRepository.findById(scoreId).orElseThrow(
                 () -> new ResourceNotFoundException("Score with an id of " + scoreId + " not found")
@@ -98,6 +97,11 @@ public class ScoreServiceImpl implements ScoreService {
         if (scoreToUpdate.getComponent().equalsIgnoreCase("Final exam")) {
             StudentCourseResult result = calculateStudentCourseResult(scoreToUpdate, score);
             saveOrUpdateCourseResult(scoreToUpdate, result);
+        }
+
+        Cache cache = cacheManager.getCache("SCORE_CACHE");
+        if (cache != null) {
+            cache.evict("studentId: " + scoreToUpdate.getStudent().getId() + ", courseId: " + scoreToUpdate.getCourse().getId());
         }
 
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));

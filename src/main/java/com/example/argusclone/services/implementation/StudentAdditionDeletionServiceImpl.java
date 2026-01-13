@@ -9,6 +9,7 @@ import com.example.argusclone.events.eventclasses.StudentDeletionEvent;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.StudentMapper;
+import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentAdditionDeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +25,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeletionService {
     private final StudentRepository studentRepository;
+    private final StudentCourseResultRepository studentCourseResultRepository;
     private final StudentMapper studentMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CacheManager cacheManager;
 
     @Autowired
     public StudentAdditionDeletionServiceImpl(StudentRepository studentRepository,
+                                              StudentCourseResultRepository studentCourseResultRepository,
                                               StudentMapper studentMapper,
                                               ApplicationEventPublisher applicationEventPublisher,
                                               CacheManager cacheManager) {
         this.studentRepository = studentRepository;
+        this.studentCourseResultRepository = studentCourseResultRepository;
         this.studentMapper = studentMapper;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cacheManager = cacheManager;
@@ -70,11 +74,6 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         );
 
         student.getGroups().forEach(group -> group.getStudents().remove(student));
-        studentRepository.delete(student);
-
-        applicationEventPublisher.publishEvent(
-                new StudentDeletionEvent(student.getEmail())
-        );
 
         Cache cache = cacheManager.getCache("STUDENT_CACHE");
         for (Group group : student.getGroups()) {
@@ -82,5 +81,12 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
                 cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + group.getId());
             }
         }
+
+        studentCourseResultRepository.deleteByStudentId(id);
+        studentRepository.delete(student);
+
+        applicationEventPublisher.publishEvent(
+                new StudentDeletionEvent(student.getEmail())
+        );
     }
 }
