@@ -36,19 +36,21 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(defaultSerializer))
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofMinutes(1));
+                .entryTtl(Duration.ofMinutes(10));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultCacheConfig)
                 .withCacheConfiguration("COURSE_CACHE", createCacheConfig(mapper, CourseResponse.class))
-                .withCacheConfiguration("COURSE_CACHE", createCacheConfig(mapper, List.class))
+                .withCacheConfiguration("COURSE_CACHE_LIST", createCacheConfig(mapper, List.class))
                 .withCacheConfiguration("GROUP_CACHE", createCacheConfig(mapper, GroupResponse.class))
                 .withCacheConfiguration("GROUP_CACHE", createCacheConfig(mapper, List.class))
                 .withCacheConfiguration("INSTRUCTOR_CACHE", createCacheConfig(mapper, InstructorResponse.class))
                 .withCacheConfiguration("STUDENT_CACHE", createCacheConfig(mapper, StudentResponse.class))
+                .withCacheConfiguration("STUDENT_CACHE", createCacheConfig(mapper, List.class))
                 .withCacheConfiguration("STUDENT_COURSE_RESULTS_CACHE", createCacheConfig(mapper, List.class))
                 .withCacheConfiguration("SYLLABUS_CACHE", createCacheConfig(mapper, SyllabusResponse.class))
-//                .withCacheConfiguration("SCORE_CACHE", createCacheConfig(mapper, ScoreResponse.class))
+                .withCacheConfiguration("SCORE_CACHE_LIST", createCacheConfig(mapper, List.class))
+                .withCacheConfiguration("LECTURE_CACHE", createCacheConfig(mapper, List.class))
                 .build();
     }
 
@@ -61,6 +63,6 @@ public class RedisConfig {
                         new Jackson2JsonRedisSerializer<>(mapper, clazz)
                 ))
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofMinutes(1));
+                .entryTtl(Duration.ofMinutes(10));
     }
 }

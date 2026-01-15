@@ -43,7 +43,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
-    @Cacheable(value = "STUDENT_CACHE", key = "'courseId: ' + #courseId + ', groupId: ' + #groupId")
+    @Cacheable(value = "STUDENT_CACHE_LIST", key = "'courseId: ' + #courseId + ', groupId: ' + #groupId")
     public List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId) {
         List<Student> students = studentRepository.findByGroupIdAndCourseId(groupId, courseId);
 
@@ -74,7 +74,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
         // 3. Assign student
         group.getStudents().add(student);
 
-        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
         if (cache != null) {
             cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
         }
@@ -98,7 +98,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         group.getStudents().remove(student);
 
-        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
         if (cache != null) {
             cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
         }

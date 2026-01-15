@@ -52,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Cacheable(value = "COURSE_CACHE", key = "'allCourses: ' + #pageable.pageNumber + ':' + #pageable.pageSize")
+    @Cacheable(value = "COURSE_CACHE_LIST", key = "'allCourses: ' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public List<CourseResponse> getAllCourses(Pageable pageable) {
         return courseRepository.findAll(pageable)
                 .stream()
@@ -61,7 +61,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Cacheable(value = "COURSE_CACHE", key = "'searchKeyword: ' + #keyword")
+    @Cacheable(value = "COURSE_CACHE_LIST", key = "'searchKeyword: ' + #keyword")
     public List<CourseResponse> searchCourses(String keyword) {
         log.info("Searching for courses with keyword: {}", keyword);
         return courseRepository.searchCourses(keyword)
@@ -71,7 +71,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Cacheable(value = "COURSE_CACHE", key = "'instructorId: ' + #instructorId")
+    @Cacheable(value = "COURSE_CACHE_LIST", key = "'instructorId: ' + #instructorId")
     public List<CourseResponse> getCoursesByInstructorId(Integer instructorId) {
         List<Course> instructorCourses = courseRepository.findAllByInstructorId(instructorId);
 
@@ -81,7 +81,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Cacheable(value = "COURSE_CACHE", key = "'studentId: ' + #studentId")
+    @Cacheable(value = "COURSE_CACHE_LIST", key = "'studentId: ' + #studentId")
     public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
         List<Course> courses = courseRepository.findCoursesByStudentId(studentId);
 
@@ -91,7 +91,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @CacheEvict(value = "COURSE_CACHE", allEntries = true)
     @CachePut(value = "COURSE_CACHE", key = "'id: ' + #result.id")
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
@@ -104,7 +103,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "COURSE_CACHE", allEntries = true),
+            @CacheEvict(value = "COURSE_CACHE", key = "'id: ' + #id"),
+            @CacheEvict(value = "COURSE_CACHE_LIST", allEntries = true),
             @CacheEvict(value = "SYLLABUS_CACHE", key = "'courseId: ' + #id")
     })
     public void deleteCourseById(Integer id) {

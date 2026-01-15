@@ -44,7 +44,7 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     @Override
-    @Cacheable(value = "SCORE_CACHE", key = "'studentId: ' + #studentId + ', courseId: ' + #courseId")
+    @Cacheable(value = "SCORE_CACHE_LIST", key = "'studentId: ' + #studentId + ', courseId: ' + #courseId")
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {
         List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
         return scores.stream().map(scoreMapper::toResponse).toList();
@@ -99,7 +99,7 @@ public class ScoreServiceImpl implements ScoreService {
             saveOrUpdateCourseResult(scoreToUpdate, result);
         }
 
-        Cache cache = cacheManager.getCache("SCORE_CACHE");
+        Cache cache = cacheManager.getCache("SCORE_CACHE_LIST");
         if (cache != null) {
             cache.evict("studentId: " + scoreToUpdate.getStudent().getId() + ", courseId: " + scoreToUpdate.getCourse().getId());
         }
@@ -188,7 +188,7 @@ public class ScoreServiceImpl implements ScoreService {
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );
 
-        Cache cache = cacheManager.getCache("SCORE_CACHE");
+        Cache cache = cacheManager.getCache("SCORE_CACHE_LIST");
         course.getGroups().forEach(group -> group.getStudents().forEach(student -> {
             if (cache != null) {
                 cache.evict("studentId: " + student.getId() + ", courseId: " + courseId);

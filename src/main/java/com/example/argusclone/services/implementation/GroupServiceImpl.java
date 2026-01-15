@@ -45,7 +45,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Cacheable(value = "GROUP_CACHE", key = "'courseId: ' + #courseId")
+    @Cacheable(value = "GROUP_CACHE_LIST", key = "'courseId: ' + #courseId")
     public List<GroupResponse> getGroupsForCourse(Integer courseId) {
         if (!courseRepository.existsById(courseId)) {
             throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
@@ -66,10 +66,10 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Caching(evict = @CacheEvict(value = "GROUP_CACHE", key = "'courseId: ' + #courseId"),
+    @Caching(evict = @CacheEvict(value = "GROUP_CACHE_LIST", key = "'courseId: ' + #courseId"),
             put = {
             @CachePut(value = "GROUP_CACHE", key = "'id: ' + #result.id"),
-            @CachePut(value = "GROUP_CACHE", key = "'courseId: ' + #courseId")
+            @CachePut(value = "GROUP_CACHE_LIST", key = "'courseId: ' + #courseId")
     })
     public GroupResponse createGroup(Integer courseId, CreateGroupRequest group) {
         Course course = courseRepository.findById(courseId).orElseThrow(
@@ -93,7 +93,7 @@ public class GroupServiceImpl implements GroupService {
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
         );
 
-        Cache cache = cacheManager.getCache("GROUP_CACHE");
+        Cache cache = cacheManager.getCache("GROUP_CACHE_LIST");
         if (cache != null && group.getCourse() != null) {
             cache.evict("courseId: " + group.getCourse().getId());
         }
@@ -104,18 +104,19 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void deleteGroupsByCourseId(Integer courseId) {
-        Cache cache = cacheManager.getCache("GROUP_CACHE");
-        if (cache != null) {
-            cache.evict("courseId: " + courseId);
+        Cache listCache = cacheManager.getCache("GROUP_CACHE_LIST");
+        if (listCache != null) {
+            listCache.evict("courseId: " + courseId);
         }
 
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
         );
 
+        Cache groupCache = cacheManager.getCache("GROUP_CACHE");
         course.getGroups().forEach(group -> {
-            if (cache != null) {
-                cache.evict("id: " + group.getId());
+            if (groupCache != null) {
+                groupCache.evict("id: " + group.getId());
             }
         });
 

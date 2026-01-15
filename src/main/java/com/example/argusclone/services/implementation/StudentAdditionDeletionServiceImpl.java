@@ -65,7 +65,7 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "STUDENT_CACHE", key = "'id: ' + #id"),
-            @CacheEvict(value = "COURSE_CACHE", key = "'studentId: ' + #id"),
+            @CacheEvict(value = "COURSE_CACHE_LIST", key = "'studentId: ' + #id"),
             @CacheEvict(value = "STUDENT_COURSE_RESULTS_CACHE", key = "'studentId: ' + #id")
     })
     public void deleteStudentById(Integer id) {
@@ -75,12 +75,19 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
 
         student.getGroups().forEach(group -> group.getStudents().remove(student));
 
-        Cache cache = cacheManager.getCache("STUDENT_CACHE");
+        Cache studentCache = cacheManager.getCache("STUDENT_CACHE_LIST");
         for (Group group : student.getGroups()) {
-            if (cache != null) {
-                cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + group.getId());
+            if (studentCache != null) {
+                studentCache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + group.getId());
             }
         }
+
+        Cache scoreCache = cacheManager.getCache("SCORE_CACHE_LIST");
+        student.getGroups().forEach(group -> {
+            if (scoreCache != null) {
+                scoreCache.evict("studentId: " + id + ", courseId: " + group.getCourse().getId());
+            }
+        });
 
         studentCourseResultRepository.deleteByStudentId(id);
         studentRepository.delete(student);
