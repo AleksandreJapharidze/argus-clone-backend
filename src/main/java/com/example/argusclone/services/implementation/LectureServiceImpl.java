@@ -66,7 +66,6 @@ public class LectureServiceImpl implements LectureService {
     @Override
     @Transactional
     @CacheEvict(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
-    @CachePut(value = "LECTURE_CACHE", key = "'groupId: ' + #groupId")
     public List<LectureResponse> addLecturesToGroup(Integer groupId, List<CreateLectureRequest> lectures) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + groupId + " not found")
