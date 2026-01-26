@@ -16,12 +16,14 @@ import com.example.argusclone.services.LectureService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +131,32 @@ public class LectureServiceImpl implements LectureService {
 
     private boolean isHoliday(LocalDate date) {
         return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
+    }
+
+    private LocalDate getDateOfTheDayOfTheWeek(String dayOfWeek) {
+        DayOfWeek day = DayOfWeek.valueOf(dayOfWeek);
+
+        int currentMonthValue = LocalDate.now().getMonth().getValue();
+        if (currentMonthValue == 7 || currentMonthValue == 8 || currentMonthValue == 9 ||
+                currentMonthValue == 10 || currentMonthValue == 11 || currentMonthValue == 12) {
+            YearMonth yearMonth = YearMonth.of(LocalDate.now().getYear(), Month.SEPTEMBER);
+            LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+            LocalDate lastSunday = lastDayOfMonth.with(DayOfWeek.SUNDAY);
+            LocalDate startOfLastFullWeek = lastSunday.with(lastSunday.minusDays(6));
+
+            return startOfLastFullWeek.with(day);
+        } else {
+            YearMonth yearMonth = YearMonth.of(LocalDate.now().getYear(), Month.MARCH);
+            LocalDate firstDayOfMonth = yearMonth.atDay(1);
+
+            LocalDate startOfFirstFullWeek = firstDayOfMonth.with(DayOfWeek.MONDAY);
+            if (startOfFirstFullWeek.getMonth() != Month.MARCH) {
+                startOfFirstFullWeek = startOfFirstFullWeek.plusWeeks(1);
+            }
+
+            return startOfFirstFullWeek.with(day);
+        }
     }
 
     @Override
