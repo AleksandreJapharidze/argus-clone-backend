@@ -92,16 +92,24 @@ public class LectureServiceImpl implements LectureService {
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
         validateNoLectureCollisions(lectures);
 
-        List<Lecture> newLectures = new ArrayList<>();
+        List<LocalDate> lectureDates = lectures.stream().map(lectureRequest ->
+                getDateOfTheDayOfTheWeek(lectureRequest.getDayOfWeek().toUpperCase()))
+                .toList();
 
-        int weeksAdded = 0;
+        List<Lecture> newLectures = new ArrayList<>();
+        LocalDate lastSemesterDay = getDateOfTheLastSemesterDay();
+
+        int monthValue = 0;
+        int dayValue = 0;
         int i = 0;
 
-        while (weeksAdded < SEMESTER_WEEKS) {
+        while (monthValue != lastSemesterDay.getMonthValue() || dayValue <= lastSemesterDay.getDayOfMonth()) {
+            int lectureDateIndex = 0;
+
             for (CreateLectureRequest lecture : lectures) {
 
                 Lecture newLecture = lectureMapper.toEntity(lecture);
-                LocalDate date = lecture.getLectureDate().plusWeeks(i);
+                LocalDate date = lectureDates.get(lectureDateIndex).plusWeeks(i);
 
                 if (isHoliday(date)) {
                     continue;
@@ -113,9 +121,13 @@ public class LectureServiceImpl implements LectureService {
                 newLecture.setRoomNumber(lecture.getRoomNumber());
 
                 newLectures.add(newLecture);
+
+                monthValue = date.getMonthValue();
+                dayValue = date.getDayOfMonth() + 7;
+
+                lectureDateIndex++;
             }
 
-            weeksAdded++;
             i++;
         }
 
@@ -156,6 +168,22 @@ public class LectureServiceImpl implements LectureService {
             }
 
             return startOfFirstFullWeek.with(day);
+        }
+    }
+
+    private LocalDate getDateOfTheLastSemesterDay() {
+        int currentMonthValue = LocalDate.now().getMonth().getValue();
+        if (currentMonthValue == 7 || currentMonthValue == 8 || currentMonthValue == 9 ||
+                currentMonthValue == 10 || currentMonthValue == 11 || currentMonthValue == 12) {
+            YearMonth yearMonth = YearMonth.of(LocalDate.now().getYear() + 1, Month.FEBRUARY);
+            LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+            return lastDayOfMonth.minusWeeks(2).with(DayOfWeek.SATURDAY);
+        } else {
+            YearMonth yearMonth = YearMonth.of(LocalDate.now().getYear(), Month.JULY);
+            LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+            return lastDayOfMonth.minusWeeks(2).with(DayOfWeek.SATURDAY);
         }
     }
 
