@@ -90,11 +90,16 @@ public class LectureServiceImpl implements LectureService {
     }
 
     private List<Lecture> generateLecturesForTheSemester(List<CreateLectureRequest> lectures) {
-        validateNoLectureCollisions(lectures);
+        if (theseLecturesOverlapStreamVersion(lectures)) {
+            throw new ScheduleConflictException("Two or more of these lectures overlap.");
+        }
 
         List<LocalDate> lectureDates = lectures.stream().map(lectureRequest ->
-                getDateOfTheDayOfTheWeek(lectureRequest.getDayOfWeek().toUpperCase()))
+                        getDateOfTheDayOfTheWeek(lectureRequest.getDayOfWeek().toUpperCase()))
                 .toList();
+
+
+        validateNoLectureCollisions(lectures);
 
         List<Lecture> newLectures = new ArrayList<>();
         LocalDate lastSemesterDay = getDateOfTheLastSemesterDay();
@@ -139,6 +144,38 @@ public class LectureServiceImpl implements LectureService {
         if (distinctCount != lectures.size()) {
             throw new DuplicateResourceException("Two or more lectures collide with each other.");
         }
+    }
+
+    private boolean theseLecturesOverlapNormalVersion(List<CreateLectureRequest> lectures) {
+        for (int i = 0; i < lectures.size(); i++) {
+            for (int j = i + 1; j < lectures.size(); j++) {
+
+                CreateLectureRequest l1 = lectures.get(i);
+                CreateLectureRequest l2 = lectures.get(j);
+
+                if (l1.getDayOfWeek().equals(l2.getDayOfWeek()) &&
+                        l1.getRoomNumber().equals(l2.getRoomNumber()) &&
+                        l1.getLectureStartTime().isBefore(l2.getLectureEndTime()) &&
+                        l2.getLectureStartTime().isBefore(l1.getLectureEndTime())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean theseLecturesOverlapStreamVersion(List<CreateLectureRequest> lectures) {
+        return lectures.stream().anyMatch(l1 -> lectures.stream()
+                .anyMatch(l2 -> {
+                    if (l1 == l2) {
+                        return false;
+                    }
+                    return l1.getDayOfWeek().equals(l2.getDayOfWeek()) &&
+                            l1.getRoomNumber().equals(l2.getRoomNumber()) &&
+                            l1.getLectureStartTime().isBefore(l2.getLectureEndTime()) &&
+                            l2.getLectureStartTime().isBefore(l1.getLectureEndTime());
+                })
+        );
     }
 
     private boolean isHoliday(LocalDate date) {
