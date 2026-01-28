@@ -23,8 +23,6 @@ import java.util.List;
 
 @Service
 public class GroupServiceImpl implements GroupService {
-    private static final int SEMESTER_WEEKS = 15;
-
     private final GroupRepository groupRepository;
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
@@ -103,7 +101,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void deleteGroupsByCourseId(Integer courseId) {
+    public void deleteGroupCachesByCourseId(Integer courseId) {
         Cache listCache = cacheManager.getCache("GROUP_CACHE_LIST");
         if (listCache != null) {
             listCache.evict("courseId: " + courseId);
@@ -119,7 +117,5 @@ public class GroupServiceImpl implements GroupService {
                 groupCache.evict("id: " + group.getId());
             }
         });
-
-        groupRepository.deleteByCourseId(courseId);
     }
 }

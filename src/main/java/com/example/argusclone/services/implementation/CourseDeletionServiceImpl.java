@@ -31,7 +31,7 @@ public class CourseDeletionServiceImpl implements CourseDeletionService {
         courseService.deleteStudentCourseResultByCourseId(id);
         scoreService.deleteScoresByCourseId(id);
         lectureService.deleteLecturesByCourseId(id);
-        groupService.deleteGroupsByCourseId(id);
+        groupService.deleteGroupCachesByCourseId(id);
         courseService.deleteCourseById(id);
     }
 }

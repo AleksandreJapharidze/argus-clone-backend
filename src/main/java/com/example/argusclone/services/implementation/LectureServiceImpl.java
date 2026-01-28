@@ -29,8 +29,6 @@ import java.util.List;
 
 @Service
 public class LectureServiceImpl implements LectureService {
-    private static final int SEMESTER_WEEKS = 15;
-
     private final LectureRepository lectureRepository;
     private final GroupRepository groupRepository;
     private final CourseRepository courseRepository;
@@ -108,39 +106,46 @@ public class LectureServiceImpl implements LectureService {
         List<Lecture> newLectures = new ArrayList<>();
         LocalDate lastSemesterDay = getDateOfTheLastSemesterDay();
 
-        int monthValue = 0;
-        int dayValue = 0;
-        int i = 0;
+        int weekOffset = 0;
 
-        while (monthValue != lastSemesterDay.getMonthValue() || dayValue <= lastSemesterDay.getDayOfMonth()) {
-            int lectureDateIndex = 0;
+        while (true) {
+            boolean anyLectureGeneratedThisWeek = false;
 
-            for (CreateLectureRequest lecture : lectures) {
+            for (int i = 0; i < lectures.size(); i++) {
+                CreateLectureRequest lecture = lectures.get(i);
+                LocalDate date = lectureDates.get(i).plusWeeks(weekOffset);
 
-                Lecture newLecture = lectureMapper.toEntity(lecture);
-                LocalDate date = lectureDates.get(lectureDateIndex).plusWeeks(i);
+                if (date.isAfter(lastSemesterDay)) {
+                    continue;
+                }
 
                 if (isHoliday(date)) {
                     continue;
                 }
 
-                newLecture.setLectureDate(date);
-                newLecture.setLectureStartTime(lecture.getLectureStartTime());
-                newLecture.setLectureEndTime(lecture.getLectureEndTime());
-                newLecture.setRoomNumber(lecture.getRoomNumber());
+                Lecture newLecture = createLecture(lecture, date);
 
                 newLectures.add(newLecture);
-
-                monthValue = date.getMonthValue();
-                dayValue = date.getDayOfMonth() + 7;
-
-                lectureDateIndex++;
+                anyLectureGeneratedThisWeek = true;
             }
 
-            i++;
+            if (!anyLectureGeneratedThisWeek) {
+                break;
+            }
+
+            weekOffset++;
         }
 
         return newLectures;
+    }
+
+    private Lecture createLecture(CreateLectureRequest lectureRequest, LocalDate date) {
+        Lecture lecture = lectureMapper.toEntity(lectureRequest);
+        lecture.setLectureDate(date);
+        lecture.setLectureStartTime(lectureRequest.getLectureStartTime());
+        lecture.setLectureEndTime(lectureRequest.getLectureEndTime());
+        lecture.setRoomNumber(lectureRequest.getRoomNumber());
+        return lecture;
     }
 
     private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
@@ -148,6 +153,20 @@ public class LectureServiceImpl implements LectureService {
         if (distinctCount != lectures.size()) {
             throw new DuplicateResourceException("Two or more lectures collide with each other.");
         }
+    }
+
+    private boolean overlappingLectureOrLecturesExistInDatabase(List<CreateLectureRequest> lectures, List<LocalDate> lectureDates) {
+        for (int i = 0; i < lectures.size(); i++) {
+            CreateLectureRequest lecture = lectures.get(i);
+            LocalDate date = lectureDates.get(i);
+
+            if (lectureRepository.existOverlappingLectureOrLectures(
+                    date, lecture.getLectureStartTime(), lecture.getLectureEndTime(), lecture.getRoomNumber()
+            )) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean theseLecturesOverlapNormalVersion(List<CreateLectureRequest> lectures) {
@@ -180,10 +199,6 @@ public class LectureServiceImpl implements LectureService {
                             l2.getLectureStartTime().isBefore(l1.getLectureEndTime());
                 })
         );
-    }
-
-    private boolean isHoliday(LocalDate date) {
-        return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
     }
 
     private LocalDate getDateOfTheDayOfTheWeek(String dayOfWeek) {
@@ -228,17 +243,8 @@ public class LectureServiceImpl implements LectureService {
         }
     }
 
-    private boolean overlappingLectureOrLecturesExistInDatabase(List<CreateLectureRequest> lectures, List<LocalDate> lectureDates) {
-        List<Lecture> lectureEntities = lectures.stream().map(lectureMapper::toEntity).toList();
-        for (Lecture lecture : lectureEntities) {
-            lecture.setLectureDate(lectureDates.get(lectureEntities.indexOf(lecture)));
-
-            if (lectureRepository.existOverlappingLectureOrLectures(lecture.getLectureDate(), lecture.getLectureStartTime(),
-                    lecture.getLectureEndTime(), lecture.getRoomNumber())) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isHoliday(LocalDate date) {
+        return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
     }
 
     @Override
