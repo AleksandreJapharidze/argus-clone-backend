@@ -101,6 +101,10 @@ public class LectureServiceImpl implements LectureService {
 
         validateNoLectureCollisions(lectures);
 
+        if (overlappingLectureOrLecturesExistInDatabase(lectures, lectureDates)) {
+            throw new ScheduleConflictException("One or more of the existing lectures overlap with these lecture(s).");
+        }
+
         List<Lecture> newLectures = new ArrayList<>();
         LocalDate lastSemesterDay = getDateOfTheLastSemesterDay();
 
@@ -222,6 +226,19 @@ public class LectureServiceImpl implements LectureService {
 
             return lastDayOfMonth.minusWeeks(2).with(DayOfWeek.SATURDAY);
         }
+    }
+
+    private boolean overlappingLectureOrLecturesExistInDatabase(List<CreateLectureRequest> lectures, List<LocalDate> lectureDates) {
+        List<Lecture> lectureEntities = lectures.stream().map(lectureMapper::toEntity).toList();
+        for (Lecture lecture : lectureEntities) {
+            lecture.setLectureDate(lectureDates.get(lectureEntities.indexOf(lecture)));
+
+            if (lectureRepository.existOverlappingLectureOrLectures(lecture.getLectureDate(), lecture.getLectureStartTime(),
+                    lecture.getLectureEndTime(), lecture.getRoomNumber())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
