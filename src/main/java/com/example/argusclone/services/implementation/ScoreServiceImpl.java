@@ -129,15 +129,14 @@ public class ScoreServiceImpl implements ScoreService {
                                 return;
                             }
 
-                            int currentScore = scoreToUpdate.getScore();
-                            int scoreDifference;
-                            if (scoreToUpdate.getThreshold() != null && score < scoreToUpdate.getThreshold()) {
-                                scoreDifference = -currentScore;
+                            int newFinalGrade = getNewFinalGrade(scoreToUpdate, score, result);
+                            if (newFinalGrade < 51) {
+                                result.setFinalGrade(null);
+                                result.setHasPassed(false);
                             } else {
-                                scoreDifference = score - currentScore;
+                                result.setFinalGrade(newFinalGrade);
+                                result.setHasPassed(true);
                             }
-                            result.setFinalGrade(result.getFinalGrade() + scoreDifference);
-                            result.setHasPassed(result.getFinalGrade() >= 51);
                             studentCourseResultRepository.save(result);
 
                             Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
@@ -148,11 +147,23 @@ public class ScoreServiceImpl implements ScoreService {
                             log.info("Course result for student with id of {} and course with id of {} has been updated",
                                     scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
                         },
-                        () -> {
-                            log.info("Course result for student with id of {} and course with id of {} doesn't exist for updating",
-                                    scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
-                        }
+                        () -> log.info("Course result for student with id of {} and course with id of {} doesn't exist for updating",
+                                scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId())
                 );
+    }
+
+    private int getNewFinalGrade(Score scoreToUpdate, Integer score, StudentCourseResult result) {
+        int currentScore = scoreToUpdate.getScore();
+        int scoreDifference;
+        Integer threshold = scoreToUpdate.getThreshold();
+        if (threshold != null && score < threshold) {
+            scoreDifference = -currentScore;
+        } else {
+            scoreDifference = score - currentScore;
+        }
+
+        int oldFinalGrade = result.getFinalGrade();
+        return oldFinalGrade + scoreDifference;
     }
 
     private StudentCourseResult calculateStudentCourseResult(Score scoreToUpdate, Integer score) {
