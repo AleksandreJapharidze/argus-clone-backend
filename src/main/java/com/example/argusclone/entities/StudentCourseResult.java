@@ -12,10 +12,6 @@ public class StudentCourseResult {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
-
     private String studentName;
     private String courseName;
 
@@ -36,14 +32,6 @@ public class StudentCourseResult {
 
     public void setStudent(Student student) {
         this.student = student;
-    }
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
     }
 
     public String getStudentName() {

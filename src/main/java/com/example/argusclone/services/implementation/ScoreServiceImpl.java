@@ -13,6 +13,8 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.ScoreRepository;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.services.ScoreService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -25,6 +27,8 @@ import java.util.Optional;
 
 @Service
 public class ScoreServiceImpl implements ScoreService {
+    Logger log = LoggerFactory.getLogger(ScoreServiceImpl.class);
+
     private final ScoreRepository scoreRepository;
     private final CourseRepository courseRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
@@ -33,8 +37,8 @@ public class ScoreServiceImpl implements ScoreService {
 
     @Autowired
     public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
-                            StudentCourseResultRepository studentCourseResultRepository, ScoreMapper scoreMapper,
-                            CacheManager cacheManager) {
+                            StudentCourseResultRepository studentCourseResultRepository,
+                            ScoreMapper scoreMapper, CacheManager cacheManager) {
         this.scoreRepository = scoreRepository;
         this.courseRepository = courseRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
@@ -107,8 +111,9 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     private void updateScoreValue(Score scoreToUpdate, Integer score) {
-        Integer threshold = scoreToUpdate.getThreshold();
+        updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(scoreToUpdate, score);
 
+        Integer threshold = scoreToUpdate.getThreshold();
         if (threshold != null && score < threshold) {
             scoreToUpdate.setScore(0);
         } else {
@@ -116,12 +121,50 @@ public class ScoreServiceImpl implements ScoreService {
         }
     }
 
+    private void updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(Score scoreToUpdate, Integer score) {
+        studentCourseResultRepository.findByStudentIdAndCourseName(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getCourseName())
+                .ifPresentOrElse(
+                        result -> {
+                            if (result.getFinalGrade() == null || scoreToUpdate.getComponent().equalsIgnoreCase("Final exam")) {
+                                return;
+                            }
+
+                            int currentScore = scoreToUpdate.getScore();
+                            int scoreDifference;
+                            if (scoreToUpdate.getThreshold() != null && score < scoreToUpdate.getThreshold()) {
+                                scoreDifference = -currentScore;
+                            } else {
+                                scoreDifference = score - currentScore;
+                            }
+                            result.setFinalGrade(result.getFinalGrade() + scoreDifference);
+                            result.setHasPassed(result.getFinalGrade() >= 51);
+                            studentCourseResultRepository.save(result);
+
+                            Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
+                            if (cache != null) {
+                                cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
+                            }
+
+                            log.info("Course result for student with id of {} and course with id of {} has been updated",
+                                    scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
+                        },
+                        () -> {
+                            log.info("Course result for student with id of {} and course with id of {} doesn't exist for updating",
+                                    scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
+                        }
+                );
+    }
+
     private StudentCourseResult calculateStudentCourseResult(Score scoreToUpdate, Integer score) {
         StudentCourseResult result = new StudentCourseResult();
         result.setStudent(scoreToUpdate.getStudent());
-        result.setCourse(scoreToUpdate.getCourse());
         result.setCourseName(scoreToUpdate.getCourseName());
         result.setStudentName(scoreToUpdate.getStudentName());
+
+        Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
+        if (cache != null) {
+            cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
+        }
 
         if (!meetsThreshold(scoreToUpdate, score)) {
             result.setHasPassed(false);
@@ -136,11 +179,6 @@ public class ScoreServiceImpl implements ScoreService {
             result.setHasPassed(false);
         }
 
-        Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
-        if (cache != null) {
-            cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
-        }
-
         return result;
     }
 
@@ -153,9 +191,9 @@ public class ScoreServiceImpl implements ScoreService {
 
     private void saveOrUpdateCourseResult(Score scoreToUpdate, StudentCourseResult updateResult) {
         Integer studentId = scoreToUpdate.getStudent().getId();
-        Integer courseId = scoreToUpdate.getCourse().getId();
+        String courseName = scoreToUpdate.getCourse().getCourseName();
 
-        Optional<StudentCourseResult> existingResult = studentCourseResultRepository.findByStudentIdAndCourseId(studentId, courseId);
+        Optional<StudentCourseResult> existingResult = studentCourseResultRepository.findByStudentIdAndCourseName(studentId, courseName);
 
         if (existingResult.isPresent()) {
             StudentCourseResult existingResultToUpdate = existingResult.get();

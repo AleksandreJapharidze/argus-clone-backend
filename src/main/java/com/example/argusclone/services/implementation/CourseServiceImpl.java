@@ -114,20 +114,4 @@ public class CourseServiceImpl implements CourseService {
             throw new ResourceNotFoundException("Course with an id of " + id + " not found");
         }
     }
-
-    @Override
-    public void deleteStudentCourseResultByCourseId(Integer courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
-        course.getGroups().forEach(group -> group.getStudents().forEach(student -> {
-            if (cache != null) {
-                cache.evict("studentId: " + student.getId());
-            }
-        }));
-
-        studentCourseResultRepository.deleteByCourseId(courseId);
-    }
 }

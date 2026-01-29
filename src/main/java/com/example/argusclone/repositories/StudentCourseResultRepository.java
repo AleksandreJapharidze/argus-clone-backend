@@ -12,14 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface StudentCourseResultRepository extends JpaRepository<StudentCourseResult, Integer> {
-    @EntityGraph(attributePaths = {"student", "course"})
+    @EntityGraph(attributePaths = {"student"})
     List<StudentCourseResult> findByStudentId(Integer studentId);
 
-    Optional<StudentCourseResult> findByStudentIdAndCourseId(Integer studentId, Integer courseId);
-
-    @Modifying
-    @Query("DELETE FROM StudentCourseResult s WHERE s.course.id = :courseId")
-    void deleteByCourseId(Integer courseId);
+    Optional<StudentCourseResult> findByStudentIdAndCourseName(Integer studentId, String courseName);
 
     @Modifying
     @Query("DELETE FROM StudentCourseResult s WHERE s.student.id = :studentId")

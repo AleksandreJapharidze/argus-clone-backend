@@ -28,7 +28,6 @@ public class CourseDeletionServiceImpl implements CourseDeletionService {
     @Transactional
     @CacheEvict(value = "SYLLABUS_CACHE", key = "'courseId: ' + #id")
     public void deleteCourseById(Integer id) {
-        courseService.deleteStudentCourseResultByCourseId(id);
         scoreService.deleteScoresByCourseId(id);
         lectureService.deleteLecturesByCourseId(id);
         groupService.deleteGroupCachesByCourseId(id);
