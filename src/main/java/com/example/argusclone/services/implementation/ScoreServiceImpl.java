@@ -111,17 +111,17 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     private void updateScoreValue(Score scoreToUpdate, Integer score) {
-        updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(scoreToUpdate, score);
-
         Integer threshold = scoreToUpdate.getThreshold();
         if (threshold != null && score < threshold) {
             scoreToUpdate.setScore(0);
         } else {
             scoreToUpdate.setScore(score);
         }
+
+        updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(scoreToUpdate);
     }
 
-    private void updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(Score scoreToUpdate, Integer score) {
+    private void updateCourseResultAfterNonFinalExamScoreUpdateIfNecessary(Score scoreToUpdate) {
         studentCourseResultRepository.findByStudentIdAndCourseName(scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getCourseName())
                 .ifPresentOrElse(
                         result -> {
@@ -129,9 +129,9 @@ public class ScoreServiceImpl implements ScoreService {
                                 return;
                             }
 
-                            int newFinalGrade = getNewFinalGrade(scoreToUpdate, score, result);
+                            int newFinalGrade = calculateTotalCourseScoreForStudent(scoreToUpdate);
                             if (newFinalGrade < 51) {
-                                result.setFinalGrade(null);
+                                result.setFinalGrade(newFinalGrade);
                                 result.setHasPassed(false);
                             } else {
                                 result.setFinalGrade(newFinalGrade);
@@ -150,20 +150,6 @@ public class ScoreServiceImpl implements ScoreService {
                         () -> log.info("Course result for student with id of {} and course with id of {} doesn't exist for updating",
                                 scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId())
                 );
-    }
-
-    private int getNewFinalGrade(Score scoreToUpdate, Integer score, StudentCourseResult result) {
-        int currentScore = scoreToUpdate.getScore();
-        int scoreDifference;
-        Integer threshold = scoreToUpdate.getThreshold();
-        if (threshold != null && score < threshold) {
-            scoreDifference = -currentScore;
-        } else {
-            scoreDifference = score - currentScore;
-        }
-
-        int oldFinalGrade = result.getFinalGrade();
-        return oldFinalGrade + scoreDifference;
     }
 
     private StudentCourseResult calculateStudentCourseResult(Score scoreToUpdate, Integer score) {
@@ -188,6 +174,7 @@ public class ScoreServiceImpl implements ScoreService {
             result.setFinalGrade(totalCourseScoreForStudent);
         } else {
             result.setHasPassed(false);
+            result.setFinalGrade(totalCourseScoreForStudent);
         }
 
         return result;
