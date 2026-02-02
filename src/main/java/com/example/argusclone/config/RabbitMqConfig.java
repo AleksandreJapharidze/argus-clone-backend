@@ -13,10 +13,15 @@ public class RabbitMqConfig {
     public static final String EXCHANGE = "post_exchange";
 
     public static final String POST_QUEUE = "post_queue";
+    public static final String SECOND_POST_QUEUE = "second_post_queue";
     public static final String DELETE_QUEUE = "delete_queue";
+    public static final String SECOND_DELETE_QUEUE = "second_delete_queue";
 
     public static final String POST_ROUTING_KEY = "post_routing_key";
+    public static final String SECOND_POST_ROUTING_KEY = "second_post_routing_key";
+
     public static final String DELETE_ROUTING_KEY = "delete_routing_key";
+    public static final String SECOND_DELETE_ROUTING_KEY = "second_delete_routing_key";
 
     @Bean
     public DirectExchange directExchange() {
@@ -29,8 +34,18 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue secondPostQueue() {
+        return QueueBuilder.durable(SECOND_POST_QUEUE).build();
+    }
+
+    @Bean
     public Queue deleteQueue() {
         return QueueBuilder.durable(DELETE_QUEUE).build();
+    }
+
+    @Bean
+    public Queue secondDeleteQueue() {
+        return QueueBuilder.durable(SECOND_DELETE_QUEUE).build();
     }
 
     @Bean
@@ -42,11 +57,27 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Binding secondPostBinding() {
+        return BindingBuilder
+                .bind(secondPostQueue())
+                .to(directExchange())
+                .with(SECOND_POST_ROUTING_KEY);
+    }
+
+    @Bean
     public Binding deleteBinding() {
         return BindingBuilder
                 .bind(deleteQueue())
                 .to(directExchange())
                 .with(DELETE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding secondDeleteBinding() {
+        return BindingBuilder
+                .bind(secondDeleteQueue())
+                .to(directExchange())
+                .with(SECOND_DELETE_ROUTING_KEY);
     }
 
     @Bean
