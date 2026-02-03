@@ -2,12 +2,17 @@ package com.example.argusclone.services.implementation;
 
 import com.example.argusclone.dtos.student.CreateStudentRequest;
 import com.example.argusclone.dtos.student.StudentResponse;
+import com.example.argusclone.dtos.user.User;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.events.eventclasses.StudentCreationEvent;
 import com.example.argusclone.events.eventclasses.StudentDeletionEvent;
+import com.example.argusclone.events.eventclasses.UserCreationEvent;
+import com.example.argusclone.events.eventclasses.UserDeletionEvent;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.helpers.RandomPasswordGenerator;
+import com.example.argusclone.helpers.UserDataSaver;
 import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
@@ -54,8 +59,15 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         Student studentEntity = studentMapper.toEntity(student);
         Student savedStudent = studentRepository.save(studentEntity);
 
+        String password = RandomPasswordGenerator.generateRandomPassword(8);
+        UserDataSaver.saveUser(new User(student.getEmail(), password, "Student"));
+
         applicationEventPublisher.publishEvent(
                 new StudentCreationEvent(savedStudent.getName(), savedStudent.getEmail())
+        );
+
+        applicationEventPublisher.publishEvent(
+                new UserCreationEvent(savedStudent.getEmail(), password, "STUDENT")
         );
 
         return studentMapper.toResponse(savedStudent);
@@ -90,10 +102,19 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         });
 
         studentCourseResultRepository.deleteByStudentId(id);
+
+        String studentEmail = student.getEmail();
+
         studentRepository.delete(student);
+
+        UserDataSaver.deleteUser(studentEmail);
 
         applicationEventPublisher.publishEvent(
                 new StudentDeletionEvent(student.getEmail())
+        );
+
+        applicationEventPublisher.publishEvent(
+                new UserDeletionEvent(studentEmail)
         );
     }
 }

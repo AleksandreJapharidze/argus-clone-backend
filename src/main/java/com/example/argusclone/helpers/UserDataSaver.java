@@ -28,9 +28,10 @@ public class UserDataSaver {
     }
 
     public static void saveUser(User user) {
+        File saveFile = getSaveFile();
+
         try {
             List<User> users;
-            File saveFile = getSaveFile();
             if (saveFile.exists()) {
                 users = mapper.readValue(saveFile, new TypeReference<>() {});
             } else {
