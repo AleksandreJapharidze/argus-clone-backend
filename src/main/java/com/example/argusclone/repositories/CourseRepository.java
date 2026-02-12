@@ -30,9 +30,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     List<Course> searchCourses(String keyword);
 
     @EntityGraph(attributePaths = {"instructors"})
-    Optional<Course> findByCourseName(String courseName);
-
-    @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseCode(String courseCode);
 
     // The JOIN clauses are just navigations to reach Course from Student via Group.

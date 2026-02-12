@@ -42,9 +42,9 @@ public class CourseController {
         return ResponseEntity.ok(courseService.searchCourses(keyword));
     }
 
-    @GetMapping("/{courseId}/students/{studentId}/scores")
+    @GetMapping("/{courseId}/scores")
     public ResponseEntity<Iterable<ScoreResponse>> getStudentScoresByCourseId(@PathVariable Integer courseId,
-                                                                               @PathVariable Integer studentId) {
+                                                                               @RequestParam Integer studentId) {
         return ResponseEntity.ok(scoreService.getStudentScoresByCourseId(courseId, studentId));
     }
 
@@ -59,7 +59,6 @@ public class CourseController {
     @PostMapping("/{courseId}/scores")
     public ResponseEntity<Iterable<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
                                                                                                   @RequestBody List<CreateScoreRequest> scores) {
-        List<ScoreResponse> emptyScoresList = scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores);
-        return ResponseEntity.ok(emptyScoresList);
+        return ResponseEntity.ok(scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores));
     }
 }
