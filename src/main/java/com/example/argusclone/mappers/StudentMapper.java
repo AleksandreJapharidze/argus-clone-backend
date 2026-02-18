@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface StudentMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "uuid", ignore = true)
     @Mapping(target = "groups", ignore = true)
     @Mapping(target = "scores", ignore = true)
     @Mapping(target = "studentCourseResults", ignore = true)

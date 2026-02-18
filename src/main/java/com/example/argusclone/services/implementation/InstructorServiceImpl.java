@@ -60,7 +60,7 @@ public class InstructorServiceImpl implements InstructorService {
         UserDataSaver.saveUser(new User(instructor.getEmail(), password, "Instructor"));
 
         applicationEventPublisher.publishEvent(
-                new UserCreationEvent(savedInstructor.getEmail(), password, "INSTRUCTOR")
+                new UserCreationEvent(savedInstructor.getUuid(), savedInstructor.getEmail(), password, "INSTRUCTOR")
         );
 
         return instructorMapper.toResponse(savedInstructor);
