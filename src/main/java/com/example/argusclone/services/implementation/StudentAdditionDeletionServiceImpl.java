@@ -63,11 +63,11 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         UserDataSaver.saveUser(new User(student.getEmail(), password, "Student"));
 
         applicationEventPublisher.publishEvent(
-                new StudentCreationEvent(savedStudent.getUuid(), savedStudent.getName(), savedStudent.getEmail())
+                new StudentCreationEvent(savedStudent.getName(), savedStudent.getEmail())
         );
 
         applicationEventPublisher.publishEvent(
-                new UserCreationEvent(savedStudent.getUuid(), savedStudent.getEmail(), password, "STUDENT")
+                new UserCreationEvent(savedStudent.getEmail(), password, "STUDENT")
         );
 
         return studentMapper.toResponse(savedStudent);

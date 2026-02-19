@@ -3,24 +3,14 @@ package com.example.argusclone.events.eventclasses;
 import java.util.UUID;
 
 public class UserCreationEvent {
-    private UUID uuid;
     private String username;
     private String password;
     private String role;
 
-    public UserCreationEvent(UUID uuid, String username, String password, String role) {
-        this.uuid = uuid;
+    public UserCreationEvent(String username, String password, String role) {
         this.username = username;
         this.password = password;
         this.role = role;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getUsername() {

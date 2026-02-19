@@ -1,21 +1,14 @@
 package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 public class Instructor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(unique = true, columnDefinition = "CHAR(36)")
-    @JdbcTypeCode(SqlTypes.CHAR)
-    private UUID uuid = UUID.randomUUID();
 
     private String name;
     private String email;
@@ -30,14 +23,6 @@ public class Instructor {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {

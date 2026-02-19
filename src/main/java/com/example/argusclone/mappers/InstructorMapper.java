@@ -9,10 +9,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface InstructorMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "uuid", ignore = true)
     @Mapping(target = "courses", ignore = true)
     Instructor toEntity(CreateInstructorRequest request);
 
-//    @Mapping(target = "courses", ignore = true)
     InstructorResponse toResponse(Instructor instructor);
 }

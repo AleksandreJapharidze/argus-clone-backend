@@ -4,7 +4,6 @@ import java.util.UUID;
 
 public class StudentResponse {
     private Integer id;
-    private UUID uuid;
     private String name;
     private String email;
     private String academicStatus;
@@ -15,14 +14,6 @@ public class StudentResponse {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {
