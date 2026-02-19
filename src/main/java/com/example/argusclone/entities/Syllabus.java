@@ -54,10 +54,6 @@ public class Syllabus {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public List<String> getPrerequisites() {
         return prerequisites;
     }

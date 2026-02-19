@@ -22,10 +22,6 @@ public class StudentCourseResult {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Student getStudent() {
         return student;
     }
