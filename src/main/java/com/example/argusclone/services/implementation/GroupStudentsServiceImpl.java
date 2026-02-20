@@ -6,18 +6,14 @@ import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.entities.Syllabus;
-import com.example.argusclone.exceptions.DuplicateResourceException;
-import com.example.argusclone.exceptions.OperationNotAllowedYetException;
-import com.example.argusclone.exceptions.ResourceNotFoundException;
-import com.example.argusclone.exceptions.TooManyResourcesException;
+import com.example.argusclone.exceptions.*;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,19 +28,14 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     private final StudentRepository studentRepository;
     private final GroupMapper groupMapper;
     private final StudentMapper studentMapper;
-    private final CacheManager cacheManager;
 
     @Autowired
-    public GroupStudentsServiceImpl(GroupRepository groupRepository,
-                                    StudentRepository studentRepository,
-                                    GroupMapper groupMapper,
-                                    StudentMapper studentMapper,
-                                    CacheManager cacheManager) {
+    public GroupStudentsServiceImpl(GroupRepository groupRepository, StudentRepository studentRepository,
+                                    GroupMapper groupMapper, StudentMapper studentMapper) {
         this.groupRepository = groupRepository;
         this.studentRepository = studentRepository;
         this.groupMapper = groupMapper;
         this.studentMapper = studentMapper;
-        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -58,6 +49,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
+    @CacheEvict(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
     @Transactional
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId)
@@ -81,11 +73,6 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
         // 3. Assign student
         group.getStudents().add(student);
 
-        Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
-        if (cache != null) {
-            cache.evict("groupId: " + groupId);
-        }
-
         return groupMapper.toResponse(groupRepository.save(group));
     }
 
@@ -102,7 +89,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         Set<StudentCourseResult> studentCourseResults = student.getStudentCourseResults();
         if (studentCourseResults == null || studentCourseResults.isEmpty()) {
-            throw new OperationNotAllowedYetException("Could not assign student to group: prerequisites not met.");
+            throw new PrerequisitesNotMetException("Could not assign student to group: prerequisites not met.");
         }
 
         Set<String> studentPassedCourses = studentCourseResults.stream()
@@ -110,11 +97,12 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
                 .map(StudentCourseResult::getCourseName)
                 .collect(Collectors.toSet());
         if (!studentPassedCourses.containsAll(prerequisites)) {
-            throw new OperationNotAllowedYetException("Could not assign student to group: prerequisites not met.");
+            throw new PrerequisitesNotMetException("Could not assign student to group: prerequisites not met.");
         }
     }
 
     @Override
+    @CacheEvict(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
     public void removeStudentFromGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group " + groupId + " not found")
@@ -129,11 +117,6 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
         }
 
         group.getStudents().remove(student);
-
-        Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
-        if (cache != null) {
-            cache.evict("groupId: " + groupId);
-        }
 
         groupRepository.save(group);
     }
