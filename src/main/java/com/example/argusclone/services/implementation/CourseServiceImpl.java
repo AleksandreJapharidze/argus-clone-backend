@@ -11,7 +11,6 @@ import com.example.argusclone.services.CourseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,15 +27,12 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
-    private final CacheManager cacheManager;
 
     @Autowired
     public CourseServiceImpl(CourseRepository courseRepository,
-                             CourseMapper courseMapper,
-                             CacheManager cacheManager) {
+                             CourseMapper courseMapper) {
         this.courseRepository = courseRepository;
         this.courseMapper = courseMapper;
-        this.cacheManager = cacheManager;
     }
 
     @Override
