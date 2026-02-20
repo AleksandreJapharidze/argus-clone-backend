@@ -1,7 +1,5 @@
 package com.example.argusclone.events.eventclasses;
 
-import java.util.UUID;
-
 public class StudentCreationEvent {
     private String name;
     private String email;

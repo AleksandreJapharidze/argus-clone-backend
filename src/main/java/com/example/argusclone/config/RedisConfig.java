@@ -3,7 +3,6 @@ package com.example.argusclone.config;
 import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.instructor.InstructorResponse;
-import com.example.argusclone.dtos.score.ScoreResponse;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
