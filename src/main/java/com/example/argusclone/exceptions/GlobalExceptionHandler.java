@@ -94,4 +94,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(400).body(errorDetails);
     }
+
+    @ExceptionHandler(OperationNotAllowedYetException.class)
+    public ResponseEntity<?> handleOperationNotAllowedYetException(
+            OperationNotAllowedYetException exception, WebRequest request
+    ) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", new Date());
+        errorDetails.put("message", exception.getMessage());
+        errorDetails.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(422).body(errorDetails);
+    }
 }

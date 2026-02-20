@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SyllabusServiceImpl implements SyllabusService {
@@ -57,7 +58,7 @@ public class SyllabusServiceImpl implements SyllabusService {
 
     @Override
     @CacheEvict(value = "SYLLABUS_CACHE", key = "'courseId: ' + #courseId")
-    public SyllabusResponse updatePrerequisitesByCourseId(Integer courseId, List<String> prerequisites) {
+    public SyllabusResponse updatePrerequisitesByCourseId(Integer courseId, Set<String> prerequisites) {
         Syllabus syllabus = syllabusRepository.findByCourseId(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found")
         );

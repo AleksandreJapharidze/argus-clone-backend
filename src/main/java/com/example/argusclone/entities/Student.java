@@ -1,6 +1,7 @@
 package com.example.argusclone.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +24,12 @@ public class Student {
     private Set<Group> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @BatchSize(size = 50)
     private List<Score> scores;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<StudentCourseResult> studentCourseResults;
+    @BatchSize(size = 50)
+    private Set<StudentCourseResult> studentCourseResults;
 
     public Integer getId() {
         return id;
@@ -72,11 +75,11 @@ public class Student {
         this.scores = scores;
     }
 
-    public List<StudentCourseResult> getStudentCourseResults() {
+    public Set<StudentCourseResult> getStudentCourseResults() {
         return studentCourseResults;
     }
 
-    public void setStudentCourseResults(List<StudentCourseResult> studentCourseResults) {
+    public void setStudentCourseResults(Set<StudentCourseResult> studentCourseResults) {
         this.studentCourseResults = studentCourseResults;
     }
 

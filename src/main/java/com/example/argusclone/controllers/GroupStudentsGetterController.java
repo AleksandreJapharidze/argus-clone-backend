@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/courses/{courseId}/groups/{groupId}/students")
+@RequestMapping("/api/v1/groups/{groupId}/students")
 public class GroupStudentsGetterController {
     private final GroupStudentsService groupStudentsService;
 
@@ -20,7 +20,7 @@ public class GroupStudentsGetterController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<StudentResponse>> getStudentsInGroup(@PathVariable Integer courseId, @PathVariable Integer groupId) {
-        return ResponseEntity.ok(groupStudentsService.getStudentsByGroupIdAndCourseId(groupId, courseId));
+    public ResponseEntity<Iterable<StudentResponse>> getStudentsInGroup(@PathVariable Integer groupId) {
+        return ResponseEntity.ok(groupStudentsService.getStudentsByGroupId(groupId));
     }
 }

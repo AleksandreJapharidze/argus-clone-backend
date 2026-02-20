@@ -6,7 +6,7 @@ import com.example.argusclone.dtos.student.StudentResponse;
 import java.util.List;
 
 public interface GroupStudentsService {
-    List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId);
+    List<StudentResponse> getStudentsByGroupId(Integer groupId);
     GroupResponse assignStudentToGroup(Integer groupId, Integer studentId);
     void removeStudentFromGroup(Integer groupId, Integer studentId);
 }

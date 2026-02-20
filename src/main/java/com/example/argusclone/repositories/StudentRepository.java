@@ -18,6 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     int countStudentGroups(Integer studentId);
 
     @EntityGraph(attributePaths = {"groups"})
-    @Query("SELECT s FROM Student s JOIN s.groups g WHERE g.id = :groupId AND g.course.id = :courseId")
-    List<Student> findByGroupIdAndCourseId(Integer groupId, Integer courseId);
+    @Query("SELECT s FROM Student s JOIN s.groups g WHERE g.id = :groupId")
+    List<Student> findByGroupId(Integer groupId);
 }

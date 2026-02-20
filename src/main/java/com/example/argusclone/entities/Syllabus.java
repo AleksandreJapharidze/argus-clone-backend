@@ -7,6 +7,7 @@ import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Syllabus {
@@ -18,7 +19,7 @@ public class Syllabus {
     @CollectionTable(name = "syllabus_prerequisites", joinColumns = @JoinColumn(name = "syllabus_id"))
     @Column(name = "prerequisites")
     @BatchSize(size = 50)
-    private List<String> prerequisites;
+    private Set<String> prerequisites;
 
     private String courseMission;
 
@@ -54,11 +55,11 @@ public class Syllabus {
         return id;
     }
 
-    public List<String> getPrerequisites() {
+    public Set<String> getPrerequisites() {
         return prerequisites;
     }
 
-    public void setPrerequisites(List<String> prerequisites) {
+    public void setPrerequisites(Set<String> prerequisites) {
         this.prerequisites = prerequisites;
     }
 

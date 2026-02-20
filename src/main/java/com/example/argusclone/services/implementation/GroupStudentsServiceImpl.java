@@ -4,7 +4,10 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
+import com.example.argusclone.entities.StudentCourseResult;
+import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.exceptions.DuplicateResourceException;
+import com.example.argusclone.exceptions.OperationNotAllowedYetException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.TooManyResourcesException;
 import com.example.argusclone.mappers.GroupMapper;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupStudentsServiceImpl implements GroupStudentsService {
@@ -43,9 +48,9 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
-    @Cacheable(value = "STUDENT_CACHE_LIST", key = "'courseId: ' + #courseId + ', groupId: ' + #groupId")
-    public List<StudentResponse> getStudentsByGroupIdAndCourseId(Integer groupId, Integer courseId) {
-        List<Student> students = studentRepository.findByGroupIdAndCourseId(groupId, courseId);
+    @Cacheable(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
+    public List<StudentResponse> getStudentsByGroupId(Integer groupId) {
+        List<Student> students = studentRepository.findByGroupId(groupId);
 
         return students.stream()
                 .map(studentMapper::toResponse)
@@ -60,6 +65,8 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student " + studentId + " not found"));
+
+        checkPrerequisites(group, student);
 
         // 1. Check duplicate within this course
         if (groupRepository.countGroupsForStudentInCourse(group.getCourse().getId(), studentId) > 0) {
@@ -76,10 +83,35 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
         if (cache != null) {
-            cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
+            cache.evict("groupId: " + groupId);
         }
 
         return groupMapper.toResponse(groupRepository.save(group));
+    }
+
+    private void checkPrerequisites(Group group, Student student) {
+        Syllabus syllabus = group.getCourse().getSyllabus();
+        if (syllabus == null) {
+            throw new OperationNotAllowedYetException("Could not assign student to group: syllabus not created yet.");
+        }
+
+        Set<String> prerequisites = syllabus.getPrerequisites();
+        if (prerequisites == null || prerequisites.isEmpty()) {
+            return;
+        }
+
+        Set<StudentCourseResult> studentCourseResults = student.getStudentCourseResults();
+        if (studentCourseResults == null || studentCourseResults.isEmpty()) {
+            throw new OperationNotAllowedYetException("Could not assign student to group: prerequisites not met.");
+        }
+
+        Set<String> studentPassedCourses = studentCourseResults.stream()
+                .filter(result -> result.getHasPassed() == true)
+                .map(StudentCourseResult::getCourseName)
+                .collect(Collectors.toSet());
+        if (!studentPassedCourses.containsAll(prerequisites)) {
+            throw new OperationNotAllowedYetException("Could not assign student to group: prerequisites not met.");
+        }
     }
 
     @Override
@@ -100,7 +132,7 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
 
         Cache cache = cacheManager.getCache("STUDENT_CACHE_LIST");
         if (cache != null) {
-            cache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + groupId);
+            cache.evict("groupId: " + groupId);
         }
 
         groupRepository.save(group);

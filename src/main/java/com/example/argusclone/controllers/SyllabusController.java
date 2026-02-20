@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/syllabus")
@@ -37,7 +38,7 @@ public class SyllabusController {
 
     @PatchMapping("/prerequisites")
     public ResponseEntity<SyllabusResponse> updateCourseSyllabusPrerequisites(@PathVariable Integer courseId,
-                                                                              @RequestBody List<String> prerequisites) {
+                                                                              @RequestBody Set<String> prerequisites) {
         return ResponseEntity.ok(syllabusService.updatePrerequisitesByCourseId(courseId, prerequisites));
     }
 

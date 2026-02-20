@@ -90,7 +90,7 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
         Cache studentCache = cacheManager.getCache("STUDENT_CACHE_LIST");
         for (Group group : student.getGroups()) {
             if (studentCache != null) {
-                studentCache.evict("courseId: " + group.getCourse().getId() + ", groupId: " + group.getId());
+                studentCache.evict("groupId: " + group.getId());
             }
         }
 
