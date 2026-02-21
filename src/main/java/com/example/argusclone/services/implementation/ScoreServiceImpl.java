@@ -71,11 +71,6 @@ public class ScoreServiceImpl implements ScoreService {
                     return score;
                 })).toList();
 
-//        course.setScores(scoresSaved);
-//        course.getGroups()
-//                .forEach(group -> group.getStudents()
-//                .forEach(student -> student.setScores(scoresSaved)));
-
         return scoreRepository.saveAll(scoresSaved)
                 .stream()
                 .map(scoreMapper::toResponse)
