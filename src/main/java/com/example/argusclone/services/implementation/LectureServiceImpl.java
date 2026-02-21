@@ -109,7 +109,7 @@ public class LectureServiceImpl implements LectureService {
         int weekOffset = 0;
 
         while (true) {
-            boolean anyLectureGeneratedThisWeek = false;
+            boolean weekIsRelevant = false;
 
             for (int i = 0; i < lectures.size(); i++) {
                 CreateLectureRequest lecture = lectures.get(i);
@@ -119,17 +119,17 @@ public class LectureServiceImpl implements LectureService {
                     continue;
                 }
 
+                weekIsRelevant = true;
+
                 if (isHoliday(date)) {
                     continue;
                 }
 
                 Lecture newLecture = createLecture(lecture, date);
-
                 newLectures.add(newLecture);
-                anyLectureGeneratedThisWeek = true;
             }
 
-            if (!anyLectureGeneratedThisWeek) {
+            if (!weekIsRelevant) {
                 break;
             }
 
