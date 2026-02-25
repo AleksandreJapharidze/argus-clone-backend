@@ -58,7 +58,7 @@ public class StudentController {
     public ResponseEntity<StudentResponse> addStudent(@RequestBody CreateStudentRequest student) {
         StudentResponse savedStudent = studentAdditionDeletionService.createStudent(student);
 
-        URI location = URI.create("/api/v1/students/" + savedStudent.getId());
+        URI location = URI.create("/api/v1/students/" + savedStudent.id());
         return ResponseEntity.created(location).body(savedStudent);
     }
 

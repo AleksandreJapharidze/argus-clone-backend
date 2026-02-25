@@ -52,15 +52,15 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
     @Transactional
     @CachePut(value = "STUDENT_CACHE", key = "'id: ' + #result.id")
     public StudentResponse createStudent(CreateStudentRequest student) {
-        studentRepository.findByEmail(student.getEmail()).ifPresent(s -> {
-            throw new DuplicateResourceException("Student with email " + student.getEmail() + " already exists");
+        studentRepository.findByEmail(student.email()).ifPresent(s -> {
+            throw new DuplicateResourceException("Student with email " + student.email() + " already exists");
         });
 
         Student studentEntity = studentMapper.toEntity(student);
         Student savedStudent = studentRepository.save(studentEntity);
 
         String password = RandomPasswordGenerator.generateRandomPassword(8);
-        UserDataSaver.saveUser(new User(student.getEmail(), password, "Student"));
+        UserDataSaver.saveUser(new User(student.email(), password, "Student"));
 
         applicationEventPublisher.publishEvent(
                 new StudentCreationEvent(savedStudent.getName(), savedStudent.getEmail())
