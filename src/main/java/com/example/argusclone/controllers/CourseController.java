@@ -52,7 +52,7 @@ public class CourseController {
     public ResponseEntity<CourseResponse> addCourse(@RequestBody CreateCourseRequest course) {
         CourseResponse savedCourse = courseService.addCourse(course);
 
-        URI location = URI.create("/api/v1/courses/" + savedCourse.getId());
+        URI location = URI.create("/api/v1/courses/" + savedCourse.id());
         return ResponseEntity.created(location).body(savedCourse);
     }
 

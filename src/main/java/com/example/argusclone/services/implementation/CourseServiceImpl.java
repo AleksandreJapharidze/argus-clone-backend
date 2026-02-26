@@ -85,8 +85,8 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @CachePut(value = "COURSE_CACHE", key = "'id: ' + #result.id")
     public CourseResponse addCourse(CreateCourseRequest course) {
-        courseRepository.findByCourseCode(course.getCourseCode()).ifPresent(c -> {
-            throw new DuplicateResourceException("Course with code " + course.getCourseCode() + " already exists");
+        courseRepository.findByCourseCode(course.courseCode()).ifPresent(c -> {
+            throw new DuplicateResourceException("Course with code " + course.courseCode() + " already exists");
         });
 
         Course newCourse = courseMapper.toEntity(course);

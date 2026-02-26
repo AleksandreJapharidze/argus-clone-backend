@@ -29,7 +29,7 @@ public class CourseGroupController {
                                                      @RequestBody CreateGroupRequest group) {
         GroupResponse savedGroup = groupService.createGroup(courseId, group);
 
-        URI location = URI.create("/api/v1/groups/" + savedGroup.getId());
+        URI location = URI.create("/api/v1/groups/" + savedGroup.id());
         return ResponseEntity.created(location).body(savedGroup);
     }
 }

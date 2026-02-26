@@ -48,8 +48,9 @@ public class InstructorServiceImpl implements InstructorService {
     @Transactional
     @CachePut(value = "INSTRUCTOR_CACHE", key = "'id: ' + #result.getId()")
     public InstructorResponse addInstructor(CreateInstructorRequest instructor) {
-        instructorRepository.findByEmail(instructor.getEmail()).ifPresent(i -> {
-            throw new DuplicateResourceException("Instructor with email " + instructor.getEmail() + " already exists");
+        final String email = instructor.email();
+        instructorRepository.findByEmail(email).ifPresent(i -> {
+            throw new DuplicateResourceException("Instructor with email " + email + " already exists");
         });
 
         Instructor newInstructor = instructorMapper.toEntity(instructor);
@@ -57,10 +58,10 @@ public class InstructorServiceImpl implements InstructorService {
 
         String password = RandomPasswordGenerator.generateRandomPassword(8);
 
-        UserDataSaver.saveUser(new User(instructor.getEmail(), password, "Instructor"));
+        UserDataSaver.saveUser(new User(email, password, "Instructor"));
 
         applicationEventPublisher.publishEvent(
-                new UserCreationEvent(savedInstructor.getEmail(), password, "INSTRUCTOR")
+                new UserCreationEvent(email, password, "INSTRUCTOR")
         );
 
         return instructorMapper.toResponse(savedInstructor);

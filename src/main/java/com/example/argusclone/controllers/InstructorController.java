@@ -37,7 +37,7 @@ public class InstructorController {
     public ResponseEntity<InstructorResponse> addInstructor(@RequestBody CreateInstructorRequest instructor) {
         InstructorResponse savedInstructor = instructorService.addInstructor(instructor);
 
-        URI location = URI.create("/api/v1/instructors/" + savedInstructor.getId());
+        URI location = URI.create("/api/v1/instructors/" + savedInstructor.id());
         return ResponseEntity.created(location).body(savedInstructor);
     }
 

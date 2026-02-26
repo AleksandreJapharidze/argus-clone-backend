@@ -1,31 +1,4 @@
 package com.example.argusclone.dtos.instructor;
 
-public class CreateInstructorRequest {
-    private String name;
-    private String email;
-    private String academicRank;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAcademicRank() {
-        return academicRank;
-    }
-
-    public void setAcademicRank(String academicRank) {
-        this.academicRank = academicRank;
-    }
+public record CreateInstructorRequest(String name, String email, String academicRank) {
 }
