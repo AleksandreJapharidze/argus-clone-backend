@@ -10,8 +10,6 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.InstructorRepository;
 import com.example.argusclone.services.CourseInstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,10 +28,6 @@ public class CourseInstructorServiceImpl implements CourseInstructorService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "COURSE_CACHE_LIST", allEntries = true),
-            @CacheEvict(value = "COURSE_CACHE", key = "'id: ' + #courseId")
-    })
     public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -53,10 +47,6 @@ public class CourseInstructorServiceImpl implements CourseInstructorService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "COURSE_CACHE_LIST", allEntries = true),
-            @CacheEvict(value = "COURSE_CACHE", key = "'id: ' + #courseId")
-    })
     public void removeInstructorFromCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")

@@ -11,7 +11,10 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String courseName;
+
+    @Column(nullable = false, unique = true)
     private String courseCode;
 
     @ManyToMany
@@ -22,14 +25,14 @@ public class Course {
     )
     private Set<Instructor> instructors;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "syllabus_id")
     private Syllabus syllabus;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Group> groups;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Score> scores;
 
     public Integer getId() {

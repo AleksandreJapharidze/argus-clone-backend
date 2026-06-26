@@ -50,10 +50,7 @@ public class CourseController {
 
     @PostMapping
     public ResponseEntity<CourseResponse> addCourse(@RequestBody CreateCourseRequest course) {
-        CourseResponse savedCourse = courseService.addCourse(course);
-
-        URI location = URI.create("/api/v1/courses/" + savedCourse.id());
-        return ResponseEntity.created(location).body(savedCourse);
+        return ResponseEntity.status(201).body(courseService.addCourse(course));
     }
 
     @PostMapping("/{courseId}/scores")

@@ -33,7 +33,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    @Cacheable(value = "STUDENT_CACHE", key = "'id: ' + #id")
     public StudentResponse getStudentById(Integer id) {
         return studentMapper.toResponse(studentRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Student with an id of " + id + " not found")
@@ -55,7 +54,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    @Cacheable(value = "STUDENT_COURSE_RESULTS_CACHE", key = "'studentId: ' + #studentId")
     public List<StudentCourseResultResponse> getStudentCoursesResultsByStudentId(Integer studentId) {
         if (!studentRepository.existsById(studentId)) {
             throw new ResourceNotFoundException("Student with an id of " + studentId + " not found");

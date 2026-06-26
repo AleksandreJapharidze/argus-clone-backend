@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/groups")
 public class CourseGroupController {
@@ -27,9 +25,6 @@ public class CourseGroupController {
     @PostMapping
     public ResponseEntity<GroupResponse> createGroup(@PathVariable Integer courseId,
                                                      @RequestBody CreateGroupRequest group) {
-        GroupResponse savedGroup = groupService.createGroup(courseId, group);
-
-        URI location = URI.create("/api/v1/groups/" + savedGroup.id());
-        return ResponseEntity.created(location).body(savedGroup);
+        return ResponseEntity.status(201).body(groupService.createGroup(courseId, group));
     }
 }

@@ -15,24 +15,23 @@ import java.time.LocalTime;
 )
 public class Lecture {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_seq")
-    @SequenceGenerator(name = "lecture_seq", sequenceName = "lecture_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "lecture_date")
+    @Column(name = "lecture_date", nullable = false)
     private LocalDate lectureDate;
 
-    @Column(name = "lecture_start_time")
+    @Column(name = "lecture_start_time", nullable = false)
     private LocalTime lectureStartTime;
 
-    @Column(name = "lecture_end_time")
+    @Column(name = "lecture_end_time", nullable = false)
     private LocalTime lectureEndTime;
 
-    @Column(name = "room_number")
+    @Column(name = "room_number", nullable = false)
     private String roomNumber;
 
     @ManyToOne
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
     public Integer getId() {

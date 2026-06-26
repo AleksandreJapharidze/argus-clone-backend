@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,21 +32,18 @@ public class ScoreServiceImpl implements ScoreService {
     private final CourseRepository courseRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final ScoreMapper scoreMapper;
-    private final CacheManager cacheManager;
 
     @Autowired
     public ScoreServiceImpl(ScoreRepository scoreRepository, CourseRepository courseRepository,
                             StudentCourseResultRepository studentCourseResultRepository,
-                            ScoreMapper scoreMapper, CacheManager cacheManager) {
+                            ScoreMapper scoreMapper) {
         this.scoreRepository = scoreRepository;
         this.courseRepository = courseRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.scoreMapper = scoreMapper;
-        this.cacheManager = cacheManager;
     }
 
     @Override
-    @Cacheable(value = "SCORE_CACHE_LIST", key = "'studentId: ' + #studentId + ', courseId: ' + #courseId")
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {
         List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
         return scores.stream().map(scoreMapper::toResponse).toList();
@@ -97,11 +93,6 @@ public class ScoreServiceImpl implements ScoreService {
             saveOrUpdateCourseResult(scoreToUpdate, result);
         }
 
-        Cache cache = cacheManager.getCache("SCORE_CACHE_LIST");
-        if (cache != null) {
-            cache.evict("studentId: " + scoreToUpdate.getStudent().getId() + ", courseId: " + scoreToUpdate.getCourse().getId());
-        }
-
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
     }
 
@@ -134,11 +125,6 @@ public class ScoreServiceImpl implements ScoreService {
                             }
                             studentCourseResultRepository.save(result);
 
-                            Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
-                            if (cache != null) {
-                                cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
-                            }
-
                             log.info("Course result for student with id of {} and course with id of {} has been updated",
                                     scoreToUpdate.getStudent().getId(), scoreToUpdate.getCourse().getId());
                         },
@@ -152,11 +138,6 @@ public class ScoreServiceImpl implements ScoreService {
         result.setStudent(scoreToUpdate.getStudent());
         result.setCourseName(scoreToUpdate.getCourseName());
         result.setStudentName(scoreToUpdate.getStudentName());
-
-        Cache cache = cacheManager.getCache("STUDENT_COURSE_RESULTS_CACHE");
-        if (cache != null) {
-            cache.evict("studentId: " + scoreToUpdate.getStudent().getId());
-        }
 
         if (!meetsThreshold(scoreToUpdate, score)) {
             result.setHasPassed(false);
@@ -214,17 +195,6 @@ public class ScoreServiceImpl implements ScoreService {
     @Override
     @Transactional
     public void deleteScoresByCourseId(Integer courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        Cache cache = cacheManager.getCache("SCORE_CACHE_LIST");
-        course.getGroups().forEach(group -> group.getStudents().forEach(student -> {
-            if (cache != null) {
-                cache.evict("studentId: " + student.getId() + ", courseId: " + courseId);
-            }
-        }));
-
         scoreRepository.deleteByCourseId(courseId);
     }
 }

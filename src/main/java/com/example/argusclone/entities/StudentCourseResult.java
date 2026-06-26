@@ -12,9 +12,13 @@ public class StudentCourseResult {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @Column(nullable = false)
     private String studentName;
+
+    @Column(nullable = false)
     private String courseName;
 
+    @Column(nullable = false)
     private Boolean hasPassed;
     private Integer finalGrade;
 

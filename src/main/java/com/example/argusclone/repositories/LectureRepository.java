@@ -28,6 +28,8 @@ public interface LectureRepository extends JpaRepository<Lecture, Integer> {
     boolean existOverlappingLectureOrLectures(@Param("date") LocalDate date, @Param("startTime") LocalTime startTime,
                                               @Param("endTime") LocalTime endTime, @Param("roomNumber") String roomNumber);
 
+    long countByGroupId(Integer groupId);
+
     @Modifying
     @Query("DELETE FROM Lecture l WHERE l.group.id = :groupId")
     void deleteByGroupId(@Param("groupId") Integer groupId);

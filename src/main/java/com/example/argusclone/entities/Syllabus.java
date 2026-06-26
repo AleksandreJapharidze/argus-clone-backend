@@ -2,10 +2,12 @@ package com.example.argusclone.entities;
 
 import com.example.argusclone.entities.embeddable.CourseScheduleCycle;
 import com.example.argusclone.entities.embeddable.GradingWeight;
+import com.example.argusclone.entities.embeddable.Prerequisite;
 import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,76 +17,35 @@ public class Syllabus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ElementCollection
-    @CollectionTable(name = "syllabus_prerequisites", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @Column(name = "prerequisites")
-    @BatchSize(size = 50)
-    private Set<String> prerequisites;
-
-    private String courseMission;
-
-    @ElementCollection
-    @CollectionTable(name = "syllabus_teaching_methods", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @Column(name = "method")
-    @BatchSize(size = 50)
-    private List<String> teachingMethods;
-
-    @ElementCollection
-    @CollectionTable(name = "syllabus_topics", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @Column(name = "topic")
-    @BatchSize(size = 50)
-    private List<String> topics;
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL)
+    private Set<Prerequisite> prerequisites = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_grading_weights", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @OrderColumn(name = "position")
+    @OrderColumn(name = "grading_weight_order")
     @BatchSize(size = 50)
     private List<GradingWeight> gradingWeights = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "syllabus_course_schedule", joinColumns = @JoinColumn(name = "syllabus_id"))
-    @OrderColumn(name = "position")
+    @OrderColumn(name = "cycle_order")
     @BatchSize(size = 50)
     private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
     @OneToOne(mappedBy = "syllabus")
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     public Integer getId() {
         return id;
     }
 
-    public Set<String> getPrerequisites() {
+    public Set<Prerequisite> getPrerequisites() {
         return prerequisites;
     }
 
-    public void setPrerequisites(Set<String> prerequisites) {
+    public void setPrerequisites(Set<Prerequisite> prerequisites) {
         this.prerequisites = prerequisites;
-    }
-
-    public String getCourseMission() {
-        return courseMission;
-    }
-
-    public void setCourseMission(String courseMission) {
-        this.courseMission = courseMission;
-    }
-
-    public List<String> getTeachingMethods() {
-        return teachingMethods;
-    }
-
-    public void setTeachingMethods(List<String> teachingMethods) {
-        this.teachingMethods = teachingMethods;
-    }
-
-    public List<String> getTopics() {
-        return topics;
-    }
-
-    public void setTopics(List<String> topics) {
-        this.topics = topics;
     }
 
     public List<GradingWeight> getGradingWeights() {

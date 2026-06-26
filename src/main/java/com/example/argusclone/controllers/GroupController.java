@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -40,12 +39,9 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/lectures")
-    public ResponseEntity<Iterable<LectureResponse>> assignLecturesToGroup(@PathVariable Integer groupId,
-                                                               @RequestBody List<CreateLectureRequest> lectures) {
-        List<LectureResponse> savedLectures = lectureService.addLecturesToGroup(groupId, lectures);
-
-        URI location = URI.create("/api/v1/groups/" + groupId + "/lectures");
-        return ResponseEntity.created(location).body(savedLectures);
+    public ResponseEntity<String> assignLecturesToGroup(@PathVariable Integer groupId,
+                                                        @RequestBody List<CreateLectureRequest> lectures) {
+        return ResponseEntity.status(201).body(lectureService.addLecturesToGroup(groupId, lectures));
     }
 
     @PatchMapping("/{groupId}/students/{studentId}")

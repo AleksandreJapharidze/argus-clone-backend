@@ -2,10 +2,10 @@ package com.example.argusclone.dtos.syllabus;
 
 import com.example.argusclone.entities.embeddable.CourseScheduleCycle;
 import com.example.argusclone.entities.embeddable.GradingWeight;
+import com.example.argusclone.entities.embeddable.Prerequisite;
 
 import java.util.List;
+import java.util.Set;
 
-public record SyllabusResponse(Integer id, List<String> prerequisites, String courseMission, List<String> teachingMethods,
-                               List<String> topics, List<GradingWeight> gradingWeights, List<CourseScheduleCycle> courseSchedule) {
-
+public record SyllabusResponse(Integer id, Set<Prerequisite> prerequisites, Set<GradingWeight> gradingWeights, List<CourseScheduleCycle> courseSchedule) {
 }

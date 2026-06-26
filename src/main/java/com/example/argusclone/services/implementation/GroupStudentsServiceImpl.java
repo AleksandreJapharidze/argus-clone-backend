@@ -6,6 +6,7 @@ import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
 import com.example.argusclone.entities.StudentCourseResult;
 import com.example.argusclone.entities.Syllabus;
+import com.example.argusclone.entities.embeddable.Prerequisite;
 import com.example.argusclone.exceptions.*;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.StudentMapper;
@@ -13,8 +14,6 @@ import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,6 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
-    @Cacheable(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
     public List<StudentResponse> getStudentsByGroupId(Integer groupId) {
         List<Student> students = studentRepository.findByGroupId(groupId);
 
@@ -49,7 +47,6 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
-    @CacheEvict(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
     @Transactional
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId)
@@ -82,7 +79,9 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
             throw new OperationNotAllowedYetException("Could not assign student to group: syllabus not created yet.");
         }
 
-        Set<String> prerequisites = syllabus.getPrerequisites();
+        Set<String> prerequisites = syllabus.getPrerequisites().stream()
+                .map(Prerequisite::getPrerequisite)
+                .collect(Collectors.toSet());
         if (prerequisites == null || prerequisites.isEmpty()) {
             return;
         }
@@ -102,7 +101,6 @@ public class GroupStudentsServiceImpl implements GroupStudentsService {
     }
 
     @Override
-    @CacheEvict(value = "STUDENT_CACHE_LIST", key = "'groupId: ' + #groupId")
     public void removeStudentFromGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group " + groupId + " not found")

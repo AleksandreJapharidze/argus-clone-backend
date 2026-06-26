@@ -10,5 +10,4 @@ public interface GroupService {
     GroupResponse getGroupById(Integer id);
     GroupResponse createGroup(Integer courseId, CreateGroupRequest group);
     void deleteGroupById(Integer id);
-    void deleteGroupCachesByCourseId(Integer courseId);
 }

@@ -5,23 +5,32 @@ import jakarta.persistence.*;
 @Entity
 public class Score {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "score_seq")
-    @SequenceGenerator(name = "score_seq", sequenceName = "score_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String component;
+
+    @Column(nullable = false)
     private Integer score;
+
+    @Column(nullable = false)
     private Integer maxScore;
+
     private Integer threshold;
+
+    @Column(nullable = false)
     private String courseName;
+
+    @Column(nullable = false)
     private String studentName;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     @ManyToOne
-    @JoinColumn(name = "student_id")
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
     public Integer getId() {

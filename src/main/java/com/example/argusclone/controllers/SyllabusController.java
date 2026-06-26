@@ -3,6 +3,7 @@ package com.example.argusclone.controllers;
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.embeddable.GradingWeight;
+import com.example.argusclone.entities.embeddable.Prerequisite;
 import com.example.argusclone.services.SyllabusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,26 +39,8 @@ public class SyllabusController {
 
     @PatchMapping("/prerequisites")
     public ResponseEntity<SyllabusResponse> updateCourseSyllabusPrerequisites(@PathVariable Integer courseId,
-                                                                              @RequestBody Set<String> prerequisites) {
+                                                                              @RequestBody Set<Prerequisite> prerequisites) {
         return ResponseEntity.ok(syllabusService.updatePrerequisitesByCourseId(courseId, prerequisites));
-    }
-
-    @PatchMapping("/course-mission")
-    public ResponseEntity<SyllabusResponse> updateSyllabusCourseMission(@PathVariable Integer courseId,
-                                                                        @RequestParam String courseMission) {
-        return ResponseEntity.ok(syllabusService.updateCourseMissionByCourseId(courseId, courseMission));
-    }
-
-    @PatchMapping("/teaching-methods")
-    public ResponseEntity<SyllabusResponse> updateSyllabusTeachingMethods(@PathVariable Integer courseId,
-                                                                          @RequestBody List<String> teachingMethods) {
-        return ResponseEntity.ok(syllabusService.updateTeachingMethodsByCourseId(courseId, teachingMethods));
-    }
-
-    @PatchMapping("/topics")
-    public ResponseEntity<SyllabusResponse> updateCourseSyllabusTopics(@PathVariable Integer courseId,
-                                                                   @RequestBody List<String> topics) {
-        return ResponseEntity.ok(syllabusService.updateTopicsByCourseId(courseId, topics));
     }
 
     @PatchMapping("/grading-weights")

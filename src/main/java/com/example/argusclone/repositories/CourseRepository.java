@@ -1,5 +1,6 @@
 package com.example.argusclone.repositories;
 
+import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.entities.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,9 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    @Override
-    @EntityGraph(attributePaths = {"instructors"})
-    Optional<Course> findById(Integer id);
+    Optional<CourseResponse> getCourseById(Integer id);
 
     @Override
     @EntityGraph(attributePaths = {"instructors"})
@@ -27,7 +26,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "LOWER(c.courseName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.courseCode) LIKE LOWER(CONCAT('%', :keyword, '%'))"
     )
-    List<Course> searchCourses(String keyword);
+    List<CourseResponse> searchCourses(String keyword);
 
     @EntityGraph(attributePaths = {"instructors"})
     Optional<Course> findByCourseCode(String courseCode);
