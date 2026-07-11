@@ -22,4 +22,6 @@ public interface ScoreRepository extends JpaRepository<Score, Integer> {
     @Modifying
     @Query("DELETE FROM Score s WHERE s.student.id = :studentId")
     void deleteByStudentId(@Param("studentId") Integer studentId);
+
+    boolean existsByCourseId(Integer courseId);
 }

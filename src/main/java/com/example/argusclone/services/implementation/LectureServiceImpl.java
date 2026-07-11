@@ -3,6 +3,7 @@ package com.example.argusclone.services.implementation;
 import com.example.argusclone.dtos.lecture.CreateLectureRequest;
 import com.example.argusclone.dtos.lecture.LectureResponse;
 import com.example.argusclone.entities.Course;
+import com.example.argusclone.entities.Lecture;
 import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.exceptions.ScheduleConflictException;
@@ -11,38 +12,40 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import com.example.argusclone.services.LectureService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class LectureServiceImpl implements LectureService {
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final LectureRepository lectureRepository;
     private final GroupRepository groupRepository;
     private final CourseRepository courseRepository;
     private final LectureMapper lectureMapper;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public LectureServiceImpl(LectureRepository lectureRepository,
                               GroupRepository groupRepository,
                               CourseRepository courseRepository,
-                              LectureMapper lectureMapper) {
+                              LectureMapper lectureMapper,
+                              JdbcTemplate jdbcTemplate) {
         this.lectureRepository = lectureRepository;
         this.groupRepository = groupRepository;
         this.courseRepository = courseRepository;
         this.lectureMapper = lectureMapper;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -68,10 +71,21 @@ public class LectureServiceImpl implements LectureService {
             throw new ScheduleConflictException("Group with id " + groupId + " already has lectures");
         }
 
-        String nativeStatement = setupNativeStatement(lectures, groupId);
+        List<Lecture> lecturesForSemester = generateLecturesForSemester(lectures);
 
         try {
-            entityManager.createNativeQuery(nativeStatement).executeUpdate();
+            jdbcTemplate.batchUpdate(
+                    "INSERT INTO lecture (lecture_date, lecture_start_time, lecture_end_time, room_number, group_id) VALUES (?, ?, ?, ?, ?)",
+                    lecturesForSemester,
+                    100,
+                    (ps, row) -> {
+                        ps.setObject(1, Date.valueOf(row.getLectureDate()));
+                        ps.setObject(2, Time.valueOf(row.getLectureStartTime()));
+                        ps.setTime(3, Time.valueOf(row.getLectureEndTime()));
+                        ps.setString(4, row.getRoomNumber());
+                        ps.setInt(5, groupId);
+                    }
+            );
         } catch (DataIntegrityViolationException e) {
             throw new ScheduleConflictException("Lecture or lectures conflict with an existing scheduled lecture");
         } catch (Exception e) {
@@ -81,7 +95,7 @@ public class LectureServiceImpl implements LectureService {
         return "Lectures added to group with id " + groupId + " successfully.";
     }
 
-    private String setupNativeStatement(List<CreateLectureRequest> lectures, Integer groupId) {
+    private List<Lecture> generateLecturesForSemester(List<CreateLectureRequest> lectures) {
         if (theseLecturesOverlapStreamVersion(lectures)) {
             throw new ScheduleConflictException("Two or more of these lectures overlap.");
         }
@@ -98,9 +112,7 @@ public class LectureServiceImpl implements LectureService {
         }
 
         LocalDate lastSemesterDay = getDateOfTheLastSemesterDay();
-
-        StringBuilder sb = new StringBuilder(1000);
-        sb.append("INSERT INTO lecture (lecture_date, lecture_start_time, lecture_end_time, room_number, group_id) VALUES ");
+        List<Lecture> newLectures = new ArrayList<>();
 
         int weekOffset = 0;
 
@@ -121,22 +133,27 @@ public class LectureServiceImpl implements LectureService {
                     continue;
                 }
 
-                sb.append("('").append(date).append("', '")
-                        .append(lecture.getLectureStartTime()).append("', '")
-                        .append(lecture.getLectureEndTime()).append("', '")
-                        .append(lecture.getRoomNumber()).append("', ")
-                        .append(groupId).append("), ");
+                Lecture newLecture = createLecture(lecture, date);
+                newLectures.add(newLecture);
             }
 
             if (!weekIsRelevant) {
-                sb.deleteCharAt(sb.length() - 2);
                 break;
             }
 
             weekOffset++;
         }
 
-        return sb.toString();
+        return newLectures;
+    }
+
+    private Lecture createLecture(CreateLectureRequest lectureRequest, LocalDate date) {
+        Lecture lecture = lectureMapper.toEntity(lectureRequest);
+        lecture.setLectureDate(date);
+        lecture.setLectureStartTime(lectureRequest.getLectureStartTime());
+        lecture.setLectureEndTime(lectureRequest.getLectureEndTime());
+        lecture.setRoomNumber(lectureRequest.getRoomNumber());
+        return lecture;
     }
 
     private void validateNoLectureCollisions(List<CreateLectureRequest> lectures) {
@@ -243,7 +260,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     private boolean isHoliday(LocalDate date) {
-        return date.isAfter(LocalDate.of(2025, 12, 24)) && date.isBefore(LocalDate.of(2026, 1, 8));
+        return (date.getMonthValue() == 12 && date.getDayOfMonth() >= 25) || (date.getMonthValue() == 1 && date.getDayOfMonth() <= 7);
     }
 
     @Override

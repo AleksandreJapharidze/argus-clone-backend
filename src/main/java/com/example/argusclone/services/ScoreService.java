@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ScoreService {
     List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId);
-    List<ScoreResponse> generateEmptyListsOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores);
+    String generateEmptyListsOfScoresForStudentsByCourseId(Integer courseId, List<CreateScoreRequest> scores);
     ScoreResponse updateScoreById(Integer scoreId, Integer score);
     void deleteScoresByCourseId(Integer courseId);
 }

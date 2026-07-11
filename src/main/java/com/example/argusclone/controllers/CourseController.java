@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -44,7 +43,7 @@ public class CourseController {
 
     @GetMapping("/{courseId}/scores")
     public ResponseEntity<Iterable<ScoreResponse>> getStudentScoresByCourseId(@PathVariable Integer courseId,
-                                                                               @RequestParam Integer studentId) {
+                                                                              @RequestParam Integer studentId) {
         return ResponseEntity.ok(scoreService.getStudentScoresByCourseId(courseId, studentId));
     }
 
@@ -54,8 +53,8 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/scores")
-    public ResponseEntity<Iterable<ScoreResponse>> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
-                                                                                                  @RequestBody List<CreateScoreRequest> scores) {
+    public ResponseEntity<String> generateEmptyListOfScoresForStudentsByCourseId(@PathVariable Integer courseId,
+                                                                                 @RequestBody List<CreateScoreRequest> scores) {
         return ResponseEntity.ok(scoreService.generateEmptyListsOfScoresForStudentsByCourseId(courseId, scores));
     }
 }

@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    Optional<CourseResponse> getCourseById(Integer id);
+    Optional<Course> getCourseById(Integer id);
 
     @Override
     @EntityGraph(attributePaths = {"instructors"})

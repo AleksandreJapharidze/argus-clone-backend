@@ -7,6 +7,7 @@ import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.entities.embeddable.GradingWeight;
 import com.example.argusclone.entities.embeddable.Prerequisite;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.exceptions.ValidationException;
 import com.example.argusclone.mappers.SyllabusMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.SyllabusRepository;
@@ -46,6 +47,10 @@ public class SyllabusServiceImpl implements SyllabusService {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new RuntimeException("Course with an id of " + courseId + " not found")
         );
+
+        if (syllabusRepository.existsByCourseId(courseId)) {
+            throw new ValidationException("Syllabus already exists for this course");
+        }
 
         Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
         course.setSyllabus(newSyllabus);

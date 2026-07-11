@@ -33,9 +33,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse getCourseById(Integer id) {
-        return courseRepository.getCourseById(id).orElseThrow(
+        return courseMapper.toResponse(courseRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
-        );
+        ));
     }
 
     @Override

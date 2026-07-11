@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface SyllabusRepository extends JpaRepository<Syllabus, Integer> {
     @EntityGraph(attributePaths = {"course", "courseSchedule"})
     Optional<Syllabus> findByCourseId(Integer courseId);
+    boolean existsByCourseId(Integer courseId);
 }

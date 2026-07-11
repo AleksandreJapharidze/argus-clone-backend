@@ -74,6 +74,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(422).body(getErrorDetails(exception, request));
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> ValidationException(
+            ValidationException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(422).body(getErrorDetails(exception, request));
+    }
+
     private Map<String, Object> getErrorDetails(Exception exception, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", new Date());
