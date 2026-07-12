@@ -53,13 +53,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(422).body(getErrorDetails(exception, request));
     }
 
-    @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<?> handleHttpClientErrorException(
-            HttpClientErrorException exception, WebRequest request
-    ) {
-        return ResponseEntity.status(400).body(getErrorDetails(exception, request));
-    }
-
     @ExceptionHandler(OperationNotAllowedYetException.class)
     public ResponseEntity<?> handleOperationNotAllowedYetException(
             OperationNotAllowedYetException exception, WebRequest request

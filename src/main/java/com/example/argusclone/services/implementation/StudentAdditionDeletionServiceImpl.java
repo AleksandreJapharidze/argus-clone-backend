@@ -10,7 +10,6 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentAdditionDeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class StudentAdditionDeletionServiceImpl implements StudentAdditionDeleti
 
     @Override
     @Transactional
-    @CachePut(value = "STUDENT_CACHE", key = "'id: ' + #result.id")
     public StudentResponse createStudent(CreateStudentRequest student) {
         studentRepository.findByEmail(student.email()).ifPresent(s -> {
             throw new DuplicateResourceException("Student with email " + student.email() + " already exists");

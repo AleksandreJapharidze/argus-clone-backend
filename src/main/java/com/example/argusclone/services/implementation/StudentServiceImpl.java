@@ -9,7 +9,6 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import com.example.argusclone.repositories.StudentRepository;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

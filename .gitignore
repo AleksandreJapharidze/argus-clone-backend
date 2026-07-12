@@ -1,5 +1,4 @@
 HELP.md
-real_user_data/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
