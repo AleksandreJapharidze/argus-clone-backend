@@ -2,15 +2,71 @@ package com.example.argusclone.services;
 
 import com.example.argusclone.dtos.syllabus.SyllabusRequest;
 import com.example.argusclone.dtos.syllabus.SyllabusResponse;
+import com.example.argusclone.entities.Course;
+import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.entities.embeddable.GradingWeight;
 import com.example.argusclone.entities.embeddable.Prerequisite;
+import com.example.argusclone.exceptions.ResourceNotFoundException;
+import com.example.argusclone.exceptions.ValidationException;
+import com.example.argusclone.mappers.SyllabusMapper;
+import com.example.argusclone.repositories.CourseRepository;
+import com.example.argusclone.repositories.SyllabusRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 
-public interface SyllabusService {
-    SyllabusResponse getSyllabusByCourseId(Integer courseId);
-    SyllabusResponse addSyllabusToCourse(Integer courseId, SyllabusRequest syllabus);
-    SyllabusResponse updatePrerequisitesByCourseId(Integer courseId, Set<Prerequisite> prerequisites);
-    SyllabusResponse updateGradingWeightsByCourseId(Integer courseId, List<GradingWeight> gradingWeights);
+@Service
+public class SyllabusService {
+    private final SyllabusRepository syllabusRepository;
+    private final CourseRepository courseRepository;
+    private final SyllabusMapper syllabusMapper;
+
+    public SyllabusService(SyllabusRepository syllabusRepository,
+                           CourseRepository courseRepository,
+                           SyllabusMapper syllabusMapper) {
+        this.syllabusRepository = syllabusRepository;
+        this.courseRepository = courseRepository;
+        this.syllabusMapper = syllabusMapper;
+    }
+
+    public SyllabusResponse getSyllabusByCourseId(Integer courseId) {
+        Syllabus syllabus = syllabusRepository.findByCourseId(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found")
+        );
+
+        return syllabusMapper.toResponse(syllabus);
+    }
+
+    public SyllabusResponse addSyllabusToCourse(Integer courseId, SyllabusRequest syllabus) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new RuntimeException("Course with an id of " + courseId + " not found")
+        );
+
+        if (syllabusRepository.existsByCourseId(courseId)) {
+            throw new ValidationException("Syllabus already exists for this course");
+        }
+
+        Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
+        course.setSyllabus(newSyllabus);
+        return syllabusMapper.toResponse(syllabusRepository.save(newSyllabus));
+    }
+
+    public SyllabusResponse updatePrerequisitesByCourseId(Integer courseId, Set<Prerequisite> prerequisites) {
+        Syllabus syllabus = syllabusRepository.findByCourseId(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found")
+        );
+
+        syllabus.setPrerequisites(prerequisites);
+        return syllabusMapper.toResponse(syllabusRepository.save(syllabus));
+    }
+
+    public SyllabusResponse updateGradingWeightsByCourseId(Integer courseId, List<GradingWeight> gradingWeights) {
+        Syllabus syllabus = syllabusRepository.findByCourseId(courseId).orElseThrow(
+                () -> new ResourceNotFoundException("Syllabus for course with id " + courseId + " not found")
+        );
+
+        syllabus.setGradingWeights(gradingWeights);
+        return syllabusMapper.toResponse(syllabusRepository.save(syllabus));
+    }
 }
