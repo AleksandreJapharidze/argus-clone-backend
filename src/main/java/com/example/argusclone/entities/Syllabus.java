@@ -32,7 +32,7 @@ public class Syllabus {
     @BatchSize(size = 50)
     private List<CourseScheduleCycle> courseSchedule = new ArrayList<>();
 
-    @OneToOne(mappedBy = "syllabus")
+    @OneToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 

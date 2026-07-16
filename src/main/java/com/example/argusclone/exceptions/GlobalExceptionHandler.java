@@ -61,17 +61,38 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PrerequisitesNotMetException.class)
-    public ResponseEntity<?> PrerequisitesNotMetException(
+    public ResponseEntity<?> handlePrerequisitesNotMetException(
             PrerequisitesNotMetException exception, WebRequest request
     ) {
         return ResponseEntity.status(422).body(getErrorDetails(exception, request));
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<?> ValidationException(
+    public ResponseEntity<?> handleValidationException(
             ValidationException exception, WebRequest request
     ) {
         return ResponseEntity.status(422).body(getErrorDetails(exception, request));
+    }
+
+    @ExceptionHandler(JwtGenerationException.class)
+    public ResponseEntity<?> handleJwtGenerationException(
+            JwtGenerationException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(401).body(getErrorDetails(exception, request));
+    }
+
+    @ExceptionHandler(AlreadyPresentException.class)
+    public ResponseEntity<?> handleAlreadyPresentException(
+            AlreadyPresentException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(400).body(getErrorDetails(exception, request));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(
+            IllegalArgumentException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(400).body(getErrorDetails(exception, request));
     }
 
     private Map<String, Object> getErrorDetails(Exception exception, WebRequest request) {

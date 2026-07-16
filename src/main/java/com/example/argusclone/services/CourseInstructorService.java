@@ -11,6 +11,8 @@ import com.example.argusclone.repositories.InstructorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CourseInstructorService {
     private final CourseRepository courseRepository;
@@ -59,5 +61,9 @@ public class CourseInstructorService {
 
         course.getInstructors().remove(instructor);
         courseRepository.save(course);
+    }
+
+    protected List<Integer> getCourseIdsByInstructorId(Integer instructorId) {
+        return courseRepository.findAllCourseIdsByInstructorId(instructorId);
     }
 }

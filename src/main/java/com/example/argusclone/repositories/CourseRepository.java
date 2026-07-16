@@ -39,4 +39,12 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     @EntityGraph(attributePaths = "instructors")
     @Query("SELECT DISTINCT c FROM Course c JOIN c.instructors i WHERE i.id = :instructorId")
     List<Course> findAllByInstructorId(@Param("instructorId") Integer instructorId);
+
+    @Query("SELECT DISTINCT c.id FROM Course c JOIN c.instructors i WHERE i.id = :instructorId")
+    List<Integer> findAllCourseIdsByInstructorId(Integer instructorId);
+
+//    String query = "SELECT DISTINCT c.id FROM Course c JOIN c.groups g JOIN g.students s WHERE s.id = :studentId";
+
+    @Query("SELECT DISTINCT c.id FROM Course c JOIN c.groups g JOIN g.students s WHERE s.id = :studentId")
+    List<Integer> findAllCourseIdsByStudentId(@Param("studentId") Integer studentId);
 }
