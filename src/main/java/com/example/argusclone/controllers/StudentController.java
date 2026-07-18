@@ -9,6 +9,9 @@ import com.example.argusclone.services.StudentAdditionDeletionService;
 import com.example.argusclone.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -34,8 +37,17 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     @GetMapping("/{id}/courses")
-    public ResponseEntity<Iterable<CourseResponse>> getCoursesByStudentId(@PathVariable Integer id) {
+    public ResponseEntity<Iterable<CourseResponse>> getCoursesByStudentId(@PathVariable Integer id,
+                                                                          @AuthenticationPrincipal Jwt jwt) {
+        if ("ROLE_STUDENT".equals(jwt.getClaimAsString("role"))) {
+            Long studentIdFromToken = jwt.hasClaim("roleId") ? jwt.getClaim("roleId") : null;
+            if (studentIdFromToken == null || !id.equals(studentIdFromToken.intValue())) {
+                return ResponseEntity.status(403).body(null);
+            }
+        }
+
         return ResponseEntity.ok(courseService.getCoursesByStudentId(id));
     }
 
@@ -49,11 +61,21 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentByEmail(email));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     @GetMapping("/{studentId}/courses-results")
-    public ResponseEntity<Iterable<StudentCourseResultResponse>> getStudentCourseResults(@PathVariable Integer studentId) {
+    public ResponseEntity<Iterable<StudentCourseResultResponse>> getStudentCourseResults(@PathVariable Integer studentId,
+                                                                                         @AuthenticationPrincipal Jwt jwt) {
+        if ("ROLE_STUDENT".equals(jwt.getClaimAsString("role"))) {
+            Long studentIdFromToken = jwt.hasClaim("roleId") ? jwt.getClaim("roleId") : null;
+            if (studentIdFromToken == null || !studentId.equals(studentIdFromToken.intValue())) {
+                return ResponseEntity.status(403).body(null);
+            }
+        }
+
         return ResponseEntity.ok(studentService.getStudentCoursesResultsByStudentId(studentId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<StudentResponse> addStudent(@RequestBody CreateStudentRequest student) {
         StudentResponse savedStudent = studentAdditionDeletionService.createStudent(student);
@@ -62,6 +84,7 @@ public class StudentController {
         return ResponseEntity.created(location).body(savedStudent);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudentById(@PathVariable Integer id) {
         studentAdditionDeletionService.deleteStudentById(id);

@@ -48,7 +48,7 @@ public class SyllabusService {
         }
 
         Syllabus newSyllabus = syllabusMapper.toEntity(syllabus);
-        course.setSyllabus(newSyllabus);
+        newSyllabus.setCourse(course);
         return syllabusMapper.toResponse(syllabusRepository.save(newSyllabus));
     }
 

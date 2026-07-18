@@ -4,6 +4,9 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.dtos.student.StudentResponse;
 import com.example.argusclone.services.GroupStudentsService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,15 +23,31 @@ public class GroupStudentController {
         return ResponseEntity.ok(groupStudentsService.getStudentsByGroupId(groupId));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     @PatchMapping("/{studentId}")
     public ResponseEntity<GroupResponse> assignStudentToGroup(@PathVariable Integer groupId,
-                                                              @PathVariable Integer studentId) {
+                                                              @PathVariable Integer studentId,
+                                                              @AuthenticationPrincipal Jwt jwt) {
+        if ("ROLE_STUDENT".equals(jwt.getClaimAsString("role"))) {
+            Long studentIdFromToken = jwt.hasClaim("roleId") ? jwt.getClaim("roleId") : null;
+            if (studentIdFromToken == null || !studentId.equals(studentIdFromToken.intValue())) {
+                return ResponseEntity.status(403).body(null);
+            }
+        }
         return ResponseEntity.ok(groupStudentsService.assignStudentToGroup(groupId, studentId));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     @DeleteMapping("/{studentId}")
     public ResponseEntity<Void> removeStudentFromGroup(@PathVariable Integer groupId,
-                                                       @PathVariable Integer studentId) {
+                                                       @PathVariable Integer studentId,
+                                                       @AuthenticationPrincipal Jwt jwt) {
+        if ("ROLE_STUDENT".equals(jwt.getClaimAsString("role"))) {
+            Long studentIdFromToken = jwt.hasClaim("roleId") ? jwt.getClaim("roleId") : null;
+            if (studentIdFromToken == null || !studentId.equals(studentIdFromToken.intValue())) {
+                return ResponseEntity.status(403).body(null);
+            }
+        }
         groupStudentsService.removeStudentFromGroup(groupId, studentId);
         return ResponseEntity.noContent().build();
     }

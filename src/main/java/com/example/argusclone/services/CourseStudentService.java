@@ -13,7 +13,7 @@ public class CourseStudentService {
         this.courseRepository = courseRepository;
     }
 
-    protected List<Integer> getCourseIdsByStudentId(Integer studentId) {
+    public List<Integer> getCourseIdsByStudentId(Integer studentId) {
         return courseRepository.findAllCourseIdsByStudentId(studentId);
     }
 }

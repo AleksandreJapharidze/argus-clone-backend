@@ -63,7 +63,11 @@ public class CourseInstructorService {
         courseRepository.save(course);
     }
 
-    protected List<Integer> getCourseIdsByInstructorId(Integer instructorId) {
+    public List<Integer> getCourseIdsByInstructorId(Integer instructorId) {
         return courseRepository.findAllCourseIdsByInstructorId(instructorId);
+    }
+
+    public List<Integer> getInstructorIdsByCourseId(Integer courseId) {
+        return instructorRepository.findInstructorIdsByCourseId(courseId);
     }
 }

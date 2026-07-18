@@ -42,6 +42,10 @@ public class GroupStudentsService {
                 .toList();
     }
 
+    public List<Integer> getAllGroupIdsByStudentId(Integer studentId) {
+        return groupRepository.findAllGroupIdsByStudentId(studentId);
+    }
+
     @Transactional
     public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId)

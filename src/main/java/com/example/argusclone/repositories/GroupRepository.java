@@ -21,4 +21,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Modifying
     @Query("DELETE FROM Group g WHERE g.course.id = :courseId")
     void deleteByCourseId(@Param("courseId") Integer courseId);
+
+    @Query("SELECT DISTINCT g.id FROM Group g JOIN g.students s WHERE s.id = :studentId")
+    List<Integer> findAllGroupIdsByStudentId(Integer studentId);
 }

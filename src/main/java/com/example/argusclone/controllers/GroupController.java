@@ -4,6 +4,7 @@ import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.getGroupById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroupById(@PathVariable Integer id) {
         groupService.deleteGroupById(id);

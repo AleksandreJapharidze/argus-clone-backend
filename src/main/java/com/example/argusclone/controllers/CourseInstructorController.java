@@ -4,6 +4,7 @@ import com.example.argusclone.dtos.course.CourseResponse;
 import com.example.argusclone.services.CourseInstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,12 +17,14 @@ public class CourseInstructorController {
         this.courseInstructorService = courseInstructorService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{instructorId}")
     public ResponseEntity<CourseResponse> assignInstructorToCourse(@PathVariable Integer courseId,
                                                                    @PathVariable Integer instructorId) {
         return ResponseEntity.ok(courseInstructorService.assignInstructorToCourse(courseId, instructorId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{instructorId}")
     public ResponseEntity<Void> removeInstructorFromCourse(@PathVariable Integer courseId,
                                                            @PathVariable Integer instructorId) {

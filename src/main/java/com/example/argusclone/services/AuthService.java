@@ -6,23 +6,16 @@ import com.example.argusclone.util.JwtUtil;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
 public class AuthService {
     private final UserDetailsService userDetailsService;
-    private final CourseInstructorService courseInstructorService;
-    private final CourseStudentService courseStudentService;
     private final JwtUtil jwtUtil;
 
     public AuthService(UserDetailsService userDetailsService,
-                       CourseInstructorService courseInstructorService,
-                       CourseStudentService courseStudentService,
                        JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
-        this.courseInstructorService = courseInstructorService;
-        this.courseStudentService = courseStudentService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -40,26 +33,24 @@ public class AuthService {
             throw new JwtGenerationException("User is without role.");
         }
 
-        if ("ROLE_ADMIN".equals(role)) {
-            return getAdminClaims(user);
+        if ("ADMIN".equals(role)) {
+            return getAdminClaims();
         }
 
-        return "ROLE_INSTRUCTOR".equals(role) ? getInstructorClaims(user) : getStudentClaims(user);
+        return "INSTRUCTOR".equals(role) ? getInstructorClaims(user) : getStudentClaims(user);
     }
 
     private Map<String, Object> getStudentClaims(User user) {
         Integer roleId = user.getRoleId();
-        List<Integer> courseIds = courseStudentService.getCourseIdsByStudentId(roleId);
-        return Map.of("role", "ROLE_STUDENT", "roleId", roleId, "courseIds", courseIds);
+        return Map.of("role", "STUDENT", "roleId", roleId);
     }
 
     private Map<String, Object> getInstructorClaims(User user) {
         Integer roleId = user.getRoleId();
-        List<Integer> courseIds = courseInstructorService.getCourseIdsByInstructorId(roleId);
-        return Map.of("role", "ROLE_INSTRUCTOR", "roleId", roleId, "courseIds", courseIds);
+        return Map.of("role", "INSTRUCTOR", "roleId", roleId);
     }
 
-    private Map<String, Object> getAdminClaims(User user) {
-        return Map.of("role", "ROLE_ADMIN");
+    private Map<String, Object> getAdminClaims() {
+        return Map.of("role", "ADMIN");
     }
 }

@@ -95,6 +95,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(getErrorDetails(exception, request));
     }
 
+    @ExceptionHandler(NotAMemberException.class)
+    public ResponseEntity<?> handleMembershipException(
+            NotAMemberException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(403).body(getErrorDetails(exception, request));
+    }
+
     private Map<String, Object> getErrorDetails(Exception exception, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", new Date());

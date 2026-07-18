@@ -28,7 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     @Value("${jwt.secret}")
-    String secret;
+    private String secret;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -66,6 +66,7 @@ public class SecurityConfig {
         JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
 
         converter.setAuthoritiesClaimName("role");
+        converter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);

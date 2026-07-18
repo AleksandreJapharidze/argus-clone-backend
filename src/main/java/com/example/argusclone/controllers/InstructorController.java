@@ -7,6 +7,9 @@ import com.example.argusclone.services.CourseService;
 import com.example.argusclone.services.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,11 +31,21 @@ public class InstructorController {
         return ResponseEntity.ok(instructorService.getInstructorById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('INSTRUCTOR')")
     @GetMapping("/{id}/courses")
-    public ResponseEntity<Iterable<CourseResponse>> getCoursesByInstructorId(@PathVariable Integer id) {
+    public ResponseEntity<Iterable<CourseResponse>> getCoursesByInstructorId(@PathVariable Integer id,
+                                                                             @AuthenticationPrincipal Jwt jwt) {
+        if ("ROLE_INSTRUCTOR".equals(jwt.getClaimAsString("role"))) {
+            Long instructorIdFromToken = jwt.hasClaim("roleId") ? jwt.getClaim("roleId") : null;
+            if (instructorIdFromToken == null || !id.equals(instructorIdFromToken.intValue())) {
+                return ResponseEntity.status(403).body(null);
+            }
+        }
+
         return ResponseEntity.ok(courseService.getCoursesByInstructorId(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<InstructorResponse> addInstructor(@RequestBody CreateInstructorRequest instructor) {
         InstructorResponse savedInstructor = instructorService.addInstructor(instructor);
@@ -41,6 +54,7 @@ public class InstructorController {
         return ResponseEntity.created(location).body(savedInstructor);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInstructorById(@PathVariable Integer id) {
         instructorService.deleteInstructorById(id);

@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private static final long EXPIRATION_TIME = 1000 * 60 * 10;
+    private static final long EXPIRATION_TIME = 1000 * 60 * 20;
 
     @Value("${jwt.secret}")
     private String secret;

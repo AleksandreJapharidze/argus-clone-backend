@@ -6,6 +6,7 @@ import com.example.argusclone.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +35,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.searchCourses(keyword));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CourseResponse> addCourse(@RequestBody CreateCourseRequest course) {
         return ResponseEntity.status(201).body(courseService.addCourse(course));

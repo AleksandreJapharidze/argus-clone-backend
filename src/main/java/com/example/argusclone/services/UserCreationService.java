@@ -38,7 +38,7 @@ public class UserCreationService {
         user.setPersonalId(userDto.personalId());
         user.setPassword(passwordEncoder.encode(userDto.password()));
         Role role = Role.valueOf(userDto.role().toUpperCase());
-        if (role.equals(Role.ROLE_ADMIN)) {
+        if (role.equals(Role.ADMIN)) {
             throw new IllegalArgumentException("Admin role is not allowed in this request");
         }
 
@@ -54,7 +54,7 @@ public class UserCreationService {
         User user = new User();
         user.setPersonalId(adminDto.personalId());
         user.setPassword(passwordEncoder.encode(adminDto.password()));
-        user.setRole(Role.ROLE_ADMIN);
+        user.setRole(Role.ADMIN);
         userDetailsRepository.save(user);
         return "Admin user created successfully: " + user.getPersonalId();
     }
@@ -62,8 +62,8 @@ public class UserCreationService {
     private String saveUser(User user, Integer roleId) {
         Role role = user.getRole();
         return switch (role) {
-            case ROLE_STUDENT -> saveUserForStudent(user, roleId);
-            case ROLE_INSTRUCTOR -> saveUserForInstructor(user, roleId);
+            case STUDENT -> saveUserForStudent(user, roleId);
+            case INSTRUCTOR -> saveUserForInstructor(user, roleId);
             default -> throw new IllegalArgumentException("Invalid role: " + role);
         };
     }
@@ -84,13 +84,16 @@ public class UserCreationService {
     }
 
     private String saveUserForInstructor(User user, Integer roleId) {
-        if (instructorRepository.existsById(roleId)) {
+        if (!instructorRepository.existsById(roleId)) {
             throw new ResourceNotFoundException("Instructor with an id of " + roleId + " not found");
         }
 
         if (userDetailsRepository.existsByRoleAndRoleId(user.getRole(), roleId)) {
             throw new AlreadyPresentException("Instructor already has a user");
         }
+
+        user.setRoleId(roleId);
+        userDetailsRepository.save(user);
 
         return "Instructor user created successfully: " + user.getPersonalId();
     }

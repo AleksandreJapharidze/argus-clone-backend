@@ -3,6 +3,7 @@ package com.example.argusclone.controllers;
 import com.example.argusclone.services.CourseDeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ public class CourseDeletionController {
         this.courseDeletionService = courseDeletionService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
     public ResponseEntity<Void> deleteCourseById(@PathVariable Integer id) {
         courseDeletionService.deleteCourseById(id);
