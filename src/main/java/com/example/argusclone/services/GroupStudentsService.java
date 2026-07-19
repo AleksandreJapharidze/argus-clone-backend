@@ -1,17 +1,18 @@
 package com.example.argusclone.services;
 
-import com.example.argusclone.dtos.group.GroupResponse;
+import com.example.argusclone.dtos.result.StudentCourseResultResponse;
 import com.example.argusclone.dtos.student.StudentResponse;
+import com.example.argusclone.dtos.syllabus.SyllabusResponse;
 import com.example.argusclone.entities.Group;
 import com.example.argusclone.entities.Student;
-import com.example.argusclone.entities.StudentCourseResult;
-import com.example.argusclone.entities.Syllabus;
 import com.example.argusclone.entities.embeddable.Prerequisite;
 import com.example.argusclone.exceptions.*;
-import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.mappers.StudentMapper;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.StudentRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +24,23 @@ import java.util.stream.Collectors;
 public class GroupStudentsService {
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
-    private final GroupMapper groupMapper;
+    private final StudentService studentService;
+    private final SyllabusService syllabusService;
     private final StudentMapper studentMapper;
 
-    public GroupStudentsService(GroupRepository groupRepository, StudentRepository studentRepository,
-                                GroupMapper groupMapper, StudentMapper studentMapper) {
+    public GroupStudentsService(GroupRepository groupRepository,
+                                StudentRepository studentRepository,
+                                StudentService studentService,
+                                SyllabusService syllabusService,
+                                StudentMapper studentMapper) {
         this.groupRepository = groupRepository;
         this.studentRepository = studentRepository;
-        this.groupMapper = groupMapper;
+        this.studentService = studentService;
+        this.syllabusService = syllabusService;
         this.studentMapper = studentMapper;
     }
 
+    @Cacheable(cacheNames = "group-students-cache", key = "#groupId")
     public List<StudentResponse> getStudentsByGroupId(Integer groupId) {
         List<Student> students = studentRepository.findByGroupId(groupId);
 
@@ -42,12 +49,17 @@ public class GroupStudentsService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = "student-group-ids-cache", key = "#studentId")
     public List<Integer> getAllGroupIdsByStudentId(Integer studentId) {
         return groupRepository.findAllGroupIdsByStudentId(studentId);
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "group-students-cache", key = "#groupId"),
+            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId")
+    })
     @Transactional
-    public GroupResponse assignStudentToGroup(Integer groupId, Integer studentId) {
+    public void assignStudentToGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group " + groupId + " not found"));
 
@@ -68,37 +80,40 @@ public class GroupStudentsService {
 
         // 3. Assign student
         group.getStudents().add(student);
-
-        return groupMapper.toResponse(groupRepository.save(group));
+        groupRepository.save(group);
     }
 
     private void checkPrerequisites(Group group, Student student) {
-        Syllabus syllabus = group.getCourse().getSyllabus();
+        SyllabusResponse syllabus = syllabusService.getSyllabusByCourseId(group.getCourse().getId());
         if (syllabus == null) {
             throw new OperationNotAllowedYetException("Could not assign student to group: syllabus not created yet.");
         }
 
-        Set<String> prerequisites = syllabus.getPrerequisites().stream()
+        Set<String> prerequisites = syllabus.prerequisites().stream()
                 .map(Prerequisite::getPrerequisite)
                 .collect(Collectors.toSet());
         if (prerequisites == null || prerequisites.isEmpty()) {
             return;
         }
 
-        Set<StudentCourseResult> studentCourseResults = student.getStudentCourseResults();
+        List<StudentCourseResultResponse> studentCourseResults = studentService.getStudentCoursesResultsByStudentId(student.getId());
         if (studentCourseResults == null || studentCourseResults.isEmpty()) {
             throw new PrerequisitesNotMetException("Could not assign student to group: prerequisites not met.");
         }
 
         Set<String> studentPassedCourses = studentCourseResults.stream()
-                .filter(result -> result.getHasPassed() == true)
-                .map(StudentCourseResult::getCourseName)
+                .filter(result -> result.hasPassed() == true)
+                .map(StudentCourseResultResponse::courseName)
                 .collect(Collectors.toSet());
         if (!studentPassedCourses.containsAll(prerequisites)) {
             throw new PrerequisitesNotMetException("Could not assign student to group: prerequisites not met.");
         }
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "group-students-cache", key = "#groupId"),
+            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId")
+    })
     public void removeStudentFromGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new ResourceNotFoundException("Group " + groupId + " not found")

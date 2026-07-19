@@ -2,6 +2,7 @@ package com.example.argusclone.services;
 
 import com.example.argusclone.repositories.UserDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +13,7 @@ public class MyUserDetailsService implements UserDetailsService {
     @Autowired
     private UserDetailsRepository userDetailsRepository;
 
+    @Cacheable(cacheNames = "user-details-cache", key = "#personalId")
     @Override
     public UserDetails loadUserByUsername(String personalId) {
         return userDetailsRepository.findByPersonalId(personalId).orElseThrow(

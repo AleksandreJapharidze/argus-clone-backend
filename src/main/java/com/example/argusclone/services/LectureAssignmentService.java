@@ -6,6 +6,7 @@ import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ScheduleConflictException;
 import com.example.argusclone.repositories.LectureRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class LectureAssignmentService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @CachePut(cacheNames = "group-lectures-cache", key = "#groupId")
     @Transactional
     public String generateLecturesForGroup(Integer groupId, List<CreateLectureRequest> lectures) {
         if (lectureRepository.countByGroupId(groupId) > 0) {

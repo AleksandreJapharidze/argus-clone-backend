@@ -27,7 +27,6 @@ public class AuthService {
     }
 
     private Map<String, Object> getAllClaims(User user) {
-//        return !user.getRole().equals("ROLE_ADMIN") ? user.getRole().equals("ROLE_INSTRUCTOR") ? getInstructorClaims(user) : getStudentClaims(user) : getAdminClaims(user);
         String role = String.valueOf(user.getRole());
         if (role == null) {
             throw new JwtGenerationException("User is without role.");

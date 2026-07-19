@@ -10,6 +10,9 @@ import com.example.argusclone.repositories.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class CourseService {
         this.courseMapper = courseMapper;
     }
 
+    @Cacheable(cacheNames = "course-cache", key = "#id")
     public CourseResponse getCourseById(Integer id) {
         return courseMapper.toResponse(courseRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + id + " not found")
@@ -47,18 +51,21 @@ public class CourseService {
         return courseRepository.searchCourses(keyword);
     }
 
+    @Cacheable(cacheNames = "instructor-courses-cache", key = "#instructorId")
     public List<CourseResponse> getCoursesByInstructorId(Integer instructorId) {
         return courseRepository.findAllByInstructorId(instructorId).stream()
                 .map(courseMapper::toResponse)
                 .toList();
     }
 
+    @Cacheable(cacheNames = "student-courses-cache", key = "#studentId")
     public List<CourseResponse> getCoursesByStudentId(Integer studentId) {
         return courseRepository.findCoursesByStudentId(studentId).stream()
                 .map(courseMapper::toResponse)
                 .toList();
     }
 
+    @CachePut(cacheNames = "course-cache", key = "#result.id()")
     public CourseResponse addCourse(CreateCourseRequest course) {
         courseRepository.findByCourseCode(course.courseCode()).ifPresent(c -> {
             throw new DuplicateResourceException("Course with code " + course.courseCode() + " already exists");

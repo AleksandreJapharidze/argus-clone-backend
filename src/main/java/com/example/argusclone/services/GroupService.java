@@ -4,11 +4,15 @@ import com.example.argusclone.dtos.group.CreateGroupRequest;
 import com.example.argusclone.dtos.group.GroupResponse;
 import com.example.argusclone.entities.Course;
 import com.example.argusclone.entities.Group;
+import com.example.argusclone.entities.Student;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.GroupMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
+import com.example.argusclone.services.caching.GroupRelatedCacheService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,17 +23,21 @@ public class GroupService {
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
     private final GroupMapper groupMapper;
+    private final GroupRelatedCacheService groupRelatedCacheService;
 
     public GroupService(GroupRepository groupRepository,
                         CourseRepository courseRepository,
                         LectureRepository lectureRepository,
-                        GroupMapper groupMapper) {
+                        GroupMapper groupMapper,
+                        GroupRelatedCacheService groupRelatedCacheService) {
         this.groupRepository = groupRepository;
         this.courseRepository = courseRepository;
         this.lectureRepository = lectureRepository;
         this.groupMapper = groupMapper;
+        this.groupRelatedCacheService = groupRelatedCacheService;
     }
 
+    @Cacheable(cacheNames = "course-groups-cache", key = "#courseId")
     public List<GroupResponse> getGroupsForCourse(Integer courseId) {
         if (!courseRepository.existsById(courseId)) {
             throw new ResourceNotFoundException("Course with an id of " + courseId + " not found");
@@ -41,12 +49,14 @@ public class GroupService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = "group-cache", key = "#id")
     public GroupResponse getGroupById(Integer id) {
         return groupMapper.toResponse(groupRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
         ));
     }
 
+    @CacheEvict(cacheNames = "course-groups-cache", key = "#courseId")
     public GroupResponse createGroup(Integer courseId, CreateGroupRequest group) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -63,6 +73,10 @@ public class GroupService {
         Group group = groupRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Group with an id of " + id + " not found")
         );
+
+        List<Integer> studentIds = group.getStudents().stream().map(Student::getId).toList();
+        Integer courseId = group.getCourse().getId();
+        groupRelatedCacheService.clearAllRelevantCachesForGroup(id, courseId, studentIds);
 
         lectureRepository.deleteByGroupId(id);
         groupRepository.delete(group);

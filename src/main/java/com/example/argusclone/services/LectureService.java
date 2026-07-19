@@ -8,9 +8,10 @@ import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,6 +31,7 @@ public class LectureService {
         this.lectureMapper = lectureMapper;
     }
 
+    @Cacheable(cacheNames = "group-lectures-cache", key = "#groupId")
     public List<LectureResponse> getLecturesForGroup(Integer groupId) {
         return lectureRepository.findByGroupId(groupId)
                 .stream()
@@ -37,13 +39,7 @@ public class LectureService {
                 .toList();
     }
 
-    public List<LectureResponse> getLecturesByLectureDateForStudent(Integer studentId, LocalDate lectureDate) {
-        return lectureRepository.findLecturesByLectureDateForStudent(studentId, lectureDate)
-                .stream()
-                .map(lectureMapper::toResponse)
-                .toList();
-    }
-
+    @CacheEvict(cacheNames = "group-lectures-cache", key = "#groupId")
     @Transactional
     public void deleteLecturesByGroupId(Integer groupId) {
         if (!groupRepository.existsById(groupId)) {

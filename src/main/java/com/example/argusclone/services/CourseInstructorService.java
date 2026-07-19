@@ -9,6 +9,9 @@ import com.example.argusclone.mappers.CourseMapper;
 import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.InstructorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +31,10 @@ public class CourseInstructorService {
         this.courseMapper = courseMapper;
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "course-ids-cache", key = "#instructorId"),
+            @CacheEvict(cacheNames = "instructor-ids-cache", key = "#courseId")
+    })
     public CourseResponse assignInstructorToCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -46,6 +53,10 @@ public class CourseInstructorService {
         return courseMapper.toResponse(courseRepository.save(course));
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "instructor-course-ids-cache", key = "#instructorId"),
+            @CacheEvict(cacheNames = "instructor-ids-cache", key = "#courseId")
+    })
     public void removeInstructorFromCourse(Integer courseId, Integer instructorId) {
         Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
@@ -63,10 +74,12 @@ public class CourseInstructorService {
         courseRepository.save(course);
     }
 
+    @Cacheable(cacheNames = "instructor-course-ids-cache", key = "#instructorId")
     public List<Integer> getCourseIdsByInstructorId(Integer instructorId) {
         return courseRepository.findAllCourseIdsByInstructorId(instructorId);
     }
 
+    @Cacheable(cacheNames = "instructor-ids-cache", key = "#courseId")
     public List<Integer> getInstructorIdsByCourseId(Integer courseId) {
         return instructorRepository.findInstructorIdsByCourseId(courseId);
     }

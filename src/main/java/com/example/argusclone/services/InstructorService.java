@@ -7,6 +7,8 @@ import com.example.argusclone.exceptions.DuplicateResourceException;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.InstructorMapper;
 import com.example.argusclone.repositories.InstructorRepository;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +23,14 @@ public class InstructorService {
         this.instructorMapper = instructorMapper;
     }
 
+    @Cacheable(cacheNames = "instructor-cache", key = "#id")
     public InstructorResponse getInstructorById(Integer id) {
         return instructorMapper.toResponse(instructorRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Instructor with an id of " + id + " not found")
         ));
     }
 
+    @CachePut(cacheNames = "instructor-cache", key = "#result.id()")
     @Transactional
     public InstructorResponse addInstructor(CreateInstructorRequest instructor) {
         final String email = instructor.email();

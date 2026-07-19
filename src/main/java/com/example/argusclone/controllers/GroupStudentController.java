@@ -25,7 +25,7 @@ public class GroupStudentController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     @PatchMapping("/{studentId}")
-    public ResponseEntity<GroupResponse> assignStudentToGroup(@PathVariable Integer groupId,
+    public ResponseEntity<Void> assignStudentToGroup(@PathVariable Integer groupId,
                                                               @PathVariable Integer studentId,
                                                               @AuthenticationPrincipal Jwt jwt) {
         if ("ROLE_STUDENT".equals(jwt.getClaimAsString("role"))) {
@@ -34,7 +34,9 @@ public class GroupStudentController {
                 return ResponseEntity.status(403).body(null);
             }
         }
-        return ResponseEntity.ok(groupStudentsService.assignStudentToGroup(groupId, studentId));
+
+        groupStudentsService.assignStudentToGroup(groupId, studentId);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")

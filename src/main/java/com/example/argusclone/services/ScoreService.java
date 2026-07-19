@@ -13,6 +13,9 @@ import com.example.argusclone.repositories.StudentCourseResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +29,20 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final StudentCourseResultRepository studentCourseResultRepository;
     private final ScoreMapper scoreMapper;
+    private final CacheManager cacheManager;
 
     @Autowired
     public ScoreService(ScoreRepository scoreRepository,
                         StudentCourseResultRepository studentCourseResultRepository,
-                        ScoreMapper scoreMapper) {
+                        ScoreMapper scoreMapper,
+                        CacheManager cacheManager) {
         this.scoreRepository = scoreRepository;
         this.studentCourseResultRepository = studentCourseResultRepository;
         this.scoreMapper = scoreMapper;
+        this.cacheManager = cacheManager;
     }
 
+    @Cacheable(cacheNames = "student-course-scores-cache", key = "#courseId + '_' + #studentId")
     public List<ScoreResponse> getStudentScoresByCourseId(Integer courseId, Integer studentId) {
         List<Score> scores = scoreRepository.findByStudentIdAndCourseId(studentId, courseId);
         return scores.stream().map(scoreMapper::toResponse).toList();
@@ -62,6 +69,11 @@ public class ScoreService {
         if (scoreToUpdate.getComponent().equalsIgnoreCase("Final exam")) {
             StudentCourseResult result = calculateStudentCourseResult(scoreToUpdate, score);
             saveOrUpdateCourseResult(scoreToUpdate, result);
+        }
+
+        Cache cache = cacheManager.getCache("student-course-scores-cache");
+        if (cache != null) {
+            cache.evict(scoreToUpdate.getStudent().getId() + "_" + scoreToUpdate.getCourse().getId());
         }
 
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
@@ -94,6 +106,12 @@ public class ScoreService {
                                 result.setFinalGrade(newFinalGrade);
                                 result.setHasPassed(true);
                             }
+
+                            Cache cache = cacheManager.getCache("student-courses-results-cache");
+                            if (cache != null) {
+                                cache.evict(scoreToUpdate.getStudent().getId());
+                            }
+
                             studentCourseResultRepository.save(result);
 
                             log.info("Course result for student with id of {} and course with id of {} has been updated",
@@ -153,6 +171,11 @@ public class ScoreService {
             scoreToUpdate.getStudent().getStudentCourseResults().add(updateResult);
             studentCourseResultRepository.save(updateResult);
         }
+
+        Cache cache = cacheManager.getCache("student-courses-results-cache");
+        if (cache != null) {
+            cache.evict(studentId);
+        }
     }
 
     private boolean meetsThreshold(Score scoreToUpdate, int score) {
@@ -165,6 +188,11 @@ public class ScoreService {
 
     @Transactional
     public void deleteScoresByCourseId(Integer courseId) {
+        List<Score> scores = scoreRepository.findByCourseId(courseId);
+        Cache cache = cacheManager.getCache("student-course-scores-cache");
+        if (cache != null) {
+            scores.forEach(score -> cache.evict(score.getStudent().getId() + "_" + score.getCourse().getId()));
+        }
         scoreRepository.deleteByCourseId(courseId);
     }
 }

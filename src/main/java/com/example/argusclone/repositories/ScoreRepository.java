@@ -15,6 +15,9 @@ public interface ScoreRepository extends JpaRepository<Score, Integer> {
     @EntityGraph(attributePaths = {"student", "course"})
     List<Score> findByStudentIdAndCourseId(Integer studentId, Integer courseId);
 
+    @EntityGraph(attributePaths = {"student", "course"})
+    List<Score> findByCourseId(Integer courseId);
+
     @Modifying
     @Query("DELETE FROM Score s WHERE s.course.id = :courseId")
     void deleteByCourseId(@Param("courseId") Integer courseId);
