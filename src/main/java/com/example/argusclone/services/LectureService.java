@@ -1,10 +1,8 @@
 package com.example.argusclone.services;
 
 import com.example.argusclone.dtos.lecture.LectureResponse;
-import com.example.argusclone.entities.Course;
 import com.example.argusclone.exceptions.ResourceNotFoundException;
 import com.example.argusclone.mappers.LectureMapper;
-import com.example.argusclone.repositories.CourseRepository;
 import com.example.argusclone.repositories.GroupRepository;
 import com.example.argusclone.repositories.LectureRepository;
 import jakarta.transaction.Transactional;
@@ -18,16 +16,13 @@ import java.util.List;
 public class LectureService {
     private final LectureRepository lectureRepository;
     private final GroupRepository groupRepository;
-    private final CourseRepository courseRepository;
     private final LectureMapper lectureMapper;
 
     public LectureService(LectureRepository lectureRepository,
                           GroupRepository groupRepository,
-                          CourseRepository courseRepository,
                           LectureMapper lectureMapper) {
         this.lectureRepository = lectureRepository;
         this.groupRepository = groupRepository;
-        this.courseRepository = courseRepository;
         this.lectureMapper = lectureMapper;
     }
 
@@ -49,12 +44,4 @@ public class LectureService {
         lectureRepository.deleteByGroupId(groupId);
     }
 
-    @Transactional
-    public void deleteLecturesByCourseId(Integer courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(
-                () -> new ResourceNotFoundException("Course with an id of " + courseId + " not found")
-        );
-
-        course.getGroups().forEach(group -> lectureRepository.deleteByGroupId(group.getId()));
-    }
 }

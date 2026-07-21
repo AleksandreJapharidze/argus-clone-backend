@@ -55,6 +55,7 @@ public class CourseInstructorService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = "instructor-course-ids-cache", key = "#instructorId"),
+            @CacheEvict(cacheNames = "instructor-courses-cache", key = "#instructorId"),
             @CacheEvict(cacheNames = "instructor-ids-cache", key = "#courseId")
     })
     public void removeInstructorFromCourse(Integer courseId, Integer instructorId) {

@@ -56,7 +56,8 @@ public class GroupStudentsService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = "group-students-cache", key = "#groupId"),
-            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId")
+            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId"),
+            @CacheEvict(cacheNames = "student-course-ids-cache", key = "#studentId")
     })
     @Transactional
     public void assignStudentToGroup(Integer groupId, Integer studentId) {
@@ -112,7 +113,8 @@ public class GroupStudentsService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = "group-students-cache", key = "#groupId"),
-            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId")
+            @CacheEvict(cacheNames = "student-group-ids-cache", key = "#studentId"),
+            @CacheEvict(cacheNames = "student-course-ids-cache", key = "#studentId")
     })
     public void removeStudentFromGroup(Integer groupId, Integer studentId) {
         Group group = groupRepository.findById(groupId).orElseThrow(

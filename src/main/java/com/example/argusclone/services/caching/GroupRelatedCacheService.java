@@ -7,34 +7,33 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GroupRelatedCacheService {
-    private final CacheManager cacheManager;
-
+public class GroupRelatedCacheService extends AbstractCacheService {
     public GroupRelatedCacheService(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+        super(cacheManager);
     }
 
     public void clearAllRelevantCachesForGroup(Integer groupId, Integer courseId, List<Integer> studentIds) {
         Cache groupCache = cacheManager.getCache("group-cache");
         Cache courseGroupsCache = cacheManager.getCache("course-groups-cache");
         Cache groupLecturesCache = cacheManager.getCache("group-lectures-cache");
+        Cache groupStudentsCache = cacheManager.getCache("group-students-cache");
         Cache studentGroupIdsCache = cacheManager.getCache("student-group-ids-cache");
+        Cache studentCoursesCache = cacheManager.getCache("student-courses-cache");
+        Cache studentCourseScoresCache = cacheManager.getCache("student-course-scores-cache");
+        Cache studentCourseIdsCache = cacheManager.getCache("student-course-ids-cache");
 
-        if (groupCache != null) {
-            groupCache.evict(groupId);
-        }
+        clearCache(groupCache, groupId);
+        clearCache(courseGroupsCache, courseId);
+        clearCache(groupLecturesCache, groupId);
+        clearCache(groupStudentsCache, groupId);
 
-        if (courseGroupsCache != null) {
-            courseGroupsCache.evict(courseId);
-        }
+        clearCacheMultipleEntries(studentGroupIdsCache, studentIds);
+        clearCacheMultipleEntries(studentCourseIdsCache, studentIds);
+        clearCacheMultipleEntries(studentCoursesCache, studentIds);
 
-        if (groupLecturesCache != null) {
-            groupLecturesCache.evict(groupId);
-        }
-
-        if (studentGroupIdsCache != null) {
+        if (studentCourseScoresCache != null) {
             for (Integer studentId : studentIds) {
-                studentGroupIdsCache.evict(studentId);
+                studentCourseScoresCache.evict(courseId + "_" + studentId);
             }
         }
     }

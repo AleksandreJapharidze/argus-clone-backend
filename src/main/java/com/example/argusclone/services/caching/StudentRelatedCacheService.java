@@ -7,11 +7,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class StudentRelatedCacheService {
-    private final CacheManager cacheManager;
-
+public class StudentRelatedCacheService extends AbstractCacheService {
     public StudentRelatedCacheService(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+        super(cacheManager);
     }
 
     public void clearAllRelevantCachesForStudent(Integer studentId, List<Integer> groupIds, List<Integer> courseIds) {
@@ -20,27 +18,19 @@ public class StudentRelatedCacheService {
         Cache studentGroupIdsCache = cacheManager.getCache("student-group-ids-cache");
         Cache studentCourseScoresCache = cacheManager.getCache("student-course-scores-cache");
         Cache studentCourseResultsCache = cacheManager.getCache("student-course-results-cache");
+        Cache groupStudentsCache = cacheManager.getCache("group-students-cache");
 
-        if (studentCoursesCache != null) {
-            studentCoursesCache.evict(studentId);
-        }
+        clearCache(studentCoursesCache, studentId);
+        clearCache(studentCourseIdsCache, studentId);
+        clearCache(studentGroupIdsCache, studentId);
+        clearCache(studentCourseResultsCache, studentId);
 
-        if (studentCourseIdsCache != null) {
-            studentCourseIdsCache.evict(studentId);
-        }
-
-        if (studentGroupIdsCache != null) {
-            studentGroupIdsCache.evict(studentId);
-        }
+        clearCacheMultipleEntries(groupStudentsCache, groupIds);
 
         if (studentCourseScoresCache != null) {
             for (Integer courseId : courseIds) {
-                studentCourseScoresCache.evict(studentId + "_" + courseId);
+                studentCourseScoresCache.evict(courseId + "_" + studentId);
             }
-        }
-
-        if (studentCourseResultsCache != null) {
-            studentCourseResultsCache.evict(studentId);
         }
     }
 }

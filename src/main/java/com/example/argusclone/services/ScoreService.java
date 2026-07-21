@@ -73,7 +73,7 @@ public class ScoreService {
 
         Cache cache = cacheManager.getCache("student-course-scores-cache");
         if (cache != null) {
-            cache.evict(scoreToUpdate.getStudent().getId() + "_" + scoreToUpdate.getCourse().getId());
+            cache.evict(scoreToUpdate.getCourse().getId() + "_" + scoreToUpdate.getStudent().getId());
         }
 
         return scoreMapper.toResponse(scoreRepository.save(scoreToUpdate));
@@ -191,7 +191,7 @@ public class ScoreService {
         List<Score> scores = scoreRepository.findByCourseId(courseId);
         Cache cache = cacheManager.getCache("student-course-scores-cache");
         if (cache != null) {
-            scores.forEach(score -> cache.evict(score.getStudent().getId() + "_" + score.getCourse().getId()));
+            scores.forEach(score -> cache.evict(score.getCourse().getId() + "_" + score.getStudent().getId()));
         }
         scoreRepository.deleteByCourseId(courseId);
     }

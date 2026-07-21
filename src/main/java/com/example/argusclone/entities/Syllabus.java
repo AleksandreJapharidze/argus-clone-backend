@@ -17,7 +17,7 @@ public class Syllabus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "syllabus", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Prerequisite> prerequisites = new HashSet<>();
 
     @ElementCollection

@@ -25,7 +25,6 @@ public class ScoreGenerationService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public String generateDefaultScoresForStudentsInCourse(Integer courseId, List<CreateScoreRequest> scores) {
         validateScores(scores);
 
