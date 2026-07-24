@@ -102,6 +102,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(403).body(getErrorDetails(exception, request));
     }
 
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<?> handleFileUploadException(
+            FileUploadException exception, WebRequest request
+    ) {
+        return ResponseEntity.status(500).body(getErrorDetails(exception, request));
+    }
+
     private Map<String, Object> getErrorDetails(Exception exception, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", new Date());

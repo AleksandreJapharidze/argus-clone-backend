@@ -34,6 +34,9 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Score> scores;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Material> materials;
+
     public Integer getId() {
         return id;
     }
@@ -84,6 +87,14 @@ public class Course {
 
     public void setScores(List<Score> scores) {
         this.scores = scores;
+    }
+
+    public List<Material> getMaterials() {
+        return materials;
+    }
+
+    public void setMaterials(List<Material> materials) {
+        this.materials = materials;
     }
 
     @Override
