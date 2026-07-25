@@ -10,34 +10,32 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String objectKey;
-    private String originalName;
+    @Column(nullable = false)
+    private String fileName;
+
+    @Column(nullable = false)
     private String contentType;
+
+    @Column(nullable = false)
     private Integer size;
-    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime uploadedAt;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
-    Course course;
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
     public Integer getId() {
         return id;
     }
 
-    public String getObjectKey() {
-        return objectKey;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setObjectKey(String objectKey) {
-        this.objectKey = objectKey;
-    }
-
-    public String getOriginalName() {
-        return originalName;
-    }
-
-    public void setOriginalName(String originalName) {
-        this.originalName = originalName;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getContentType() {
@@ -56,12 +54,12 @@ public class Material {
         this.size = size;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
     }
 
     public Course getCourse() {
