@@ -18,16 +18,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/materials")
-public class MaterialAndStorageController {
+public class MaterialController {
     private final StorageService storageService;
     private final MaterialService materialService;
     private final CourseInstructorService courseInstructorService;
     private final CourseStudentService courseStudentService;
 
-    public MaterialAndStorageController(StorageService storageService,
-                                        MaterialService materialService,
-                                        CourseInstructorService courseInstructorService,
-                                        CourseStudentService courseStudentService) {
+    public MaterialController(StorageService storageService,
+                              MaterialService materialService,
+                              CourseInstructorService courseInstructorService,
+                              CourseStudentService courseStudentService) {
         this.storageService = storageService;
         this.materialService = materialService;
         this.courseInstructorService = courseInstructorService;
