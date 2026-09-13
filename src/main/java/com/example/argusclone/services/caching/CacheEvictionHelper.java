@@ -1,17 +1,12 @@
 package com.example.argusclone.services.caching;
 
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-public abstract class AbstractCacheService {
-    protected final CacheManager cacheManager;
-
-    public AbstractCacheService(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-    }
-
+@Component
+public class CacheEvictionHelper {
     protected void clearCache(Cache cache, Integer id) {
         if (cache != null) {
             cache.evict(id);

@@ -7,9 +7,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class InstructorRelatedCacheService extends AbstractCacheService {
-    public InstructorRelatedCacheService(CacheManager cacheManager) {
-        super(cacheManager);
+public class InstructorRelatedCacheService extends CacheEvictionHelper {
+    private final CacheManager cacheManager;
+    private final CacheEvictionHelper cacheEvictionHelper;
+
+    public InstructorRelatedCacheService(CacheManager cacheManager,
+                                          CacheEvictionHelper cacheEvictionHelper) {
+        this.cacheManager = cacheManager;
+        this.cacheEvictionHelper = cacheEvictionHelper;
     }
 
     public void clearAllRelevantCachesForInstructor(Integer instructorId, List<Integer> courseIds) {
@@ -17,8 +22,8 @@ public class InstructorRelatedCacheService extends AbstractCacheService {
         Cache courseIdsCache = cacheManager.getCache("instructor-course-ids-cache");
         Cache instructorIdsCache = cacheManager.getCache("instructor-ids-cache");
 
-        clearCache(instructorCoursesCache, instructorId);
-        clearCacheMultipleEntries(courseIdsCache, courseIds);
-        clearCache(instructorIdsCache, instructorId);
+        cacheEvictionHelper.clearCache(instructorCoursesCache, instructorId);
+        cacheEvictionHelper.clearCacheMultipleEntries(courseIdsCache, courseIds);
+        cacheEvictionHelper.clearCache(instructorIdsCache, instructorId);
     }
 }

@@ -7,9 +7,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GroupRelatedCacheService extends AbstractCacheService {
-    public GroupRelatedCacheService(CacheManager cacheManager) {
-        super(cacheManager);
+public class GroupRelatedCacheService extends CacheEvictionHelper {
+    private final CacheManager cacheManager;
+    private final CacheEvictionHelper cacheEvictionHelper;
+
+    public GroupRelatedCacheService(CacheManager cacheManager,
+                                    CacheEvictionHelper cacheEvictionHelper) {
+        this.cacheManager = cacheManager;
+        this.cacheEvictionHelper = cacheEvictionHelper;
     }
 
     public void clearAllRelevantCachesForGroup(Integer groupId, Integer courseId, List<Integer> studentIds) {
@@ -22,14 +27,14 @@ public class GroupRelatedCacheService extends AbstractCacheService {
         Cache studentCourseScoresCache = cacheManager.getCache("student-course-scores-cache");
         Cache studentCourseIdsCache = cacheManager.getCache("student-course-ids-cache");
 
-        clearCache(groupCache, groupId);
-        clearCache(courseGroupsCache, courseId);
-        clearCache(groupLecturesCache, groupId);
-        clearCache(groupStudentsCache, groupId);
+        cacheEvictionHelper.clearCache(groupCache, groupId);
+        cacheEvictionHelper.clearCache(courseGroupsCache, courseId);
+        cacheEvictionHelper.clearCache(groupLecturesCache, groupId);
+        cacheEvictionHelper.clearCache(groupStudentsCache, groupId);
 
-        clearCacheMultipleEntries(studentGroupIdsCache, studentIds);
-        clearCacheMultipleEntries(studentCourseIdsCache, studentIds);
-        clearCacheMultipleEntries(studentCoursesCache, studentIds);
+        cacheEvictionHelper.clearCacheMultipleEntries(studentGroupIdsCache, studentIds);
+        cacheEvictionHelper.clearCacheMultipleEntries(studentCourseIdsCache, studentIds);
+        cacheEvictionHelper.clearCacheMultipleEntries(studentCoursesCache, studentIds);
 
         if (studentCourseScoresCache != null) {
             for (Integer studentId : studentIds) {

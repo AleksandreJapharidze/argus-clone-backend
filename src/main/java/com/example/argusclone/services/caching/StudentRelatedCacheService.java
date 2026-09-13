@@ -7,9 +7,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class StudentRelatedCacheService extends AbstractCacheService {
-    public StudentRelatedCacheService(CacheManager cacheManager) {
-        super(cacheManager);
+public class StudentRelatedCacheService extends CacheEvictionHelper {
+    private final CacheManager cacheManager;
+    private final CacheEvictionHelper cacheEvictionHelper;
+
+    public StudentRelatedCacheService(CacheManager cacheManager,
+                                       CacheEvictionHelper cacheEvictionHelper) {
+        this.cacheManager = cacheManager;
+        this.cacheEvictionHelper = cacheEvictionHelper;
     }
 
     public void clearAllRelevantCachesForStudent(Integer studentId, List<Integer> groupIds, List<Integer> courseIds) {
@@ -20,12 +25,12 @@ public class StudentRelatedCacheService extends AbstractCacheService {
         Cache studentCourseResultsCache = cacheManager.getCache("student-course-results-cache");
         Cache groupStudentsCache = cacheManager.getCache("group-students-cache");
 
-        clearCache(studentCoursesCache, studentId);
-        clearCache(studentCourseIdsCache, studentId);
-        clearCache(studentGroupIdsCache, studentId);
-        clearCache(studentCourseResultsCache, studentId);
+        cacheEvictionHelper.clearCache(studentCoursesCache, studentId);
+        cacheEvictionHelper.clearCache(studentCourseIdsCache, studentId);
+        cacheEvictionHelper.clearCache(studentGroupIdsCache, studentId);
+        cacheEvictionHelper.clearCache(studentCourseResultsCache, studentId);
 
-        clearCacheMultipleEntries(groupStudentsCache, groupIds);
+        cacheEvictionHelper.clearCacheMultipleEntries(groupStudentsCache, groupIds);
 
         if (studentCourseScoresCache != null) {
             for (Integer courseId : courseIds) {
