@@ -103,6 +103,26 @@ src/main/java/com/example/argusclone/
 - MySQL
 - S3-compatible object storage
 
+### Configuration
+
+The application requires configuration for the database, JWT authentication, and S3-compatible storage.
+
+Sensitive configuration such as database credentials, JWT secrets, and storage credentials should be provided through environment variables rather than committed to the repository.
+
+### Start the Application
+
+The repository includes the Maven Wrapper, so the application can be started with:
+
+```bash
+./mvnw spring-boot:run
+```
+
+On Windows:
+
+```bash
+mvnw.cmd spring-boot:run
+```
+
 ## Purpose
 
 This project was created primarily as a **learning and personal development project**.
